@@ -37,6 +37,40 @@ Sometimes these sensors work only when connected
 on certain multiplexer ports (probably a bug).
 The trial run worked successfully when was BH1750 connected to port 4 and SH45 to port 7 (with starting port number being 0).
 
+## Updates
+
+### 31-Jan-2025
+
+The demo setup has been updated to include four Adafruit I2C soil sensors,
+two temperature and humidity sensors - SH40 and SHT45;
+and light sensor (BH1750). The sensors are connected to Adafruit
+8-ch multiplexer as follows:
+
+
+The PCA9548A is connected to I2C pins of RPi 5 using Stemma QT
+connector.
+
+The pins are:
+
+1 - RED, 3 - BLUE, 5 - YELLOW, 9 - GND
+
+The Multiplexer is available at port x70 and it has 8 ports.
+The connections to the ports are:
+
+port 0 to 3 --> I2C soil moisture sensors
+port 4 --> empty
+port 5 --> SHT40
+port 6 --> SHT45
+port 7 --> BH1750
+
+Also the IoT relay is connected to ports 34 and 36.
+
+With this setup, execute two programs.
+
+1. relay-Rune.py (outside python venv)
+1. sht_bh_3_moisture_sensors.py (inside python venv)
+
+
 ## Note
 
 1. Accessing the I2C bus in parallel in two programs leads to errors. Use multiplexer for such a purpose.
