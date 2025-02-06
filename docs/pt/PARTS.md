@@ -11,7 +11,6 @@
 ## Sensors
 
 * Temperature, Humidity and Light Sensors
-  * Sense HAT - 1 item (stable, can't use on-board temperature sensor)
   * Individual sensors with a multiplexer
     * Adafruit PCA9548 8-channel Stemma QT multiplexer - 1 item
     * Adafruit SHT45 temperature and humidity sensor - 1 item
@@ -20,14 +19,17 @@
 
 ## Actuators
 
-* Forever Speed Aquarium Pump Pond Pump Submersible Water Pump Fountain Pump 500L/h (Submersible AC water pump) - 1 item per plant
+* Water pumps
+  * 12V submersible water pump of 500L/h capacity - 1 item per plant (correct choice)
+  * AC Submersible Water Pump Fountain Pump of 500L/h capacity - 1 item per plant (overkill)
+  * 5V submersible water pump - 1 item per small plant (but not enough lift)
 * Pipes for submersible motors
-* Relay - lab-made relay-controlled 4-outlet power extension
-
-## References
-
-Sense HAT - [tutorials](https://projects.raspberrypi.org/en/projects/getting-started-with-the-sense-hat/3), [schematics](https://datasheets.raspberrypi.com/sense-hat/sense-hat-schematics.pdf), [pinout](https://pinout.xyz/pinout/sense_hat)
+* Relay
+  * Digital Loggers IoT relay (robust choice)
+  * Lab-made relay-controlled 4-outlet power extension
+  * Waveshare RPi addon card with three relays
 
 ## Parts to be Selected
 
 * Four outlet IoT relay - 1 item
+* Raspberry Pi Camera Module 3 NOIR (no IR filter) camera
