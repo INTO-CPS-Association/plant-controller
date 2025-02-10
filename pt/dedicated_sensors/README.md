@@ -43,12 +43,11 @@ The trial run worked successfully when was BH1750 connected to port 4 and SH45 t
 
 The demo setup has been updated to include four Adafruit I2C soil sensors,
 two temperature and humidity sensors - SH40 and SHT45;
-and light sensor (BH1750). The sensors are connected to Adafruit
-8-ch multiplexer as follows:
+and light sensor (BH1750).
+The sensors are connected to Adafruit
+8-ch multiplexer (PCA9548A).
 
-
-The PCA9548A is connected to I2C pins of RPi 5 using Stemma QT
-connector.
+The PCA9548A is connected to I2C pins of RPi 5 using Stemma QT connector.
 
 The pins are:
 
@@ -57,19 +56,33 @@ The pins are:
 The Multiplexer is available at port x70 and it has 8 ports.
 The connections to the ports are:
 
-port 0 to 3 --> I2C soil moisture sensors
-port 4 --> empty
-port 5 --> SHT40
-port 6 --> SHT45
-port 7 --> BH1750
+| Ports | Connections |
+|:---|:---|
+| port 0 to 3 | I2C soil moisture sensors |
+| port 4 | empty |
+| port 5 | SHT40 |
+| port 6 | SHT45 |
+| port 7 | BH1750 |
 
-Also the IoT relay is connected to ports 34 and 36.
+Also the IoT relay is connected to ports 34 (signal) and 36 (gnd).
 
-With this setup, execute two programs.
+With this setup, execute the following programs inside virtual environment.
 
-1. relay-Rune.py (outside python venv)
-1. sht_bh_3_moisture_sensors.py (inside python venv)
+1. sensors.py - prints sensor values to screen
+2. sensors_influxdb.py - prints sensor values to screen and also publishes them to influxdb database
+3. greenhouse-1.py - complete program for greenhouse as illustrated in pt schematic - [normal](../../docs/pt/PT-schematic-physical-v0.1.1-2.png) and [electrical](../../docs/pt/PT-electrical-schematic-v0.1.1.png). The program prints sensor values to screen and also publishes them to influxdb database. The program also runs the motors for 10 seconds per every one minute.
 
+### 3-Feb-2025
+
+The four moisture sensors are placed in four basil plants.
+Two large plants and two small plants.
+The large plants are large by about 3X vis-a-vis small ones.
+
+### 8-Feb-2025
+
+The small basil plants died. The large large basil plants are still ok.
+Moisture sensors 0 and 1 are placed in one plant and
+moisture sensors 2 and 3 are placed in another plant
 
 ## Note
 
