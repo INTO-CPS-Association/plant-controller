@@ -19,6 +19,7 @@
 
 ## Actuators
 
+* Pimoroni AutomationHAT
 * Water pumps
   * 12V submersible water pump of 500L/h capacity - 1 item per plant (correct choice)
   * AC Submersible Water Pump Fountain Pump of 500L/h capacity - 1 item per plant (overkill)
@@ -31,5 +32,4 @@
 
 ## Parts to be Selected
 
-* Four outlet IoT relay - 1 item
 * Raspberry Pi Camera Module 3 NOIR (no IR filter) camera
