@@ -1,4 +1,14 @@
-# Dedicated Sensors
+# Green House - I
+
+The physical twin schematic for the green house is
+
+![physical schematic](../../../docs/pt/PT-schematic-physical-v0.1.1-2.png)
+
+Only three plants are being used right now.
+
+The matching electrical schematic is:
+
+![electrical](../../../docs/pt/green_house_1/PT-electrical-schematic-v0.1.1.png)
 
 The approach taken here is to use one good sensor for
 each physical variable measurement.
@@ -31,11 +41,26 @@ sudo apt-get install i2c-tools
 i2cdetect -y 1
 ```
 
-The temperature and humidity sensor (SHT45) and light sensor (BH1750)
-are connected to the multiplexer.
+The three soil capacitive sensors, temperature and humidity sensor (SHT45)
+and light sensor (BH1750) are connected to the multiplexer.
+
 Sometimes these sensors work only when connected
 on certain multiplexer ports (probably a bug).
 The trial run worked successfully when was BH1750 connected to port 4 and SH45 to port 7 (with starting port number being 0).
+
+The I2C addresses of the sensors used are:
+
+| I2C Address | Device | Purpose |
+|:---|:---|:---|
+| 0x36 to 0x39 (with 0x36 as default) |  | capacitive soil sensor |
+| 0x39 | AS7341 | 6-channel 16-bit light sensor |
+| 0x44 | SHT45 | temperature and humidity sensor |
+| 0x70 to 0x77 (with x070 as default) | PCA9548 | 8-TO-1 multiplexer |
+
+Use Adafruit I2C hub to connect the required sensors to sideways
+GPIO pins
+
+See [I2C directory](https://learn.adafruit.com/i2c-addresses/the-list)
 
 ## Updates
 
@@ -70,7 +95,8 @@ With this setup, execute the following programs inside virtual environment.
 
 1. sensors.py - prints sensor values to screen
 2. sensors_influxdb.py - prints sensor values to screen and also publishes them to influxdb database
-3. greenhouse-1.py - complete program for greenhouse as illustrated in pt schematic - [normal](../../docs/pt/PT-schematic-physical-v0.1.1-2.png) and [electrical](../../docs/pt/PT-electrical-schematic-v0.1.1.png). The program prints sensor values to screen and also publishes them to influxdb database. The program also runs the motors for 10 seconds per every one minute.
+3. greenhouse-1.py - complete program for greenhouse.
+   The program prints sensor values to screen and also publishes them to influxdb database. The program also runs the motors for 10 seconds per every one minute.
 
 ### 3-Feb-2025
 
