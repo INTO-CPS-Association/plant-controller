@@ -33,10 +33,11 @@ This physical twin has three plants.
 
 Approximate cost of items as available on
 [Raspberrypi, Denmark](raspberrypi.dk),
-[Adafruit](https://www.adafruit.com/),
-[DigiKey](),
+[Adafruit, USA](https://www.adafruit.com/),
+[DigiKey, Denmark](https://digikey.dk),
+[Mouser, Denmark](https://mouser.dk),
 and
-[Amazon, Germany]()
+[Amazon, Germany](https://amazon.de)
 
 | Item | Cost in DKK |
 |:---|:---|
@@ -50,8 +51,9 @@ and
 | 3 x Adafruit Stemma 2.0 soil sensor | 160 |
 | 3 x 12V submersible water pump of 240L/h capacity | 200 |
 | Pipes for submersible water pumps | 200 |
-| Digilogger IoT relay | 290 |
+| Pimoroni AutomationHAT | 247 |
 | StemmaQT cable kit | 75 |
 | 3 x Stemma to StemmaQT cables | 22 |
 | Water Containers | 100 |
-| Total amount | 2,589 |
+| Plants | 1,144 |
+| Total amount | 3,690 |
