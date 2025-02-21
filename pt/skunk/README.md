@@ -1,16 +1,15 @@
-## References
+# References
 
-### UIO case study
+## UIO case study
 
 **Ref Paper**: Eduard Kamburjan et al., GreenhouseDT: An Exemplar for Digital Twins...
 
-#### Physical Twin Description
+### Physical Twin Description
 
 The physical twin of GreenhouseDT consists of a greenhouse with three shelves. On each of the two top shelves there are two plants, each equipped with a moisture sensor. Each shelf is equipped with a combined humidity/temperature sensor, and the whole greenhouse has a light sensor.
 As for actuators, each plant is connected to one water pump, which pumps water from a basin at the bottom shelf of the greenhouse.
 Each shelf has a Raspberry Pi, which collects and relays data from the sensors on this shelf. to a time-series database that acts as an interface to the digital twin. Similarly, each pump is connected to a Raspberry Pi that receives commands to water its associated plant.
 The connections of the Raspberry Pi can be configured locally, but must adhere to the information of the asset model. The light sensor is handled by the minicomputer of the top shelf.
-
 
 **Additional Information Sources**: discussion with Riccardo Sieve and Einar Johnsen
 

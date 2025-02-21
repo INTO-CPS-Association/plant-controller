@@ -34,7 +34,6 @@ GPIO pins
 
 See [I2C directory](https://learn.adafruit.com/i2c-addresses/the-list)
 
-
 ### TODO
 
 1. For the 5V pumps, you can use the 5V supply from RPi. This supply
@@ -42,8 +41,7 @@ See [I2C directory](https://learn.adafruit.com/i2c-addresses/the-list)
    (just cellphone charger) works as well.
 
 1. Make sure the connection diagram works well for the three relays and then
-	check with Electronics workshop on clean up the wiring.
-
+   check with Electronics workshop on clean up the wiring.
 
 ## Help
 

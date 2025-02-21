@@ -44,7 +44,7 @@ and
 | Rapberry Pi 5 (RPi 5) | 740 |
 | RPi 5 Power Supply | 120 |
 | 128 GB memory card | 200 |
-| KKSB tall case for RPi 5 |190 |
+| Pi Juice UPS HAT | 550 |
 | Adafruit PCA9548 8-channel Stemma QT multiplexer | 50 |
 | Adafruit SHT45 temperature and humidity sensor | 128 |
 | Adafruit AS7341 light sensor | 114 |
@@ -56,4 +56,4 @@ and
 | 3 x Stemma to StemmaQT cables | 22 |
 | Water Containers | 100 |
 | Plants | 1,144 |
-| Total amount | 3,690 |
+| Total amount | 4,050 |
