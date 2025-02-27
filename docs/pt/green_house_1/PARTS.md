@@ -1,6 +1,6 @@
 # Parts for Physical Twin
 
-This physical twin has three plants.
+This physical twin has three large plants.
 
 ## Summary of Parts
 

@@ -1,10 +1,10 @@
-# Relays for Greenhouses
+# Waveshare Relay for Greenhouses
 
 The GPIO pin layout has changed in
 [RPi 5](https://www.sunfounder.com/blogs/news/comprehensive-guide-to-the-pin-diagram-of-raspberry-pi-5-understanding-gpio-pins-and-their-functions).
 Only
 [gpiozero](https://gpiozero.readthedocs.io/en/stable/recipes.html) package.
-works correctly with RPi 5.
+works correctly with RPi 5 and also with older RPi models.
 
 ## Waveshare 3-Relay HAT
 
@@ -28,12 +28,13 @@ which doesn't work for RPi 5.
 
 However, we can use python gpiozero pip package to use the board
 
-Install gpiozero at the system level (don't use venv).
+The package can either be installed at the system level or
+inside python virtual environment.
+
+```bash
 $sudo apt install python3-gpiozero
 This installs gpiozero==2.0.1 in the system site packages
-
-However, this
-package seems to work in venv as well. Check it.
+```
 
 ### TODO
 
@@ -44,3 +45,8 @@ activate the channels?
 ## References
 
 * [RPi 5 pinout guide](https://www.twicea.com/blog/learn-raspberry-pi-5-pinout-in-this-in-depth-comprehensive-guide)
+
+### Note
+
+[gpiod library doesn't work](https://www.acmesystems.it/libgpiod).
+Use **gpiozero** package instead.

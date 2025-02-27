@@ -24,7 +24,7 @@ python controller-1.py
 
 The data is being written to InfluxDB database with the following details.
 
-```
+```txt
 URL: https://dtl-server-2.st.lab.au.dk
 Org: TestUserDTaaS
 Bucket: greenhouse-1

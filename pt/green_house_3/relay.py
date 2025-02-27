@@ -1,3 +1,5 @@
+#This is a demo program for waveshare relay hat
+#This program will turn on all the relays for 4 seconds and then turn off all the relays for 4 seconds
 from gpiozero import LED
 from time import sleep
 

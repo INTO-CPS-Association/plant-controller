@@ -34,6 +34,13 @@ The I2C pins of RPi 5 are.
 The multiplexer can work with both 3.3V and 5V.
 The Multiplexer is available at **I2C address x70** and it has 8 ports.
 
+Enable i2c interface in RPi OS configuration.
+
+```bash
+sudo raspi-config nonint do_i2c 0
+sudo raspi-config nonint do_spi 0
+```
+
 You can check the list of I2C devices connected to a RPi using
 
 ```bash
@@ -55,9 +62,6 @@ The I2C addresses of the sensors used are:
 | 0x44 | SHT45 | temperature and humidity sensor | 6 | |
 | 0x39 | AS7341 | 6-channel 16-bit light sensor | 7 | this measures light in seven wavelengths |
 | 0x70 to 0x77 (with x070 as default) | PCA9548 | 8-TO-1 multiplexer | directly connected to I2C port of Raspberry Pi 5 | the default address has not been modified |
-
-Use Adafruit I2C hub to connect the required sensors to sideways
-GPIO pins
 
 See [I2C address directory](https://learn.adafruit.com/i2c-addresses/the-list)
 
