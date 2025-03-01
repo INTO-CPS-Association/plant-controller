@@ -1,10 +1,10 @@
 # Project Status
 
-## 21-Feb-2025
+## 01-March-2025
 
-* Two case studies look closer to completion
+Greehouse - 1 is on display in the hallway.
 
-## Case Study - 1 (Pilot Stage)
+## Greenhouse - 1
 
 This case study has
 
@@ -16,7 +16,7 @@ This case study has
 * One 12V DC power supply
 * Three stands to properly place watering pipes in the plants
 
-## Case Study - 2 (Under Construction)
+## Greenhouse - 3 (Under Construction)
 
 This case study has
 
@@ -24,10 +24,11 @@ This case study has
 * One Raspberry Pi 3
 * senseHAT
 * Waveshare relay HAT
-* Three 5V submersible DC motors
-* One I2C passive hub
+* Two 5V submersible DC motors
+* Three stands to properly place watering pipes in the plants
 
 Pending tasks are:
 
-* Two stands to properly place watering pipes in the plants
-* write controller code
+* Greenhouse - 3
+  * Two stands to properly place watering pipes in the plants
+  * One 9V and 9 to 12 Watt charger
