@@ -1,5 +1,4 @@
 from datetime import datetime
-import numpy as np
 import time
 import schedule
 
@@ -7,7 +6,6 @@ import adafruit_sht4x
 import adafruit_tca9548a
 from adafruit_as7341 import AS7341
 from adafruit_seesaw.seesaw import Seesaw
-import automationhat
 import board
 import influxdb_client, os, time
 from influxdb_client import InfluxDBClient, Point, WritePrecision
@@ -24,54 +22,7 @@ bucket="greenhouse-1"
 write_api = write_client.write_api(write_options=SYNCHRONOUS)
 
 def water_plants():
-    automationhat.relay.one.on()
-    point = (
-        Point("pump-1")
-        .field("status", 1)
-    )
-    write_api.write(bucket=bucket, org=org, record=point)
-
-
-    automationhat.relay.two.on()
-    point = (
-        Point("pump-2")
-        .field("status", 1)
-    )
-    write_api.write(bucket=bucket, org=org, record=point)
-
-    automationhat.relay.three.on()
-    point = (
-        Point("pump-3")
-        .field("status", 1)
-    )
-    write_api.write(bucket=bucket, org=org, record=point)
-    print(f"pumps turned on at: {datetime.now().isoformat()}")
-
-
-    time.sleep(5)
-    
-    automationhat.relay.one.off()
-    print(f"pumps turned off at: {datetime.now().isoformat()}")
-    point = (
-        Point("pump-1")
-        .field("status", 0)
-    )
-    write_api.write(bucket=bucket, org=org, record=point)
-
-    automationhat.relay.two.off()
-    point = (
-        Point("pump-2")
-        .field("status", 0)
-    )
-    write_api.write(bucket=bucket, org=org, record=point)
-
-    automationhat.relay.three.off()
-    point = (
-        Point("pump-3")
-        .field("status", 0)
-    )
-    write_api.write(bucket=bucket, org=org, record=point)
-
+    print(f"plants watered at: {datetime.now().isoformat()}")
 
 def initialise():
     # Create I2C bus as normal
@@ -277,3 +228,6 @@ if __name__ == "__main__":
         # water the plants if needed
         schedule.run_pending()
         time.sleep(60)
+
+if __name__ == "__main__":
+    print("Starting greenhouse-1")

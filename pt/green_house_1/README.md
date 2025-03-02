@@ -1,72 +1,43 @@
-# Green House - I
+# Purpose
 
-The physical twin schematic for the green house is
+This project creates a fully-functional greenhouse of three plants.
+Please see the [schematics](SCHEMATICS.md) for the physical setup.
 
-![physical schematic](../../docs/pt/PT-schematic-physical-v0.1.1-2.png)
+## Development Setup
 
-Only three plants are being used right now.
-
-The matching electrical schematic is:
-
-![electrical](../../docs/pt/green_house_1/PT-electrical-schematic-v0.1.2.png)
-
-The approach taken here is to use one good sensor for
-each physical variable measurement.
-All the sensors selected use [I2C communication protocol](https://www.nxp.com/docs/en/user-guide/UM10204.pdf).
-
-There is only one I2C port on GPIO of Raspberry Pi 5.
-An Adafruit
-[PCA9548A multiplexer](https://learn.adafruit.com/adafruit-pca9548-8-channel-stemma-qt-qwiic-i2c-multiplexer)
-setup is used to connect
-multiple I2C sensors to the Raspberry Pi (RPi) 5.
-
-It is useful to be familiar with the RPi 5 [GPIO pins](https://pinout.xyz/).
-The I2C pins of RPi 5 are.
-
-| Pin No | Pin Name | Suggested Wire Color |
-|:---|:---|:---|
-| 1 | 3.3 | RED |
-| 2 or 4 | 5V | RED |
-| 3 | SDA | BLUE |
-| 5 | SCL | YELLOW |
-| 6 or 9 | GND | BLACK |
-
-The multiplexer can work with both 3.3V and 5V.
-The Multiplexer is available at **I2C address x70** and it has 8 ports.
-
-Enable i2c interface in RPi OS configuration.
+This is a [poetry-based project](https://python-poetry.org/docs/).
+The relevant commands to run the project are:
 
 ```bash
-sudo raspi-config nonint do_i2c 0
-sudo raspi-config nonint do_spi 0
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1     # On Windows
+source .venv/bin/activate        # On Linux
+
+pip install poetry               #Specifically install poetry to your system
+# If you have poetry installed globally
+poetry env activate              # shows the command to activate venv
+pylint src --rcfile=../.pylintrc # runs linting checks
+
+poetry install                   # installs all required python packages
+poetry build                     # builds cp-sens package that can be published on pip
+poetry run start                 # runs the main script
 ```
 
-You can check the list of I2C devices connected to a RPi using
+## Testing
+
+Write tests in the _tests_ directory. Be sure to name any new files as
+_test_*_.py_. To run all tests, with coverage:
 
 ```bash
-sudo apt-get install i2c-tools
-i2cdetect -y 1
+pytest
 ```
 
-The three Adafruit soil capacitive sensors, temperature and humidity sensor (Adafruit SHT45)
-and light sensor (Adafruit AS7341) are connected to the multiplexer.
+## Use
 
-Sometimes the soil moisture sensors seem faulty, but they work if
-they are cleaned and reconnected.
+Only MQTT client code is working at the moment.
+You can use it by setting the `src/cp-sens/data/config/mqtt.json`
+and executing,
 
-The I2C addresses of the sensors used are:
-
-| I2C Address | Device | Purpose | Multiplexer Ports | Notes |
-|:---|:---|:---|:---|:---|
-| 0x36 to 0x39 (with 0x36 as default) | capacitive soil sensor | measure soil moisture | ports 0 to 2 | the default addresses have not been modified |
-| 0x44 | SHT45 | temperature and humidity sensor | 6 | |
-| 0x39 | AS7341 | 6-channel 16-bit light sensor | 7 | this measures light in seven wavelengths |
-| 0x70 to 0x77 (with x070 as default) | PCA9548 | 8-TO-1 multiplexer | directly connected to I2C port of Raspberry Pi 5 | the default address has not been modified |
-
-See [I2C address directory](https://learn.adafruit.com/i2c-addresses/the-list)
-
-## Note
-
-1. Accessing the I2C bus in parallel in two programs leads to errors. Use multiplexer for such a purpose.
-1. The I2C bus communication may not be very robust.
-   The sensors produce errors sometimes in an hour and sometimes in a day. So python exception checking is required.
+```bash
+python .\src\cp-sens\data\sources\mqtt.py
+```
