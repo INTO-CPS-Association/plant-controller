@@ -5,6 +5,9 @@ Please see the [schematics](SCHEMATICS.md) for the physical setup.
 
 ## Development Setup
 
+:warning: This project uses python packages that only work on Linux.
+Hence, the project can only be developed on Linux OS.
+
 This is a [poetry-based project](https://python-poetry.org/docs/).
 The relevant commands to run the project are:
 

@@ -1,0 +1,13 @@
+#physical_twin: # PT configuration
+#  config:
+#    location: uniform resource identifier
+#    parameters:
+#        parameter-1:
+services: # services configuration ($C_e$)
+  internal:
+    influxdb:
+      port: 8086
+      host: localhost
+      org: alice
+      bucket: green_house_1
+      token: xxxx

@@ -18,7 +18,9 @@ adafruit-circuitpython-as7341 = "^1.2.21"
 adafruit-circuitpython-seesaw = "^1.16.5"
 adafruit-circuitpython-sht4x = "^1.0.22"
 adafruit-circuitpython-tca9548a = "^0.8.0"
+automationhat = "^1.0.0"
 schedule = "^1.2.2"
+pyyaml = "^6.0.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
