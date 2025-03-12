@@ -7,22 +7,12 @@ import adafruit_tca9548a
 from adafruit_as7341 import AS7341
 from adafruit_seesaw.seesaw import Seesaw
 import board
-import influxdb_client, os, time
-from influxdb_client import InfluxDBClient, Point, WritePrecision
-from influxdb_client.client.write_api import SYNCHRONOUS
+from influxdb_client import Point
 
-org = "influx-org"
-url = "https://influx.foo.com"
-token="xxx"
+import store
+from motors import water_plants
 
-write_client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
-
-bucket="greenhouse-1"
-
-write_api = write_client.write_api(write_options=SYNCHRONOUS)
-
-def water_plants():
-    print(f"plants watered at: {datetime.now().isoformat()}")
+store_influx = store.influx()
 
 def initialise():
     # Create I2C bus as normal
@@ -56,7 +46,7 @@ def readings():
         .field("temperature", temperature)
         .field("relative_humidity", relative_humidity)
     )
-    write_api.write(bucket=bucket, org=org, record=point)
+    store_influx.write(record=point)
 
     print("AS7341 light sensor: 415nm wavelength (Violet)  %s" % light_sensor.channel_415nm)
     print("AS7341 light sensor: 445nm wavelength (Indigo) %s" % light_sensor.channel_445nm)
@@ -77,7 +67,7 @@ def readings():
         .field("orange", light_sensor.channel_630nm)
         .field("red", light_sensor.channel_680nm)
     )
-    write_api.write(bucket=bucket, org=org, record=point)
+    store_influx.write(record=point)
     print("light sensor read")
 
     moisture_reading = moisture_0.moisture_read()
@@ -88,7 +78,7 @@ def readings():
         .field("moisture", moisture_reading)
         .field("temperature", temperature_reading)
     )
-    write_api.write(bucket=bucket, org=org, record=point)
+    store_influx.write(record=point)
     
     moisture_reading = moisture_1.moisture_read()
     temperature_reading = moisture_1.get_temp()
@@ -98,7 +88,7 @@ def readings():
         .field("moisture", moisture_reading)
         .field("temperature", temperature_reading)
     )
-    write_api.write(bucket=bucket, org=org, record=point)
+    store_influx.write(record=point)
 
     moisture_reading = moisture_2.moisture_read()
     temperature_reading = moisture_2.get_temp()
@@ -108,7 +98,7 @@ def readings():
         .field("moisture", moisture_reading)
         .field("temperature", temperature_reading)
     )
-    write_api.write(bucket=bucket, org=org, record=point)
+    store_influx.write(record=point)
 
     print("")
 
@@ -152,7 +142,7 @@ if __name__ == "__main__":
                 .field("temperature", temperature)
                 .field("relative_humidity", relative_humidity)
             )
-            write_api.write(bucket=bucket, org=org, record=point)
+            store_influx.write(record=point)
 
             print("AS7341 light sensor: 415nm wavelength (Violet)  %s" % light_sensor.channel_415nm)
             print("AS7341 light sensor: 445nm wavelength (Indigo) %s" % light_sensor.channel_445nm)
@@ -173,7 +163,7 @@ if __name__ == "__main__":
                 .field("orange", light_sensor.channel_630nm)
                 .field("red", light_sensor.channel_680nm)
             )
-            write_api.write(bucket=bucket, org=org, record=point)
+            store_influx.write(record=point)
 
             moisture_reading = moisture_0.moisture_read()
             temperature_reading = moisture_0.get_temp()
@@ -183,7 +173,7 @@ if __name__ == "__main__":
                 .field("moisture", moisture_reading)
                 .field("temperature", temperature_reading)
             )
-            write_api.write(bucket=bucket, org=org, record=point)
+            store_influx.write(record=point)
             
             moisture_reading = moisture_1.moisture_read()
             temperature_reading = moisture_1.get_temp()
@@ -193,7 +183,7 @@ if __name__ == "__main__":
                 .field("moisture", moisture_reading)
                 .field("temperature", temperature_reading)
             )
-            write_api.write(bucket=bucket, org=org, record=point)
+            store_influx.write(record=point)
 
             moisture_reading = moisture_2.moisture_read()
             temperature_reading = moisture_2.get_temp()
@@ -203,14 +193,14 @@ if __name__ == "__main__":
                 .field("moisture", moisture_reading)
                 .field("temperature", temperature_reading)
             )
-            write_api.write(bucket=bucket, org=org, record=point)
+            store_influx.write(record=point)
 
             print("")
             point = (
                 Point("exception")
                 .field("status", 0)
             )
-            write_api.write(bucket=bucket, org=org, record=point)
+            store_influx.write(record=point)
             #time.sleep(5)
             #raise Exception("I2C device error")
 
@@ -221,7 +211,7 @@ if __name__ == "__main__":
                 Point("exception")
                 .field("status", 1)
             )
-            write_api.write(bucket=bucket, org=org, record=point)
+            store_influx.write(record=point)
             time.sleep(5)
             continue
 

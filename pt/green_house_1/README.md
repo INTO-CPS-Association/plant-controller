@@ -19,7 +19,7 @@ source .venv/bin/activate        # On Linux
 pip install poetry               #Specifically install poetry to your system
 # If you have poetry installed globally
 poetry env activate              # shows the command to activate venv
-pylint src --rcfile=../.pylintrc # runs linting checks
+pylint src --rcfile=.pylintrc    # runs linting checks
 
 poetry install                   # installs all required python packages
 poetry build                     # builds cp-sens package that can be published on pip
