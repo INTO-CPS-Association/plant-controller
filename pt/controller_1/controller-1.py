@@ -1,6 +1,14 @@
+# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
+# This example shows using two TSL2491 light sensors attached to TCA9548A channels 0 and 1.
+# Use with other I2C sensors would be similar.
+
 from datetime import datetime
 import numpy as np
 import time
+#import schedule
+from schedule import every, repeat
 import schedule
 
 import adafruit_sht4x
@@ -13,9 +21,9 @@ import influxdb_client, os, time
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-org = "influx-org"
-url = "https://influx.foo.com"
-token="xxx"
+org = "plants"
+url = "https://influxdb.example.com"
+token="xxxx"
 
 write_client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
 
@@ -23,48 +31,67 @@ bucket="greenhouse-1"
 
 write_api = write_client.write_api(write_options=SYNCHRONOUS)
 
-def water_plants():
+@repeat(every().monday.at("10:15")) #run at 10:15 hours
+@repeat(every().wednesday.at("10:15"))
+@repeat(every().friday.at("10:15"))
+def water_plant_1():
     automationhat.relay.one.on()
     point = (
         Point("pump-1")
         .field("status", 1)
     )
     write_api.write(bucket=bucket, org=org, record=point)
+    print(f"pump-1 turned on at: {datetime.now().isoformat()}")
 
 
-    automationhat.relay.two.on()
-    point = (
-        Point("pump-2")
-        .field("status", 1)
-    )
-    write_api.write(bucket=bucket, org=org, record=point)
-
-    automationhat.relay.three.on()
-    point = (
-        Point("pump-3")
-        .field("status", 1)
-    )
-    write_api.write(bucket=bucket, org=org, record=point)
-    print(f"pumps turned on at: {datetime.now().isoformat()}")
-
-
-    time.sleep(5)
+    time.sleep(15)
     
     automationhat.relay.one.off()
-    print(f"pumps turned off at: {datetime.now().isoformat()}")
+    print(f"pump-1 turned off at: {datetime.now().isoformat()}")
     point = (
         Point("pump-1")
         .field("status", 0)
     )
     write_api.write(bucket=bucket, org=org, record=point)
 
+
+@repeat(every().day.at("10:15")) #run at 10:15 hours
+#@repeat(every().minute.at(":10")) #run at 10th second of each minute
+def water_plant_2():
+    automationhat.relay.two.on()
+    point = (
+        Point("pump-2")
+        .field("status", 1)
+    )
+    write_api.write(bucket=bucket, org=org, record=point)
+    print(f"pump-2 turned on at: {datetime.now().isoformat()}")
+
+    time.sleep(6)
+    
     automationhat.relay.two.off()
     point = (
         Point("pump-2")
         .field("status", 0)
     )
     write_api.write(bucket=bucket, org=org, record=point)
+    print(f"pump-2 turned off at: {datetime.now().isoformat()}")
 
+
+@repeat(every().monday.at("10:15")) #run at 10:15 hours
+@repeat(every().wednesday.at("10:15"))
+@repeat(every().friday.at("10:15"))
+def water_plant_3():
+    automationhat.relay.three.on()
+    print(f"pump-3 turned on at: {datetime.now().isoformat()}")
+    point = (
+        Point("pump-3")
+        .field("status", 1)
+    )
+    write_api.write(bucket=bucket, org=org, record=point)
+    print(f"pump-3 turned off at: {datetime.now().isoformat()}")
+
+    time.sleep(10)
+    
     automationhat.relay.three.off()
     point = (
         Point("pump-3")
@@ -172,7 +199,7 @@ if __name__ == "__main__":
     # For each sensor, create it using the TCA9548A channel instead of the I2C object
     # moisture sensor with temperature sensing capabilities
     moisture_0 = Seesaw(tca[0], addr=0x36)
-    moisture_1 = Seesaw(tca[1], addr=0x36)
+    moisture_1 = Seesaw(tca[3], addr=0x36)
     moisture_2 = Seesaw(tca[2], addr=0x36)
 
     # SHT45 is a temperature and humidity sensor
@@ -186,10 +213,6 @@ if __name__ == "__main__":
     light_sensor = AS7341(tca[7])    
 
     print("init done") 
-
-    # Schedule the plant watering job
-    schedule.every(1).minutes.do(water_plants)
-    #schedule.every().day.at("10:00").do(water_plants)
 
     while True:
         try:
@@ -255,11 +278,6 @@ if __name__ == "__main__":
             write_api.write(bucket=bucket, org=org, record=point)
 
             print("")
-            point = (
-                Point("exception")
-                .field("status", 0)
-            )
-            write_api.write(bucket=bucket, org=org, record=point)
             #time.sleep(5)
             #raise Exception("I2C device error")
 
@@ -268,7 +286,7 @@ if __name__ == "__main__":
             print(f"Exception at: {datetime.now().isoformat()}")
             point = (
                 Point("exception")
-                .field("status", 1)
+                .field("status", 0)
             )
             write_api.write(bucket=bucket, org=org, record=point)
             time.sleep(5)
