@@ -34,20 +34,6 @@ The I2C pins of RPi 5 are.
 The multiplexer can work with both 3.3V and 5V.
 The Multiplexer is available at **I2C address x70** and it has 8 ports.
 
-Enable i2c interface in RPi OS configuration.
-
-```bash
-sudo raspi-config nonint do_i2c 0
-sudo raspi-config nonint do_spi 0
-```
-
-You can check the list of I2C devices connected to a RPi using
-
-```bash
-sudo apt-get install i2c-tools
-i2cdetect -y 1
-```
-
 The three Adafruit soil capacitive sensors, temperature and humidity sensor (Adafruit SHT45)
 and light sensor (Adafruit AS7341) are connected to the multiplexer.
 
@@ -65,8 +51,11 @@ The I2C addresses of the sensors used are:
 
 See [I2C address directory](https://learn.adafruit.com/i2c-addresses/the-list)
 
-## Note
+ The sensors are connected to Adafruit
+PCA9548A (8-ch multiplexer) as follows:
 
-1. Accessing the I2C bus in parallel in two programs leads to errors. Use multiplexer for such a purpose.
-1. The I2C bus communication may not be very robust.
-   The sensors produce errors sometimes in an hour and sometimes in a day. So python exception checking is required.
+The connections to the ports are:
+
+port 0,1 and 2 --> soil moisture sensors
+port 6 --> SHT45 temperature and humidity sensor
+port 7 --> AS7341 light sensor

@@ -1,5 +1,9 @@
 # Updates
 
+## 28-March-2025
+
+The projects have been renamed from **greenhouse** to **controller**.
+
 ## 17-Feb-2025
 
 The demo setup has been updated to include three Adafruit I2C soil sensors,
