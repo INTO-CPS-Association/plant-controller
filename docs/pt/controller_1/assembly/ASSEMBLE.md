@@ -23,19 +23,6 @@ The plate contains two sensors and a multiplexer, namely
 1. Adafruit [8-to-1 mulitplexer](../../parts/hardware-pictures/PCA9548-adafruit.jpg).
 1. The sensors are mounted on the breadboard uisng the pre-drilled holes.
 
-The build sensor plate should look like this:
-
-![sensor plate side-view](sensor_plate_side.jpg)
-
-###### Sensor plate top view:
-<img src="docs/pt/controller_1/sensor_plate_top.png" alt="Alt Text" width="50%" height="50%" >
-
-Picture 2.
-
-###### Sensor plate bottom view:
-<img src="docs/pt/controller_1/sensor_plate_bottom.jpg" alt="Alt Text" width="30%" height="30%" >
-
-Picture 3.
 
 1.1. Mount the SHT45 sensor on the breadboard using 4x M2.5 washer, 4x M2.5*8mm screws, 4x M2.5 spacers and 4x M2.5 studs. Ensure that the spacer is on the underside. See [picture 1](#sensor-plate-side-view).
 
@@ -47,11 +34,18 @@ Picture 3.
 
 1.5 Connect the AS7341 sensor to the Adafruit PCA9548A 1-to-8 I2C Multiplexer using the I2C cables (port 7). See (C) and (D) on [picture 2](#sensor-plate-top-view).
 
+
+The built sensor plate should look like this:
+
+![sensor plate top-view](pictures-2/sensor-plate.jpg)
+
+![sensor plate bottom-view](pictures-1/sensor_plate_bottom.jpg)
+
 1.6 Connect the soil sensors to the Adafruit PCA9548A 1-to-8 I2C Multiplexer using the Stemma to StemmaQT cables into ports: 0, 1 and 2 on the Adefruit Multiplexer. See (E), (F), and (G) on [picture 2](#sensor-plate-top-view).
 
-<!--Picture of the connected sensors and their respective ports:
-![screenshot](imageFolder/sensorPlateDetailedView.png) 
--->
+
+Picture of the connected sensors and their respective ports:
+![complete view of the sensor plate](pictures-2/sensors.jpg)
 
 ### Part 3: Building the power board
 
