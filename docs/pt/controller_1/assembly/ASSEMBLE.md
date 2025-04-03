@@ -1,24 +1,31 @@
-# Instruction to build the example green house physical Twin
+# Assembly Instruction
 
-This instruction shows how to build the example green house physical Twin. It is a morkup representation of a physical green house. It is used to simulate the behavior of the physical green house.
+This instruction shows how to build the example plants controller. It is a mockup representation of an edge controller for a physical green house.
 
 ## Parts list
-To see the complete parts list, see [parts](https://github.com/INTO-CPS-Association/example-plants/blob/plants_controller_1/docs/pt/controller_1/PARTS.md). If you are not familiar with the hardware components used in this example, please see [parts-pictures](https://github.com/INTO-CPS-Association/example-plants/blob/plants_controller_1/docs/pt/parts/hardware-pictures/parts-pictures.md) for a visual representation of them.
 
-## Instruction step by step
-Follow the instruction step by step guide to build the example green house plant. The guide is divided into 5 parts. Each part builds a component of the green house example plant. In each part there will be a picture showing the component after following the steps. At the end the full green house example plant is shown.
+Please see the complete [parts list](../PARTS.md).
+If you are not familiar with the hardware components used in this prototype,
+please see [their](../../parts/hardware-pictures/parts-pictures.md).
 
-### Part 1: Building the sensor plate
+## Step-by-step Instructions
 
-In this step the sensor plate is build, housing the temperatur/humidity sensor and the adafruit mulitplexer. The sensors are mounted on the breadboard uisng the pre-drilled holes.
+Follow this step-by-step guide to build the plant controller prototype.
+The guide is divided into 5 parts. Each part builds a component of
+the controller. Each step of the assembly is accompanied by a picture.
+
+### Part 1: Building the Sensor Plate
+
+In this step the sensor plate containing with three components is build.
+The plate contains two sensors and a multiplexer, namely
+
+1. Adafruit [SHT45 temperature and humidity sensor](../../parts/hardware-pictures/STH45-adafruit.jpg).
+1. Adafruit [8-to-1 mulitplexer](../../parts/hardware-pictures/PCA9548-adafruit.jpg).
+1. The sensors are mounted on the breadboard uisng the pre-drilled holes.
 
 The build sensor plate should look like this:
 
-
-###### Sensor plate side view:
-<img src="docs/pt/controller_1/sensor_plate_side.jpg" alt="Alt Text" width="50%" height="50%" >
-
-Picture 1.
+![sensor plate side-view](sensor_plate_side.jpg)
 
 ###### Sensor plate top view:
 <img src="docs/pt/controller_1/sensor_plate_top.png" alt="Alt Text" width="50%" height="50%" >
