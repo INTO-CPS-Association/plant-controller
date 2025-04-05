@@ -18,38 +18,38 @@
 #### Hardware parts
 
 ##### Raspberry Pi 3 B+
-<img src="/docs/pt/parts/hardware-pictures/Raspberry-Pi-3-Model-BPlus.jpg" alt="Alt Text" width="50%" height="50%" >
+![Raspberry-Pi-3-Model-BPlus](Raspberry-Pi-3-Model-BPlus.jpg)
 
 ##### Pimoroni AutomationHAT
-<img src="/docs/pt/parts/hardware-pictures/automation-hat.jpg" alt="Alt Text" width="50%" height="50%" >
+![automation-hat](automation-hat.jpg)
 
 ##### 12V submersible water pump of 240L/h capacity
-<img src="/docs/pt/parts/hardware-pictures/12v-pump.jpg" alt="Alt Text" width="50%" height="50%" >
+![12v-pump](12v-pump.jpg)
 
 ##### Stackeble T GPIO header
-<img src="/docs/pt/parts/hardware-pictures/t-gpio.jpg" alt="Alt Text" width="50%" height="50%" >
+![t-gpio](t-gpio.jpg)
 
 ##### Adafruit Stemma 2.0 soil sensor
-<img src="/docs/pt/parts/hardware-pictures/adafruit-stemma-soil-sensor.jpg" alt="Alt Text" width="50%" height="50%" >
+![adafruit-stemma-soil-sensor](adafruit-stemma-soil-sensor.jpg)
 
 #### Adafruit PCA9548 8-Channel STEMMA QT
-<img src="/docs/pt/parts/hardware-pictures/PCA9548-adafruit.jpg" alt="Alt Text" width="50%" height="50%" >
+![PCA9548-adafruit](PCA9548-adafruit.jpg)
 
 ##### Adafruit SHT45 temperature and humidity sensor
-<img src="/docs/pt/parts/hardware-pictures/STH45-adafruit.jpg" alt="Alt Text" width="50%" height="50%" >
+![STH45-adafruit](STH45-adafruit.jpg)
 
 ##### 2A 72W Adjustable Power Supply DC 3V ~ 36V
 
-<img src="/docs/pt/parts/hardware-pictures/adjustable-power-supply-dc.jpg" alt="Alt Text" width="50%" height="50%" >
+![adjustable-power-supply-dc](adjustable-power-supply-dc.jpg)
 
 ##### I2C Qwiic Cable Kit Stemma QT
-<img src="/docs/pt/parts/hardware-pictures/cable-kit-stemma-qt.jpg" alt="Alt Text" width="50%" height="50%" >
+![cable-kit-stemma-qt](cable-kit-stemma-qt.jpg)
 
-##### 2 in 6 Out Lever, Compact Cable Connector
-<img src="/docs/pt/parts/hardware-pictures/df-2-6-out-lever-cable-connector.jpg" alt="Alt Text" width="50%" height="50%" >
+##### df 2 in 6 Out Lever, Compact Cable Connector
+![df-2-6-out-lever-cable-connector](df-2-6-out-lever-cable-connector.jpg)
 
 ##### 18AWG DC 12V 5A 5.5 x 2.1 mm Male Female DC Power Pigtail Cable
-<img src="/docs/pt/parts/hardware-pictures/male-female-power-pigtail-cable.jpg" alt="Alt Text" width="50%" height="50%" >
+![male-female-power-pigtail-cable](male-female-power-pigtail-cable.jpg)
 
 ##### M2.5 Nylon Screws Nuts Set, Black Nylon Spacer Screw Nuts phillips Scrw kit
-<img src="/docs/pt/parts/hardware-pictures/nylon-screws-nut-set.jpg" alt="Alt Text" width="50%" height="50%" >
+![nylon-screws-nut-set](nylon-screws-nut-set.jpg)
