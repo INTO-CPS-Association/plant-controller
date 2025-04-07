@@ -12,7 +12,7 @@ token="xxx"
 
 write_client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
 
-bucket="greenhouse-3"
+bucket="controller-2"
 
 write_api = write_client.write_api(write_options=SYNCHRONOUS)
 

@@ -27,7 +27,7 @@ token="xxxx"
 
 write_client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
 
-bucket="greenhouse-1"
+bucket="controller-1"
 
 write_api = write_client.write_api(write_options=SYNCHRONOUS)
 

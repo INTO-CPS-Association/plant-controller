@@ -9,7 +9,6 @@ Enable i2c interface in RPi OS configuration.
 
 ```bash
 sudo raspi-config nonint do_i2c 0
-sudo raspi-config nonint do_spi 0
 ```
 
 You can check the list of I2C devices connected to a RPi using
