@@ -1,55 +1,110 @@
-# Greenhouse using Pimoroni AutomationHAT
+# Greenhouse - III
 
-## Configure Raspberry Pi
+## Physical Setup
 
-Enable i2c interface in RPi configuration
-sudo raspi-config nonint do_i2c 0
-sudo raspi-config nonint do_spi 0
+This greehouse uses SenseHAT for temperature, humidity and light
+readings.
+It uses [Waveshare 3-Channel Relay HAT](WAVESHARE_RELAY.md)
+for controlling motors.
 
-## Install Libraries and Use
+The physical twin schematic for the green house is
 
-sudo apt-get install python3-automationhat
+![physical schematic](../../docs/pt/PT-schematic-physical-v0.1.1-2.png)
 
-prefer venv install
-python -m venv .venv
-source .venv/bin/activate
+Only two plants are being used right now.
 
-For tutorials see the
-[online guide](https://learn.pimoroni.com/article/getting-started-with-automation-hat-and-phat)
+## Hardware Connections
 
-## I2C Connections
+The matching electrical schematic is:
 
-I2C addresses used in this demo are:
+![electrical](../../docs/pt/controller_2/PT-electrical-schematic.png)
 
-| I2C Address | Device | Purpose |
+The approach taken here is to use Raspberry Pi senseHAT for environment
+readings and use Adafruit stemma soil sensors for moisture readings.
+
+All the sensors selected use [I2C communication protocol](https://www.nxp.com/docs/en/user-guide/UM10204.pdf). Even the senseHAT uses I2C communication protocol underneath.
+However, I2C is a bus protocol. So the Adafruit
+[PCA9548A multiplexer](https://learn.adafruit.com/adafruit-pca9548-8-channel-stemma-qt-qwiic-i2c-multiplexer)
+setup is used to connect
+two soil moisture sensors to Raspberry Pi.
+
+It is useful to be familiar with the RPi [GPIO pins](https://pinout.xyz/).
+The I2C pins of RPi are.
+
+| Pin No | Pin Name | Suggested Wire Color |
 |:---|:---|:---|
-| 0x23 (can be changed to 0x5C) | BH1750 | 16-bit light sensor |
-| 0x44 | SHT40 | temperature and humidity sensor |
-| 0x48 | ADS1015 | 12-bit ADC (part of Pimoroni AutomationHAT) |
-| 0x54 | SN3218 | 18-channel LED driver  (part of Pimoroni AutomationHAT) |
-|  | I2C Hub | Four port I2C passive hub |
+| 1 | 3.3 | RED |
+| 2 or 4 | 5V | RED |
+| 3 | SDA | BLUE |
+| 5 | SCL | YELLOW |
+| 6 or 9 | GND | BLACK |
 
-Use Adafruit I2C hub to connect the required sensors to sideways
-GPIO pins
+The multiplexer can work with both 3.3V and 5V.
+The Multiplexer is available at **I2C address x70** and it has 8 ports.
 
-See [I2C directory](https://learn.adafruit.com/i2c-addresses/the-list)
+Enable i2c interface in RPi OS configuration.
 
-### TODO
+```bash
+sudo raspi-config nonint do_i2c 0
+```
 
-1. For the 5V pumps, you can use the 5V supply from RPi. This supply
-   is accessible on automationHAT. Otherwise, a dedicated power supply
-   (just cellphone charger) works as well.
+You can check the list of I2C devices connected to a RPi using
 
-1. Make sure the connection diagram works well for the three relays and then
-   check with Electronics workshop on clean up the wiring.
+```bash
+sudo apt-get install i2c-tools
+i2cdetect -y 1
+```
 
-## Help
+The two Adafruit soil capacitive sensors are connected to the multiplexer.
 
-1. Use the class structure given in
-   https://github.com/pimoroni/automation-hat/blob/main/automationhat/pins.py
-   to cleanup the green house controller code.
-1. AutomationHAT uses only
-   [some GPIO pins](https://pinout.xyz/pinout/automation_hat).
-1. See the guide on [stacking multiple HATs](https://forums.raspberrypi.com/viewtopic.php?t=382395)
+Sometimes the soil moisture sensors seem faulty, but they work if
+they are cleaned and reconnected.
 
+The I2C addresses of the sensors used are:
 
+| I2C Address | Device | Purpose | Multiplexer Ports | Notes |
+|:---|:---|:---|:---|:---|
+| 0x36 to 0x39 (with 0x36 as default) | capacitive soil sensor | measure soil moisture | ports 6 to 7 | the default addresses have not been modified |
+| 0x5F | senseHAT (HTS221) | temperature and humidity sensor | | |
+| 0x29 | senseHAT (TCS34725) | light sensor | | |
+| 0x1C | senseHAT (LSM9DS1) | accelerometer | | |
+| 0x6A | senseHAT (LSM9DS1) | accelerometer | | |
+| 0x5C | senseHAT (LPS25H) | pressure sensor | | |
+| 0x70 to 0x77 (with x070 as default) | PCA9548 | 8-TO-1 multiplexer | directly connected to I2C port of Raspberry Pi 3 | the default address has not been modified |
+
+**missing I2C device:** x46 for senseHAT (LED2472G)
+
+See [I2C address directory](https://learn.adafruit.com/i2c-addresses/the-list)
+
+### Note
+
+1. Accessing the I2C bus in parallel in two programs leads to errors. Use multiplexer for such a purpose.
+1. The I2C bus communication may not be very robust.
+   The sensors produce errors sometimes in an hour and sometimes in a day. So python exception checking is required.
+
+## Run Controller
+
+The programs store readings in InfluxDB database.
+
+```bash
+sudo apt-get install sense-hat
+python -m venv .venv-sensehat
+#update the venv config to include system-wide-packages, see
+#https://stackoverflow.com/questions/55600132/installing-local-packages-with-python-virtualenv-system-site-packages#55600285
+#in file vi .venv-sensehat/pyvenv.cfg
+# include-system-site-packages = true
+source .venv-sensehat/bin/activate
+pip install influxdb_client
+python sensehat.py
+```
+
+In another terminal, run controller script  for collecting
+moisture readings and controlling the motors.
+The moisture readings and motor status are stored in InfluxDB database.
+
+```bash
+python -m venv .venv-controller
+source .venv-controller/bin/activate
+pip install -r requirements.controller.txt
+python controller-2.py
+```

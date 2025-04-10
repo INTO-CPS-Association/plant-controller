@@ -11,7 +11,7 @@ port 6 and 7 --> soil moisture sensors
 With this setup, execute three programs.
 
 1. sensehat.py
-2. controller.py
+2. controller-2.py
 
 The data is being written to InfluxDB database with the following details.
 

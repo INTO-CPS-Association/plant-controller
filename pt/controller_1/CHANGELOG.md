@@ -90,4 +90,3 @@ With this setup, execute three programs.
 1. relay.py (outside python venv)
 1. sht_bh_3_moisture_sensors.py (inside python venv)
 1. sht_bh_3_moisture_sensors_influxdb.py (inside python venv)
-
