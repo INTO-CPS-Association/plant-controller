@@ -69,7 +69,7 @@ A diagram illustrating the connection between pumps, Automation Hat, and power s
 <a id="pt-electrical-schematic"></a>
 ![PT electrical schematic](..\PT-electrical-schematic-v0.2.0.png)
 
-### Part 3: Install Raspeberry Pi OS
+### Part 3: Install Raspeberry Pi OS and Setup the Raspberry Pi
 In this step is installation of the raspberry Pi Operating System (OS) shown. To do this the following components and software needed:
 1. Raspberry [Pi 3 B+](../../parts/hardware-pictures/Raspberry-Pi-3-Model-BPlus.jpg).
 1. 16g SD card.
@@ -91,7 +91,13 @@ Specifically pick the following options:
 - RASPBERRY PI OS (64-bit)
 - Choose the 16g SD card you inserted into the PC.
 
-4.4 After the installation is done, insert the SD card into the Raspberry Pi and boot it up. Remember to connect the Raspberry Pi to the au-gadget wifi network in the OS instillation process.
+4.4 After the installation is done, insert the SD card into the Raspberry Pi and boot it up and follow instructions. Remember to connect the Raspberry Pi to the au-gadget wifi network in the OS instillation process.
+
+4.5 If not already done, enable I2C on the Raspberry Pi. This enables the Raspberry Pi to communicate with other sensors and devices through the GPIO header. This can be done by running the following command in the terminal:
+```bash
+    sudo raspi-config
+```
+Then select _Interfacing Options_ and then _I2C_ and enable it.
 
 ### Part 4: Install the required software
 
@@ -100,16 +106,16 @@ Specifically pick the following options:
 5.2 Unzip the downloaded file and do the following commands in the terminal:
 
 ```bash
-    cd example-plants-greenhouse-1_v0.1/pt/green_house_1
-    python -m venv green_house-venv
-    source green_house-venv/bin/activate
+    cd name-of-zip/pt/controller-1
+    python -m venv controller-1-venv
+    source controller-1-venv/bin/activate
     pip install -r requirements.txt
 ```
 
-5.3 To start the PT plant run the following command:
+5.3 To start the PT plant controller run the following command inside the python invenvironment:
 
 ```bash
-    python green_house_1.py
+    python controller-1.py
 ```
 
 ### Part 5: Assemble components
@@ -134,15 +140,15 @@ In this step is a guide on how to setup the InlfuxDB database for the example pl
 
 1. Click this [link](https://dtl-server-2.st.lab.au.dk:8086) and login using your credentials.
 
-1. After login in, click on "View more" on the "Get Started" page. This should take you to the "Load Data" page.
+1. After login in, click on _View more_ on the _Get Started_ page. This should take you to the _Load Data_ page.
 
-1. Click on "Buckets" the menu bar and click on the "Create Bucket" button. Give the bucket a meaningful name. 
+1. Click on _Buckets_ in the menu bar and click on the _Create Bucket_ button. Give the bucket a meaningful name. 
 
-1. Next create the API token used to read and write to the bucket just created. Click on "API Tokens"in the menu bar and click on the "Create API Token" button and choose "Costum API Token".
+1. Next create the API token used to read and write to the bucket just created. Click on _API Tokens_ in the menu bar and click on the _Create API Token_ button and choose _Costum API Token_.
 
 1. Then selct the bucket you just created and select the "Read/Write" permission. This will create a token that can be used to read and write to the bucket.
 
-1. Copy the token and then replace `xxxx`and `name-of-bucket` in the `green_house_1.py` script with the token and name of bucket you just created:
+1. Copy the token and then replace `xxxx`and `name-of-bucket` in the `controller-1.py` script with the token and name of bucket you just created:
 ```python	
 org = "your-organization-name"
 url = "https://influxdb.example.com"
