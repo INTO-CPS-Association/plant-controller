@@ -199,7 +199,7 @@ if __name__ == "__main__":
     # For each sensor, create it using the TCA9548A channel instead of the I2C object
     # moisture sensor with temperature sensing capabilities
     moisture_0 = Seesaw(tca[0], addr=0x36)
-    moisture_1 = Seesaw(tca[3], addr=0x36)
+    moisture_1 = Seesaw(tca[1], addr=0x36)
     moisture_2 = Seesaw(tca[2], addr=0x36)
 
     # SHT45 is a temperature and humidity sensor
