@@ -12,7 +12,7 @@ please see [their](../../parts/hardware-pictures/parts-pictures.md).
 
 Follow this step-by-step guide to build the plant controller prototype.
 The guide is divided into 6 parts. Each part builds a component of
-the controller. Each step of the assembly is accompanied by a picture. 
+the controller. Each step of the assembly is accompanied by a picture.
 
 ### Part 1: Building the Sensor Plate
 
@@ -49,11 +49,12 @@ Do the following assembly steps:
    <a id="sensor-plate-top-view"></a>
 
    The built sensor plate should look like this:
-   ![Sensor Plate Top View](pictures-2/sensor-plate.jpg)
+   ![Sensor Plate Top View](pictures/sensor-plate.jpg)
 
    <!-- markdownlint-disable MD013 -->
    <a id="sensor-plate-bottom-view"></a>
-   ![sensor plate bottom-view](pictures-1/sensor_plate_bottom.jpg)
+
+   ![sensor plate bottom-view](pictures/sensor_plate_bottom.jpg)
 
 6. Connect the soil sensors to the Adafruit PCA9548A 1-to-8 I2C Multiplexer
    using the Stemma to StemmaQT cables into ports: 0, 1 and 2 on
@@ -64,7 +65,7 @@ Do the following assembly steps:
    <a id="complete-view-of-the-sensor-plate"></a>
 
    Picture of the connected sensors and their respective ports:
-   ![complete view of the sensor plate](pictures-2/sensors.jpg)
+   ![complete view of the sensor plate](pictures/sensors.jpg)
 
 ### Part 2: Building the power board
 
@@ -83,18 +84,18 @@ contains the following components:
 
 - 3.1.1 Red into the COM from the pumps and the black into the DF 62 cable connector from the pumps to be grounded and powored by the 12v power supply. Use 3x electric wire to connect the DF 62 wire connector to NO on the Automation Hat. See [picture 4](#power-board-zoom-detail-view). <!-- markdownlint-disable MD013 -->
 <a id="power-board-zoom-detail-view"></a>
-![Power board DF detail view](pictures-1/power-board-detail-top.png)
+![Power board DF detail view](pictures/power-board-detail-top.png)
 
 3.2 Connect the DF 62 cable connector to the power suppler using DC barrel Plug connector like on [picture 5](#power-board-detail-df).
     <!-- markdownlint-disable MD013 -->
     <a id="power-board-detail-df"></a>
-    ![Power Board Detail df](pictures-1/power-board-detail-df.png)
+    ![Power Board Detail df](pictures/power-board-detail-df.png)
 
 3.3 Connect the Automation Hat and pumps to the 12v power supply.
     This should look like [picture 6](#power-board-top-view).
     <!-- markdownlint-disable MD013 -->
     <a id="power-board-top-view"></a>
-    ![Power board top view](pictures-2/motors.jpg)
+    ![Power board top view](pictures/motors.jpg)
 
 A diagram illustrating the connection between pumps, Automation HAT, and power supply
 can be seen [Figure 1](#pt-electrical-schematic)
@@ -116,19 +117,18 @@ and software needed:
 1. HDMI cable and monitor.
 1. Power supply for the Raspberry Pi.
 
-
 4.1 Download the [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
 
-4.2 Install the Raspberry Pi OS on the Raspberry Pi using the Raspberry Pi Imager. 
+4.2 Install the Raspberry Pi OS on the Raspberry Pi using the Raspberry Pi Imager.
 
 4.3 Insert 16g SD into PC and Open the Raspberry Pi Imager. Then select
     the Raspberry Pi OS software and the SD card to install the software on.
     Press next and follow the steps. See [picture 7](#raspberry-pi-imager).
     <!-- markdownlint-disable MD013 -->
     <a id="raspberry-pi-imager"></a>
-    ![Raspberry Pi Imager](pictures-1/raspberry-pi-imager.png)
+    ![Raspberry Pi Imager](pictures/raspberry-pi-imager.png)
     Specifically pick the following options:
-    
+
 - RASPBERRY PI 3 (If you are using another Raspberry Pi, select the corresponding one)
 - RASPBERRY PI OS (64-bit)
 - Choose the 16g SD card you inserted into the PC.
@@ -145,44 +145,43 @@ and software needed:
 
 5.2 Unzip the downloaded file and do the following commands in the terminal:
 
-    ```bash
-        cd example-plants-greenhouse-1_v0.1/pt/green_house_1
-        python -m venv green_house-venv
-        source green_house-venv/bin/activate
-        pip install -r requirements.txt
-    ```
-    
+   ```bash
+   cd example-plants/pt/controller_1
+   python -m venv controller-1-venv
+   source controller-1-venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
 5.3 To start the PT plant run the following command:
 
-```bash
-    python controller-1.py
-```
+   ```bash
+   python controller-1.py
+   ```
 
 ### Part 5: Assemble components
 
 In this step are all of the compnents used from previoues steps to build the complete PT plant mockup. This involse the three components built in the previous steps, namely:
 
 1. Raspberry [Pi 3 B+](../../parts/hardware-pictures/Raspberry-Pi-3-Model-BPlus.jpg).
-1. Sensor plate [with sensors connected](pictures-2/sensors.jpg).
-1. Power [board](pictures-2/motors.jpg).
+1. Sensor plate [with sensors connected](pictures/sensors.jpg).
+1. Power [board](pictures/motors.jpg).
 
 5.1 Mount the Automation Hat on the Raspberry Pi using the T GPIO stackable
     header using 4x M2.5*6mm spacer, 4x M2.5*6mm stud,
     4x M2.5*8mm stud, 4x M2.5 washer, and 4x M2.5*8mm screw.
-    See [picture 8](#automation-hat-mounted-on-raspberry-pi-view).
+    See [picture 8](#pin-connections-view).
 
-5.2 Connect the sensor plate to the Raspberry Pi using the StemmaQT connector to
-    Female pins cable (Pints - 1,3,5,9). See [picture 8](#pin-connections-view).
+5.2 Connect the sensor plate to the Raspberry Pi using the StemmaQT connector to Female pins cable (Pints - 1,3,5,9). See [picture 8](#pin-connections-view).
     <!-- markdownlint-disable MD013 -->
     <a id="pin-connections-view"></a>
-    ![board](pictures-2/t-gpio.jpg)
+    ![board](pictures/t-gpio.jpg)
 
 After mounting the Automation Hat and connecting the sensor plate to the Raspberry Pi
 the example green house plant PT should look like [picture 8](#assemble-top-view).
 
 <!-- markdownlint-disable MD013 -->
 <a id="assemble-top-view"></a>
-![Assemble top view](pictures-2/complete-setup.jpg)
+![Assemble top view](pictures/complete-setup.jpg)
 
 ## Part 6: InfluxDB and setup
 
