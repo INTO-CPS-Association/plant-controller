@@ -2,9 +2,9 @@
 
 ## 01-March-2025
 
-Greehouse - 1 is on display in the hallway.
+Plant Controller - 1 and plants are on display in the hallway.
 
-## Greenhouse - 1
+## Plant Controller - 1
 
 This case study has
 
@@ -16,7 +16,7 @@ This case study has
 * One 12V DC power supply
 * Three stands to properly place watering pipes in the plants
 
-## Greenhouse - 3 (Under Construction)
+## Plant Controller - 2 (Under Construction)
 
 This case study has
 
@@ -26,9 +26,3 @@ This case study has
 * Waveshare relay HAT
 * Two 5V submersible DC motors
 * Three stands to properly place watering pipes in the plants
-
-Pending tasks are:
-
-* Greenhouse - 3
-  * Two stands to properly place watering pipes in the plants
-  * One 9V and 9 to 12 Watt charger
