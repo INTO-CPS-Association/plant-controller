@@ -1,11 +1,11 @@
-# Green House - I
+# Plant Controller - I
 
 Please see the [SCHEMATICS](SCHEMATICS.md) to get an overview of
-the electrical and physical layout of the plants system.
+the electrical and physical layout of the plant controller system.
 
 ## Initial Setup
 
-Enable i2c interface in RPi OS configuration.
+Enable I2C interface in RPi OS configuration.
 
 ```bash
 sudo raspi-config nonint do_i2c 0
@@ -29,6 +29,8 @@ python controller-1.py
 
 ## Note
 
-1. Accessing the I2C bus in parallel in two programs leads to errors. Use multiplexer for such a purpose.
+1. Accessing the I2C bus in parallel in two programs leads to errors.
+   Use multiplexer for such a purpose.
 1. The I2C bus communication may not be very robust.
-   The sensors produce errors sometimes in an hour and sometimes in a day. So python exception checking is required.
+   The sensors produce errors sometimes in an hour and sometimes in
+   a day. So python exception checking is required.
