@@ -17,9 +17,8 @@ from adafruit_as7341 import AS7341
 from adafruit_seesaw.seesaw import Seesaw
 import automationhat
 import board
-import influxdb_client, os, time
-from influxdb_client import InfluxDBClient, Point, WritePrecision
-from influxdb_client.client.write_api import SYNCHRONOUS
+import os, time
+from influxdb_client import Point
 
 from store import InfluxDBStore
 

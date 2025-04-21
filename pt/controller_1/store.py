@@ -8,7 +8,7 @@ from typing import Tuple
 class InfluxDBStore:
     def __init__(self):
         config = self.get_config()
-        config = config["influxdb__parameters"]
+        config = config["services"]["internal"]["influxdb"]
         self._org = config["org"]
         self._url = config["url"]
         self._token = config["token"]
