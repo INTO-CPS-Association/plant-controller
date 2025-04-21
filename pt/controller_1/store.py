@@ -39,7 +39,3 @@ class InfluxDBStore:
             print(f"Error Message: {e.body}")
             print(f"Error Headers: {e.headers}")
 
-
-if __name__ == "__main__":
-    # Code to test the module
-    store_influx = InfluxDBStore()
