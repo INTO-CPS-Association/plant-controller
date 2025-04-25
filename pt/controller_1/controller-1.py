@@ -17,19 +17,12 @@ from adafruit_as7341 import AS7341
 from adafruit_seesaw.seesaw import Seesaw
 import automationhat
 import board
-import influxdb_client, os, time
-from influxdb_client import InfluxDBClient, Point, WritePrecision
-from influxdb_client.client.write_api import SYNCHRONOUS
+import os, time
+from influxdb_client import Point
 
-org = "plants"
-url = "https://influxdb.example.com"
-token="xxxx"
+from store import InfluxDBStore
 
-write_client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
-
-bucket="controller-1"
-
-write_api = write_client.write_api(write_options=SYNCHRONOUS)
+store_influx = InfluxDBStore()
 
 @repeat(every().monday.at("10:15")) #run at 10:15 hours
 @repeat(every().wednesday.at("10:15"))
@@ -40,7 +33,8 @@ def water_plant_1():
         Point("pump-1")
         .field("status", 1)
     )
-    write_api.write(bucket=bucket, org=org, record=point)
+    
+    store_influx.write(record=point)
     print(f"pump-1 turned on at: {datetime.now().isoformat()}")
 
 
@@ -52,7 +46,8 @@ def water_plant_1():
         Point("pump-1")
         .field("status", 0)
     )
-    write_api.write(bucket=bucket, org=org, record=point)
+    
+    store_influx.write(record=point)
 
 
 @repeat(every().day.at("10:15")) #run at 10:15 hours
@@ -63,7 +58,8 @@ def water_plant_2():
         Point("pump-2")
         .field("status", 1)
     )
-    write_api.write(bucket=bucket, org=org, record=point)
+    
+    store_influx.write(record=point)
     print(f"pump-2 turned on at: {datetime.now().isoformat()}")
 
     time.sleep(6)
@@ -73,7 +69,8 @@ def water_plant_2():
         Point("pump-2")
         .field("status", 0)
     )
-    write_api.write(bucket=bucket, org=org, record=point)
+    
+    store_influx.write(record=point)
     print(f"pump-2 turned off at: {datetime.now().isoformat()}")
 
 
@@ -87,7 +84,8 @@ def water_plant_3():
         Point("pump-3")
         .field("status", 1)
     )
-    write_api.write(bucket=bucket, org=org, record=point)
+    
+    store_influx.write(record=point)
     print(f"pump-3 turned off at: {datetime.now().isoformat()}")
 
     time.sleep(10)
@@ -97,7 +95,8 @@ def water_plant_3():
         Point("pump-3")
         .field("status", 0)
     )
-    write_api.write(bucket=bucket, org=org, record=point)
+    
+    store_influx.write(record=point)
 
 
 def initialise():
@@ -132,7 +131,8 @@ def readings():
         .field("temperature", temperature)
         .field("relative_humidity", relative_humidity)
     )
-    write_api.write(bucket=bucket, org=org, record=point)
+    
+    store_influx.write(record=point)
 
     print("AS7341 light sensor: 415nm wavelength (Violet)  %s" % light_sensor.channel_415nm)
     print("AS7341 light sensor: 445nm wavelength (Indigo) %s" % light_sensor.channel_445nm)
@@ -153,7 +153,8 @@ def readings():
         .field("orange", light_sensor.channel_630nm)
         .field("red", light_sensor.channel_680nm)
     )
-    write_api.write(bucket=bucket, org=org, record=point)
+    
+    store_influx.write(record=point)
     print("light sensor read")
 
     moisture_reading = moisture_0.moisture_read()
@@ -164,7 +165,8 @@ def readings():
         .field("moisture", moisture_reading)
         .field("temperature", temperature_reading)
     )
-    write_api.write(bucket=bucket, org=org, record=point)
+    
+    store_influx.write(record=point)
     
     moisture_reading = moisture_1.moisture_read()
     temperature_reading = moisture_1.get_temp()
@@ -174,7 +176,8 @@ def readings():
         .field("moisture", moisture_reading)
         .field("temperature", temperature_reading)
     )
-    write_api.write(bucket=bucket, org=org, record=point)
+    
+    store_influx.write(record=point)
 
     moisture_reading = moisture_2.moisture_read()
     temperature_reading = moisture_2.get_temp()
@@ -184,7 +187,8 @@ def readings():
         .field("moisture", moisture_reading)
         .field("temperature", temperature_reading)
     )
-    write_api.write(bucket=bucket, org=org, record=point)
+    
+    store_influx.write(record=point)
 
     print("")
 
@@ -224,7 +228,8 @@ if __name__ == "__main__":
                 .field("temperature", temperature)
                 .field("relative_humidity", relative_humidity)
             )
-            write_api.write(bucket=bucket, org=org, record=point)
+            
+            store_influx.write(record=point)
 
             print("AS7341 light sensor: 415nm wavelength (Violet)  %s" % light_sensor.channel_415nm)
             print("AS7341 light sensor: 445nm wavelength (Indigo) %s" % light_sensor.channel_445nm)
@@ -245,7 +250,8 @@ if __name__ == "__main__":
                 .field("orange", light_sensor.channel_630nm)
                 .field("red", light_sensor.channel_680nm)
             )
-            write_api.write(bucket=bucket, org=org, record=point)
+            
+            store_influx.write(record=point)
 
             moisture_reading = moisture_0.moisture_read()
             temperature_reading = moisture_0.get_temp()
@@ -255,7 +261,8 @@ if __name__ == "__main__":
                 .field("moisture", moisture_reading)
                 .field("temperature", temperature_reading)
             )
-            write_api.write(bucket=bucket, org=org, record=point)
+            
+            store_influx.write(record=point)
             
             moisture_reading = moisture_1.moisture_read()
             temperature_reading = moisture_1.get_temp()
@@ -265,7 +272,8 @@ if __name__ == "__main__":
                 .field("moisture", moisture_reading)
                 .field("temperature", temperature_reading)
             )
-            write_api.write(bucket=bucket, org=org, record=point)
+            
+            store_influx.write(record=point)
 
             moisture_reading = moisture_2.moisture_read()
             temperature_reading = moisture_2.get_temp()
@@ -275,7 +283,8 @@ if __name__ == "__main__":
                 .field("moisture", moisture_reading)
                 .field("temperature", temperature_reading)
             )
-            write_api.write(bucket=bucket, org=org, record=point)
+            
+            store_influx.write(record=point)
 
             print("")
             #time.sleep(5)
@@ -288,7 +297,8 @@ if __name__ == "__main__":
                 Point("exception")
                 .field("status", 0)
             )
-            write_api.write(bucket=bucket, org=org, record=point)
+            
+            store_influx.write(record=point)
             time.sleep(5)
             continue
 

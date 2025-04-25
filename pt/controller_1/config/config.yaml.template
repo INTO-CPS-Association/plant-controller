@@ -1,0 +1,7 @@
+services:
+  internal:
+    influxdb:
+      bucket: "controller-1"
+      token: "xxxx"
+      url: "https://influxdb.example.com"
+      org: "plants"
