@@ -105,12 +105,17 @@ def create_exception_point(e: Exception) -> Point:
             )
     return point
 
+def create_pump_point(pump_id: str, status: int) -> Point:
+    '''Create a point for the pump measurement.'''
+    point = (
+                Point(f"pump-{pump_id}")
+                .field("status", status)
+            )
+    return point
+
 def water_plant_1():
     automationhat.relay.one.on()
-    point = (
-        Point("pump-1")
-        .field("status", 1)
-    )
+    point = create_pump_point(pump_id="1", status=1)
     
     store_influx.write(record=point)
     print(f"pump-1 turned on at: {datetime.now().isoformat()}")
@@ -120,19 +125,13 @@ def water_plant_1():
     
     automationhat.relay.one.off()
     print(f"pump-1 turned off at: {datetime.now().isoformat()}")
-    point = (
-        Point("pump-1")
-        .field("status", 0)
-    )
+    point = create_pump_point(pump_id="1", status=0)
     
     store_influx.write(record=point)
 
 def water_plant_2():
     automationhat.relay.two.on()
-    point = (
-        Point("pump-2")
-        .field("status", 1)
-    )
+    point = create_pump_point(pump_id="2", status=1)
     
     store_influx.write(record=point)
     print(f"pump-2 turned on at: {datetime.now().isoformat()}")
@@ -140,10 +139,7 @@ def water_plant_2():
     time.sleep(6)
     
     automationhat.relay.two.off()
-    point = (
-        Point("pump-2")
-        .field("status", 0)
-    )
+    point = create_pump_point(pump_id="2", status=0)
     
     store_influx.write(record=point)
     print(f"pump-2 turned off at: {datetime.now().isoformat()}")
@@ -151,10 +147,7 @@ def water_plant_2():
 def water_plant_3():
     automationhat.relay.three.on()
     print(f"pump-3 turned on at: {datetime.now().isoformat()}")
-    point = (
-        Point("pump-3")
-        .field("status", 1)
-    )
+    point = create_pump_point(pump_id="3", status=1)
     
     store_influx.write(record=point)
     print(f"pump-3 turned off at: {datetime.now().isoformat()}")
@@ -162,10 +155,7 @@ def water_plant_3():
     time.sleep(10)
     
     automationhat.relay.three.off()
-    point = (
-        Point("pump-3")
-        .field("status", 0)
-    )
+    point = create_pump_point(pump_id="3", status=0)
     
     store_influx.write(record=point)  
 
