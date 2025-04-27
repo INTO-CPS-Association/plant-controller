@@ -5,3 +5,28 @@ services:
       token: "xxxx"
       url: "https://influxdb.example.com"
       org: "plants"
+plant:
+  sensors:
+    Seesaw:
+      moisture_0:
+        port: 0
+        addr: 0x36
+      moisture_1
+        port: 1
+        addr: 0x36
+      moisture_2:
+        port: 2
+        addr: 0x36
+    sht45:
+      port: 6
+      mode: NOHEAT_HIGHPRECISION
+    AS7341:
+      port: 7
+    schedule: 60
+  actuators:
+    pump_1:
+      schedule: 10:15
+    pump_2:
+      schedule: 14:30
+    pump_3:
+      schedule: 10:15
