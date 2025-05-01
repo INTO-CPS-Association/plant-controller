@@ -1,3 +1,6 @@
+import urllib3
+import socket
+from influxdb_client.rest import ApiException
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 from influxdb_client.client.exceptions import InfluxDBError
@@ -32,8 +35,16 @@ class InfluxDBStore:
             )
         except InfluxDBError as e:
             print(
-                f"Failed to write point '{record.to_line_protocol()}' with exception: {e.message}"
+                f"[InfluxDB Error] Failed to write point '{record.to_line_protocol()}' with exception: {e.message}"
             )
-            print(f"Error Status Code: {e.status}")
-            print(f"Error Message: {e.body}")
-            print(f"Error Headers: {e.headers}")
+            print(f"[InfluxDB Error] Error Status Code: {e.status}")
+            print(f"[InfluxDB Error] Error Message: {e.body}")
+            print(f"[InfluxDB Error] Error Headers: {e.headers}")
+        except (urllib3.exceptions.HTTPError, socket.gaierror, socket.timeout) as e:
+            print(
+                f"[Network Error] Failed to write point '{record.to_line_protocol()}': {e}"
+            )
+        except Exception as e:
+            print(
+                f"[Unexpected Error] Failed to write point '{record.to_line_protocol()}': {e}"
+            )
