@@ -7,11 +7,11 @@ services:
       org: "plants"
 plant:
   sensors:
-    Seesaw:
+    seesaw:
       moisture_0:
         port: 0
         addr: 0x36
-      moisture_1
+      moisture_1:
         port: 1
         addr: 0x36
       moisture_2:
@@ -20,7 +20,7 @@ plant:
     sht45:
       port: 6
       mode: NOHEAT_HIGHPRECISION
-    AS7341:
+    as7341:
       port: 7
     schedule: 60
   actuators:

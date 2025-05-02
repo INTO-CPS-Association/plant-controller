@@ -166,14 +166,14 @@ def initialise(config: dict) -> Sequence[Any]:
     config = config["plant"]["sensors"]
 
     # Get the moisture sensor port numbers
-    port_moisture_0 = config["moisture_0"]["port"]
-    port_moisture_1 = config["moisture_1"]["port"]
-    port_moisture_2 = config["moisture_2"]["port"]
+    port_moisture_0 = config["seesaw"]["moisture_0"]["port"]
+    port_moisture_1 = config["seesaw"]["moisture_1"]["port"]
+    port_moisture_2 = config["seesaw"]["moisture_2"]["port"]
 
     # Get the moisture sensor addresses
-    addr_moisture_0 = config["moisture_0"]["addr"]
-    addr_moisture_1 = config["moisture_1"]["addr"]
-    addr_moisture_2 = config["moisture_2"]["addr"]
+    addr_moisture_0 = config["seesaw"]["moisture_0"]["addr"]
+    addr_moisture_1 = config["seesaw"]["moisture_1"]["addr"]
+    addr_moisture_2 = config["seesaw"]["moisture_2"]["addr"]
 
     # Get the port for the SHT45 sensor
     port_sht45 = config["sht45"]["port"]
@@ -286,7 +286,7 @@ if __name__ == "__main__":
     
     # reading interval
     # Set up schedule for sensors
-    schedule_sensors = config["plant"]["schedule"]
+    schedule_sensors = config["plant"]["sensors"]["schedule"]
     if schedule_sensors:
         pass
     else:
