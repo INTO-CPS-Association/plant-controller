@@ -5,6 +5,8 @@ from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 from influxdb_client.client.exceptions import InfluxDBError
 import yaml
+import ssl
+import requests
 
 
 class InfluxDBStore:
@@ -40,11 +42,21 @@ class InfluxDBStore:
             print(f"[InfluxDB Error] Error Status Code: {e.status}")
             print(f"[InfluxDB Error] Error Message: {e.body}")
             print(f"[InfluxDB Error] Error Headers: {e.headers}")
-        except (urllib3.exceptions.HTTPError, socket.gaierror, socket.timeout) as e:
+        except urllib3.exceptions.ConnectTimeoutError as e:
+            print(f"[Connection Timeout Error] Failed to write point '{record.to_line_protocol()}' with exception ConnectTimeoutError: {e}")
+        except urllib3.exceptions.NewConnectionError as e:
+            print(f"[NewConection Error] Failed to write point '{record.to_line_protocol()}' with exception NewConnectionError: {e}")
+        except urllib3.exceptions.ProtocolError as e:
+            print(f"[Protocol Error] Failed to write point '{record.to_line_protocol()}' with exception ProtocolError: {e}")
+        except urllib3.exceptions.HTTPError as e:
+            print(f"[HTTP Error] Failed to write point '{record.to_line_protocol()}' with exception HTTPError (generic): {e}")
+        except socket.gaierror as e:
+            print(f"[DNS Error] Failed to write point '{record.to_line_protocol()}' with exception socket.gaierror (DNS resolution): {e}")
+        except socket.timeout as e:
+            print(f"[Timeout Error] Failed to write point '{record.to_line_protocol()}' with exception socket.timeout: {e}")
+        except (ssl.SSLError, requests.exceptions.SSLError) as e:
             print(
-                f"[Network Error] Failed to write point '{record.to_line_protocol()}': {e}"
+                f"[SSL/TLS Error] Failed to write point '{record.to_line_protocol()}' with exception {type(e).__name__}: {e}"
             )
-        except Exception as e:
-            print(
-                f"[Unexpected Error] Failed to write point '{record.to_line_protocol()}': {e}"
-            )
+        except ValueError as e:
+            print(f"[ValueError] Failed to write point: {e}")
