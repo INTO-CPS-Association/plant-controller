@@ -115,10 +115,10 @@ def create_pump_point(pump_id: str, status: int) -> Point:
 
 def water_plant_1():
     automationhat.relay.one.on()
+    print(f"pump-1 turned on at: {datetime.now().isoformat()}")
     point = create_pump_point(pump_id="1", status=1)
     
     store_influx.write(record=point)
-    print(f"pump-1 turned on at: {datetime.now().isoformat()}")
 
 
     time.sleep(15)
@@ -131,18 +131,18 @@ def water_plant_1():
 
 def water_plant_2():
     automationhat.relay.two.on()
+    print(f"pump-2 turned on at: {datetime.now().isoformat()}")
     point = create_pump_point(pump_id="2", status=1)
     
     store_influx.write(record=point)
-    print(f"pump-2 turned on at: {datetime.now().isoformat()}")
 
     time.sleep(6)
     
     automationhat.relay.two.off()
+    print(f"pump-2 turned off at: {datetime.now().isoformat()}")
     point = create_pump_point(pump_id="2", status=0)
     
     store_influx.write(record=point)
-    print(f"pump-2 turned off at: {datetime.now().isoformat()}")
 
 def water_plant_3():
     automationhat.relay.three.on()
@@ -150,11 +150,11 @@ def water_plant_3():
     point = create_pump_point(pump_id="3", status=1)
     
     store_influx.write(record=point)
-    print(f"pump-3 turned off at: {datetime.now().isoformat()}")
 
     time.sleep(10)
     
     automationhat.relay.three.off()
+    print(f"pump-3 turned off at: {datetime.now().isoformat()}")
     point = create_pump_point(pump_id="3", status=0)
     
     store_influx.write(record=point)  
