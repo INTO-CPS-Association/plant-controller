@@ -22,7 +22,7 @@ plant:
       mode: NOHEAT_HIGHPRECISION
     as7341:
       port: 7
-    schedule: 60
+    sampling_period: 60
   actuators:
     pump_1:
       schedule: 10:15
