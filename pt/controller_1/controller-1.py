@@ -20,40 +20,23 @@ from config import precision_map, get_config
 store_influx = InfluxDBStore()
 
 def create_point(measurements: dict) -> Point:
-    '''Create a point for the measurement.'''
+    '''Create a point for the measurement.
+    Args:
+        measurements (dict): A dictionary containing the measurement data.
+        The dictionary should have a "name" key for the measurement name
+        and other keys for the measurement fields.
+    Returns:
+        Point: An InfluxDB Point object with the measurement data.
+    '''
     point = Point(measurements["name"])
     for key, value in measurements.items():
-        point.field(key, value)
-    return point
-
-def create_sht45_point_measurement(measurements: Tuple[float, float]) -> Point:
-    '''Create a point for the SHT45 temperature and humidity measurement.'''
-    temperature, relative_humidity = measurements
-    point = (
-                Point("sht45")
-                .field("temperature", temperature)
-                .field("relative_humidity", relative_humidity)
-            )
+        if key != "name":
+            point.field(key, value)
     return point
 
 def print_sht45_measurements(measurements: dict) -> None:
     '''Print the SHT45 temperature and humidity measurements.'''
     print(f"SHT45 --> Temperature: {measurements['temperature']:0.1f} C, Humidity: {measurements['relative_humidity']:0.1f} %")
-
-def create_as7341_point_measurement(light_sensor: AS7341) -> Point:
-    '''Create a point for the AS7341 light sensor measurement.'''
-    point = (
-                Point("as7341")
-                .field("violet", light_sensor.channel_415nm)
-                .field("indigo", light_sensor.channel_445nm)
-                .field("blue", light_sensor.channel_480nm)
-                .field("cyan", light_sensor.channel_515nm)
-                .field("green", light_sensor.channel_555nm)
-                .field("yellow", light_sensor.channel_590nm)
-                .field("orange", light_sensor.channel_630nm)
-                .field("red", light_sensor.channel_680nm)
-            )
-    return point
 
 def print_as7341_measurements(measurements: dict) -> None:
     '''Print the AS7341 light sensor measurements.'''
@@ -65,15 +48,6 @@ def print_as7341_measurements(measurements: dict) -> None:
     print("AS7341 light sensor: 590nm wavelength (Yellow)  %s" % measurements['yellow'])
     print("AS7341 light sensor: 630nm wavelength (Orange)  %s" % measurements['orange'])
     print("AS7341 light sensor: 680nm wavelength (Red)     %s" % measurements['red'])
-
-def create_soil_sensor_point_measurement(moisture_reading: float, temperature_reading: float, sensor_id: int) -> Point:
-    '''Create a point for the soil sensor measurement.'''
-    point = (
-                Point(f"soil-sensor-{sensor_id}")
-                .field("moisture", moisture_reading)
-                .field("temperature", temperature_reading)
-            )
-    return point
 
 def print_soil_sensor_measurements(measurements: dict) -> None:
     '''Print the soil sensor measurements.'''
@@ -257,7 +231,7 @@ def readings(moisture_0, moisture_1, moisture_2, sht45, light_sensor):
         "moisture": moisture_reading,
         "temperature": temperature_reading
     }
-    porint = create_point(measurements = measurements)
+    point = create_point(measurements = measurements)
     print_soil_sensor_measurements(measurements = measurements)
     
     store_influx.write(record=point)
