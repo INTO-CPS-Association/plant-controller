@@ -105,27 +105,27 @@ def water_plant(pump_id: str, relay, duration: int):
         duration (int): The duration in seconds to keep the pump on.
     """
     relay.on()
-    print(f"pump-{pump_id} turned on at: {datetime.now().isoformat()}")
+    print(f"{pump_id} turned on at: {datetime.now().isoformat()}")
     point = create_pump_point(pump_id=pump_id, status=1)
     store_influx.write(record=point)
 
     time.sleep(duration)
 
     relay.off()
-    print(f"pump-{pump_id} turned off at: {datetime.now().isoformat()}")
+    print(f"{pump_id} turned off at: {datetime.now().isoformat()}")
     point = create_pump_point(pump_id=pump_id, status=0)
     store_influx.write(record=point)
 
 
 # Update the specific plant watering functions to use the refactored function
 def water_plant_1():
-    water_plant(pump_id="1", relay=automationhat.relay.one, duration=15)
+    water_plant(pump_id="pump-1", relay=automationhat.relay.one, duration=15)
 
 def water_plant_2():
-    water_plant(pump_id="2", relay=automationhat.relay.two, duration=6)
+    water_plant(pump_id="pump-2", relay=automationhat.relay.two, duration=6)
 
 def water_plant_3():
-    water_plant(pump_id="3", relay=automationhat.relay.three, duration=10)  
+    water_plant(pump_id="pump-3", relay=automationhat.relay.three, duration=10)  
 
 def initialise(config: dict) -> Sequence[Any]:
     '''Initializes the sensor objects for the TCA9548A multiplexer.'''
