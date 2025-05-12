@@ -38,7 +38,6 @@ def create_sht45_point_measurement(measurements: Tuple[float, float]) -> Point:
 
 def print_sht45_measurements(measurements: dict) -> None:
     '''Print the SHT45 temperature and humidity measurements.'''
-    temperature, relative_humidity = measurements
     print(f"SHT45 --> Temperature: {measurements['temperature']:0.1f} C, Humidity: {measurements['relative_humidity']:0.1f} %")
 
 def create_as7341_point_measurement(light_sensor: AS7341) -> Point:

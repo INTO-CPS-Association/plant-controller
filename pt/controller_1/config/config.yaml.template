@@ -25,8 +25,8 @@ plant:
     sampling_period: 60
   actuators:
     pump_1:
-      schedule: 10:15
+      schedule: "10:15"
     pump_2:
-      schedule: 14:30
+      schedule: "14:30"
     pump_3:
-      schedule: 10:15
+      schedule: "10:15"
