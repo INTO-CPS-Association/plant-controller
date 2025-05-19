@@ -19,6 +19,9 @@ from config import precision_map, get_config
 
 store_influx = InfluxDBStore()
 
+from comm import stompClient
+from pump import pump_water
+
 def create_point(measurements: dict) -> Point:
     '''Create a point for the measurement.
     Args:
@@ -268,6 +271,9 @@ if __name__ == "__main__":
     else:
         raise ValueError(f"No sampling_period given in config file for sensors: {sampling_period}")
     
+    # Create STOMP client
+    stomp_client = stompClient(pump_water)
+
     print("init done") 
 
     while True:
