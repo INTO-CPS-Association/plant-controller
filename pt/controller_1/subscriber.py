@@ -2,8 +2,6 @@ import stomp
 import json
 import time
 
-from controller_1 import water_plant_1, water_plant_2, water_plant_3
-
 class Subscriber(stomp.ConnectionListener):
     def __init__(self, conn):
         self.conn = conn
