@@ -18,11 +18,11 @@ class stompClient(stomp.ConnectionListener):
 
     def on_connected(self, headers, message):
         print('Connected: %s' % message)
-        for id in self._ids:
+        for index, id in enumerate(self._ids):
             queue_destination = f"actuator.{str(id)}.water"
             try:
-                self.conn.subscribe(destination=queue_destination, id=1, ack='auto')
-                print(f"Subscribed to {queue_destination}")
+                self.conn.subscribe(destination=queue_destination, id=index, ack='auto')
+                print(f"Subscribed to {queue_destination} with id {index}")
             except Exception as e:
                 print(f"Error subscribing to {queue_destination}: {e}")
                 continue
