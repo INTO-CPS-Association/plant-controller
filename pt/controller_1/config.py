@@ -95,16 +95,12 @@ def get_pump_id_by_pin(pin_number: int) -> str:
             return pump_id
     raise ValueError(f"No pump_id found for pin number: {pin_number}")
 
-def get_pin_to_actuator_map() -> dict:
+def get_relay_by_pump_id(pump_id: str) -> str:
+    """
+    Returns the relay name (e.g., 'one') for a given pump_id (e.g., 'pump_1').
+    """
     config = get_config()
-    actuator_map = {}
-    actuators = config.get("actuators", {})
-    for name, actuator in actuators.items():
-        actuator_map[actuator.get("pin")] = name
-    return actuator_map
-
-pump_id_to_relay_map = {
-    "pump_1": "one",
-    "pump_2": "two",
-    "pump_3": "three",
-}
+    actuators = config["plant"]["actuators"]
+    if pump_id in actuators:
+        return actuators[pump_id]["relay"]
+    raise ValueError(f"No relay found for pump_id: {pump_id}")

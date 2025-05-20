@@ -32,10 +32,13 @@ plant:
   actuators:
     pump_1:
       pin: 1
+      relay: one
       schedule: "10:15"
     pump_2:
       pin: 2
+      relay: two
       schedule: "14:30"
     pump_3:
       pin: 3
+      relay: three
       schedule: "10:15"

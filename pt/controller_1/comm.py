@@ -1,5 +1,5 @@
 import stomp
-from config import get_pin_to_actuator_map, get_stomp_url, get_stomp_user, get_stomp_password, get_stomp_port, get_stomp_actuator_ids
+from config import get_stomp_url, get_stomp_user, get_stomp_password, get_stomp_port, get_stomp_actuator_ids
 from pump import pump_water
 import time
 

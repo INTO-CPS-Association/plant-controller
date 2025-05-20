@@ -15,7 +15,7 @@ import yaml
 
 from store import InfluxDBStore
 
-from config import precision_map, get_config, get_sensor_sampling_period, get_actuator_schedule, get_moisture_sensor_port, get_moisture_sensor_addr, get_sht45_port, get_sht45_mode, get_as7341_port, get_pin_to_actuator_map, get_actuator_shedule
+from config import precision_map, get_config, get_sensor_sampling_period, get_actuator_schedule, get_moisture_sensor_port, get_moisture_sensor_addr, get_sht45_port, get_sht45_mode, get_as7341_port, get_actuator_shedule
 from pump import pump_water, water_plant_1, water_plant_2, water_plant_3
 store_influx = InfluxDBStore()
 
