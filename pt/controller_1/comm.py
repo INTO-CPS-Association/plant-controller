@@ -1,18 +1,16 @@
 import stomp
-from config import get_config, get_pin_to_actuator_map
+from config import get_pin_to_actuator_map, get_stomp_url, get_stomp_user, get_stomp_password, get_stomp_port, get_stomp_actuator_ids
 from pump import pump_water
 import time
 
 class stompClient(stomp.ConnectionListener):
     def __init__(self, func):
         self._func = func
-        config = get_config()
-        config = config["services"]["external"]["stomp"]
-        self._url = config["url"]
-        self._user = config["user"]
-        self._password = config["pass"]
-        self._port = config["port"]
-        self._ids = config["actuator_ids"]
+        self._url = get_stomp_url()
+        self._user = get_stomp_user()
+        self._password = get_stomp_password()
+        self._port = get_stomp_port()
+        self._ids = get_stomp_actuator_ids()
         self.conn = stomp.Connection([(self._url, self._port)])
         self.conn.set_listener('', self)
         self.conn.start()

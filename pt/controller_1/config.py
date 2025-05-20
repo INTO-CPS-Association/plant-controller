@@ -22,17 +22,6 @@ def get_sensor_sampling_period() -> int:
     config = get_config()
     return config["plant"]["sensors"]["sampling_period"]
 
-def get_actuator_schedule() -> dict:
-    config = get_config()
-    config = config["plant"]
-    schedules = {}
-    actuators = config.get("actuators", None)
-    if actuators is None:
-        raise ValueError("No actuators found in the configuration.")
-    for name, actuator in actuators.items():
-        schedules[name] = actuator.get("schedule")
-    return schedules
-
 def get_actuator_shedule(pump_key: str) -> dict:
     config = get_config()
     actuators = config["plant"]["actuators"]
