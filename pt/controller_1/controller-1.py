@@ -16,7 +16,7 @@ import yaml
 from store import InfluxDBStore
 
 from config import precision_map, get_config, get_sensor_sampling_period, get_actuator_schedule, get_moisture_sensor_port, get_moisture_sensor_addr, get_sht45_port, get_sht45_mode, get_as7341_port, get_pin_to_actuator_map, get_actuator_shedule
-
+from pump import pump_water, water_plant_1, water_plant_2, water_plant_3
 store_influx = InfluxDBStore()
 
 from comm import stompClient
@@ -63,46 +63,6 @@ def create_exception_point(e: Exception) -> Point:
                 .field("status", 0)
             )
     return point
-
-def create_pump_point(pump_id: str, status: int) -> Point:
-    '''Create a point for the pump measurement.'''
-    point = (
-                Point(f"{pump_id}")
-                .field("status", status)
-            )
-    return point
-
-def water_plant(pump_id: str, relay, duration: int):
-    """
-    Activates a pump for a specified duration and logs the status to InfluxDB.
-
-    Args:
-        pump_id (str): The ID of the pump (e.g., "1", "2", "3").
-        relay: The relay object to control the pump.
-        duration (int): The duration in seconds to keep the pump on.
-    """
-    relay.on()
-    print(f"{pump_id} turned on at: {datetime.now().isoformat()}")
-    point = create_pump_point(pump_id=pump_id, status=1)
-    store_influx.write(record=point)
-
-    time.sleep(duration)
-
-    relay.off()
-    print(f"{pump_id} turned off at: {datetime.now().isoformat()}")
-    point = create_pump_point(pump_id=pump_id, status=0)
-    store_influx.write(record=point)
-
-
-# Update the specific plant watering functions to use the refactored function
-def water_plant_1():
-    water_plant(pump_id="pump-1", relay=automationhat.relay.one, duration=15)
-
-def water_plant_2():
-    water_plant(pump_id="pump-2", relay=automationhat.relay.two, duration=6)
-
-def water_plant_3():
-    water_plant(pump_id="pump-3", relay=automationhat.relay.three, duration=10)  
 
 def initialise() -> Sequence[Any]:
     '''Initializes the sensor objects for the TCA9548A multiplexer.'''
@@ -167,17 +127,17 @@ def initialise_actuators() -> None:
 
     # Set the schedule for the actuators
     if schedule_pump_1:
-        every().monday.at(schedule_pump_1).do(water_plant_1)
-        every().wednesday.at(schedule_pump_1).do(water_plant_1)
-        every().friday.at(schedule_pump_1).do(water_plant_1)
+        every().monday.at(schedule_pump_1).do(water_plant_1(store_influx=store_influx))
+        every().wednesday.at(schedule_pump_1).do(water_plant_1(store_influx=store_influx))
+        every().friday.at(schedule_pump_1).do(water_plant_1(store_influx=store_influx))
     if schedule_pump_2:
         # Set the schedule for pump 2
-        every().day.at(schedule_pump_2).do(water_plant_2)
+        every().day.at(schedule_pump_2).do(water_plant_2(store_influx=store_influx))
     if schedule_pump_3:
         # Set the schedule for pump 3
-        every().monday.at(schedule_pump_3).do(water_plant_3)
-        every().wednesday.at(schedule_pump_3).do(water_plant_3)
-        every().friday.at(schedule_pump_3).do(water_plant_3)
+        every().monday.at(schedule_pump_3).do(water_plant_3(store_influx=store_influx))
+        every().wednesday.at(schedule_pump_3).do(water_plant_3(store_influx=store_influx))
+        every().friday.at(schedule_pump_3).do(water_plant_3(store_influx=store_influx))
 
 def readings(moisture_0, moisture_1, moisture_2, sht45, light_sensor):
     print(f"Sample at: {datetime.now().isoformat()}")

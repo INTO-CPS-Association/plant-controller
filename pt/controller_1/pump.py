@@ -1,7 +1,9 @@
 import automationhat
 import time
+from influxdb_client import Point
+from store import InfluxDBStore
 
-from config import pin_to_relay_map, pin_to_pump_map
+from config import pump_id_to_relay_map, get_pump_id_by_pin
 from datetime import datetime
 
 
@@ -9,14 +11,14 @@ def pump_water(sec: int, pump_pin: int):
     """
     Pump water for a given number of seconds.
     :param sec: Number of seconds to pump water
-    :param relay_name: Name of the relay to use
+    :param pump_pin: pump pin number
     """
+    # Get pump id from pin number
+    pump_id = get_pump_id_by_pin(pump_pin)
     print("Pumping water for {} seconds...".format(sec))
     # Get the relay object from the relay name
-    relay_str = pin_to_relay_map[pump_pin]
+    relay_str = pump_id_to_relay_map[pump_pin]
     relay = getattr(automationhat.relay, relay_str)
-
-    pump_id = pin_to_pump_map[pump_pin]
 
     relay.on()
     print(f"{pump_id} turned on at: {datetime.now().isoformat()}")
@@ -25,5 +27,45 @@ def pump_water(sec: int, pump_pin: int):
 
     relay.off()
     print(f"{pump_id} turned off at: {datetime.now().isoformat()}")
+
+def create_pump_point(pump_id: str, status: int) -> Point:
+    '''Create a point for the pump measurement.'''
+    point = (
+                Point(f"{pump_id}")
+                .field("status", status)
+            )
+    return point
+
+def water_plant(store_influx: InfluxDBStore, pump_id: str, relay, duration: int):
+    """
+    Activates a pump for a specified duration and logs the status to InfluxDB.
+
+    Args:
+        pump_id (str): The ID of the pump (e.g., "1", "2", "3").
+        relay: The relay object to control the pump.
+        duration (int): The duration in seconds to keep the pump on.
+    """
+    relay.on()
+    print(f"{pump_id} turned on at: {datetime.now().isoformat()}")
+    point = create_pump_point(pump_id=pump_id, status=1)
+    store_influx.write(record=point)
+
+    time.sleep(duration)
+
+    relay.off()
+    print(f"{pump_id} turned off at: {datetime.now().isoformat()}")
+    point = create_pump_point(pump_id=pump_id, status=0)
+    store_influx.write(record=point)
+
+
+# Update the specific plant watering functions to use the refactored function
+def water_plant_1(store_influx: InfluxDBStore):
+    water_plant(store_influx, pump_id="pump-1", relay=automationhat.relay.one, duration=15)
+
+def water_plant_2(store_influx: InfluxDBStore):
+    water_plant(store_influx, pump_id="pump-2", relay=automationhat.relay.two, duration=6)
+
+def water_plant_3(store_influx: InfluxDBStore):
+    water_plant(store_influx, pump_id="pump-3", relay=automationhat.relay.three, duration=10)  
 
     
