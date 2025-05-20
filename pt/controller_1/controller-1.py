@@ -15,7 +15,7 @@ import yaml
 
 from store import InfluxDBStore
 
-from config import precision_map, get_config, get_sensor_sampling_period, get_actuator_schedule, get_moisture_sensor_port, get_moisture_sensor_addr, get_sht45_port, get_sht45_mode, get_as7341_port, get_actuator_shedule
+from config import precision_map, get_config, get_sensor_sampling_period, get_moisture_sensor_port, get_moisture_sensor_addr, get_sht45_port, get_sht45_mode, get_as7341_port, get_actuator_shedule
 from pump import pump_water, water_plant_1, water_plant_2, water_plant_3
 store_influx = InfluxDBStore()
 
@@ -127,17 +127,17 @@ def initialise_actuators() -> None:
 
     # Set the schedule for the actuators
     if schedule_pump_1:
-        every().monday.at(schedule_pump_1).do(water_plant_1(store_influx=store_influx))
-        every().wednesday.at(schedule_pump_1).do(water_plant_1(store_influx=store_influx))
-        every().friday.at(schedule_pump_1).do(water_plant_1(store_influx=store_influx))
+        every().monday.at(schedule_pump_1).do(lambda: water_plant_1(store_influx=store_influx))
+        every().wednesday.at(schedule_pump_1).do(lambda: water_plant_1(store_influx=store_influx))
+        every().friday.at(schedule_pump_1).do(lambda: water_plant_1(store_influx=store_influx))
     if schedule_pump_2:
         # Set the schedule for pump 2
-        every().day.at(schedule_pump_2).do(water_plant_2(store_influx=store_influx))
+        every().day.at(schedule_pump_2).do(lambda: water_plant_2(store_influx=store_influx))
     if schedule_pump_3:
         # Set the schedule for pump 3
-        every().monday.at(schedule_pump_3).do(water_plant_3(store_influx=store_influx))
-        every().wednesday.at(schedule_pump_3).do(water_plant_3(store_influx=store_influx))
-        every().friday.at(schedule_pump_3).do(water_plant_3(store_influx=store_influx))
+        every().monday.at(schedule_pump_3).do(lambda: water_plant_3(store_influx=store_influx))
+        every().wednesday.at(schedule_pump_3).do(lambda: water_plant_3(store_influx=store_influx))
+        every().friday.at(schedule_pump_3).do(lambda: water_plant_3(store_influx=store_influx))
 
 def readings(moisture_0, moisture_1, moisture_2, sht45, light_sensor):
     print(f"Sample at: {datetime.now().isoformat()}")
@@ -236,7 +236,7 @@ if __name__ == "__main__":
             #raise Exception("I2C device error")
 
         except Exception as e:
-            moisture_0, moisture_1, moisture_2, sht45, light_sensor = initialise(config)
+            moisture_0, moisture_1, moisture_2, sht45, light_sensor = initialise()
             print(f"Exception at: {datetime.now().isoformat()}")
 
             point = create_exception_point(e)

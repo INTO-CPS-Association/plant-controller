@@ -48,21 +48,21 @@ def get_sht45_port() -> int:
     Returns the port number for the SHT45 sensor.
     """
     config = get_config()
-    return config["plant"]["sht45"]["port"]
+    return config["plant"]["sensors"]["sht45"]["port"]
 
 def get_sht45_mode() -> str:
     """
     Returns the mode string for the SHT45 sensor.
     """
     config = get_config()
-    return config["plant"]["sht45"]["mode"]
+    return config["plant"]["sensors"]["sht45"]["mode"]
 
 def get_as7341_port() -> int:
     """
     Returns the port number for the AS7341 sensor.
     """
     config = get_config()
-    return config["plant"]["as7341"]["port"]
+    return config["plant"]["sensors"]["as7341"]["port"]
 
 def get_stomp_url() -> str:
     config = get_config()

@@ -14,10 +14,10 @@ class stompClient(stomp.ConnectionListener):
         self.conn = stomp.Connection([(self._url, self._port)])
         self.conn.set_listener('', self)
         self.conn.start()
-        self.conn.connect(wait=True)
+        self.conn.connect(self._user, self._password, wait=True)
 
-    def on_connected(self, headers, message):
-        print('Connected: %s' % message)
+    def on_connected(self, frame):
+        print('Connected: %s' % frame.body)
         for index, id in enumerate(self._ids):
             queue_destination = f"actuator.{str(id)}.water"
             try:
@@ -27,14 +27,14 @@ class stompClient(stomp.ConnectionListener):
                 print(f"Error subscribing to {queue_destination}: {e}")
                 continue
 
-    def on_error(self, headers, message):
-        print('Error: %s' % message)
+    def on_error(self, frame):
+        print('Error: %s' % frame.body)
 
-    def on_message(self, headers, message):
-        print('Message: %s' % message)
+    def on_message(self, frame):
+        print('Message: %s' % frame.body)
         # We need to command <pump> <time>
-        command = message.split("[WATER]")[1]
-        command_list = command.split(" ")
+        command = frame.body.split("[WATER]")[1]
+        command_list = command.strip().split()
         
         if command_list[0] == "water":
             self._func(int(command_list[1]), int(command_list[2]))
