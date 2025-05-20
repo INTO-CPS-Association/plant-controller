@@ -64,6 +64,37 @@ def get_as7341_port() -> int:
     config = get_config()
     return config["plant"]["as7341"]["port"]
 
+def get_stomp_url() -> str:
+    config = get_config()
+    return config["services"]["external"]["stomp"]["url"]
+
+def get_stomp_user() -> str:
+    config = get_config()
+    return config["services"]["external"]["stomp"]["user"]
+
+def get_stomp_password() -> str:
+    config = get_config()
+    return config["services"]["external"]["stomp"]["pass"]
+
+def get_stomp_port() -> int:
+    config = get_config()
+    return config["services"]["external"]["stomp"]["port"]
+
+def get_stomp_actuator_ids() -> list:
+    config = get_config()
+    return config["services"]["external"]["stomp"]["actuator_ids"]
+
+def get_pump_id_by_pin(pin_number: int) -> str:
+    """
+    Returns the pump_id (e.g., 'pump_1') for a given pin number.
+    """
+    config = get_config()
+    actuators = config["plant"]["actuators"]
+    for pump_id, actuator in actuators.items():
+        if actuator.get("pin") == pin_number:
+            return pump_id
+    raise ValueError(f"No pump_id found for pin number: {pin_number}")
+
 def get_pin_to_actuator_map() -> dict:
     config = get_config()
     actuator_map = {}
@@ -72,14 +103,8 @@ def get_pin_to_actuator_map() -> dict:
         actuator_map[actuator.get("pin")] = name
     return actuator_map
 
-pin_to_relay_map = {
-    1: "one",
-    2: "two",
-    3: "three",
-}
-
-pin_to_pump_map = {
-    1: "pump_one",
-    2: "pump_two",
-    3: "pump_three",
+pump_id_to_relay_map = {
+    "pump_1": "one",
+    "pump_2": "two",
+    "pump_3": "three",
 }
