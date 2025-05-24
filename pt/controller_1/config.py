@@ -17,3 +17,90 @@ def get_config() -> dict:
         with open("config/config.yaml", "r") as file:
             data = yaml.safe_load(file)
         return data
+
+def get_sensor_sampling_period() -> int:
+    config = get_config()
+    return config["plant"]["sensors"]["sampling_period"]
+
+def get_actuator_shedule(pump_key: str) -> dict:
+    config = get_config()
+    actuators = config["plant"]["actuators"]
+    return actuators[pump_key]["schedule"]
+
+def get_moisture_sensor_port(sensor_key: str) -> int:
+    """
+    Returns the port number for a given moisture sensor key (e.g., 'moisture_0').
+    """
+    config = get_config()
+    seesaw = config["plant"]["sensors"]["seesaw"]
+    return seesaw[sensor_key]["port"]
+
+def get_moisture_sensor_addr(sensor_key: str) -> int:
+    """
+    Returns the I2C address for a given moisture sensor key (e.g., 'moisture_0').
+    """
+    config = get_config()
+    seesaw = config["plant"]["sensors"]["seesaw"]
+    return seesaw[sensor_key]["addr"]
+
+def get_sht45_port() -> int:
+    """
+    Returns the port number for the SHT45 sensor.
+    """
+    config = get_config()
+    return config["plant"]["sensors"]["sht45"]["port"]
+
+def get_sht45_mode() -> str:
+    """
+    Returns the mode string for the SHT45 sensor.
+    """
+    config = get_config()
+    return config["plant"]["sensors"]["sht45"]["mode"]
+
+def get_as7341_port() -> int:
+    """
+    Returns the port number for the AS7341 sensor.
+    """
+    config = get_config()
+    return config["plant"]["sensors"]["as7341"]["port"]
+
+def get_stomp_url() -> str:
+    config = get_config()
+    return config["services"]["external"]["stomp"]["url"]
+
+def get_stomp_user() -> str:
+    config = get_config()
+    return config["services"]["external"]["stomp"]["user"]
+
+def get_stomp_password() -> str:
+    config = get_config()
+    return config["services"]["external"]["stomp"]["pass"]
+
+def get_stomp_port() -> int:
+    config = get_config()
+    return config["services"]["external"]["stomp"]["port"]
+
+def get_stomp_actuator_ids() -> list:
+    config = get_config()
+    return config["services"]["external"]["stomp"]["actuator_ids"]
+
+def get_pump_id_by_pin(pin_number: int) -> str:
+    """
+    Returns the pump_id (e.g., 'pump_1') for a given pin number.
+    """
+    config = get_config()
+    actuators = config["plant"]["actuators"]
+    for pump_id, actuator in actuators.items():
+        if actuator.get("pin") == pin_number:
+            return pump_id
+    raise ValueError(f"No pump_id found for pin number: {pin_number}")
+
+def get_relay_by_pump_id(pump_id: str) -> str:
+    """
+    Returns the relay name (e.g., 'one') for a given pump_id (e.g., 'pump_1').
+    """
+    config = get_config()
+    actuators = config["plant"]["actuators"]
+    if pump_id in actuators:
+        return actuators[pump_id]["relay"]
+    raise ValueError(f"No relay found for pump_id: {pump_id}")

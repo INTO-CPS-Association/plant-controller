@@ -15,9 +15,12 @@ import yaml
 
 from store import InfluxDBStore
 
-from config import precision_map, get_config
-
+from config import precision_map, get_config, get_sensor_sampling_period, get_moisture_sensor_port, get_moisture_sensor_addr, get_sht45_port, get_sht45_mode, get_as7341_port, get_actuator_shedule
+from pump import pump_water, water_plant_1, water_plant_2, water_plant_3
 store_influx = InfluxDBStore()
+
+from comm import stompClient
+from pump import pump_water
 
 def create_point(measurements: dict) -> Point:
     '''Create a point for the measurement.
@@ -61,70 +64,27 @@ def create_exception_point(e: Exception) -> Point:
             )
     return point
 
-def create_pump_point(pump_id: str, status: int) -> Point:
-    '''Create a point for the pump measurement.'''
-    point = (
-                Point(f"{pump_id}")
-                .field("status", status)
-            )
-    return point
-
-def water_plant(pump_id: str, relay, duration: int):
-    """
-    Activates a pump for a specified duration and logs the status to InfluxDB.
-
-    Args:
-        pump_id (str): The ID of the pump (e.g., "1", "2", "3").
-        relay: The relay object to control the pump.
-        duration (int): The duration in seconds to keep the pump on.
-    """
-    relay.on()
-    print(f"{pump_id} turned on at: {datetime.now().isoformat()}")
-    point = create_pump_point(pump_id=pump_id, status=1)
-    store_influx.write(record=point)
-
-    time.sleep(duration)
-
-    relay.off()
-    print(f"{pump_id} turned off at: {datetime.now().isoformat()}")
-    point = create_pump_point(pump_id=pump_id, status=0)
-    store_influx.write(record=point)
-
-
-# Update the specific plant watering functions to use the refactored function
-def water_plant_1():
-    water_plant(pump_id="pump-1", relay=automationhat.relay.one, duration=15)
-
-def water_plant_2():
-    water_plant(pump_id="pump-2", relay=automationhat.relay.two, duration=6)
-
-def water_plant_3():
-    water_plant(pump_id="pump-3", relay=automationhat.relay.three, duration=10)  
-
-def initialise(config: dict) -> Sequence[Any]:
+def initialise() -> Sequence[Any]:
     '''Initializes the sensor objects for the TCA9548A multiplexer.'''
 
-    # Get actuator configuration from the config file
-    config = config["plant"]["sensors"]
-
     # Get the moisture sensor port numbers
-    port_moisture_0 = config["seesaw"]["moisture_0"]["port"]
-    port_moisture_1 = config["seesaw"]["moisture_1"]["port"]
-    port_moisture_2 = config["seesaw"]["moisture_2"]["port"]
+    port_moisture_0 = get_moisture_sensor_port(sensor_key="moisture_0")
+    port_moisture_1 = get_moisture_sensor_port(sensor_key="moisture_1")
+    port_moisture_2 = get_moisture_sensor_port(sensor_key="moisture_2")
 
     # Get the moisture sensor addresses
-    addr_moisture_0 = config["seesaw"]["moisture_0"]["addr"]
-    addr_moisture_1 = config["seesaw"]["moisture_1"]["addr"]
-    addr_moisture_2 = config["seesaw"]["moisture_2"]["addr"]
+    addr_moisture_0 = get_moisture_sensor_addr(sensor_key="moisture_0")
+    addr_moisture_1 = get_moisture_sensor_addr(sensor_key="moisture_1")
+    addr_moisture_2 = get_moisture_sensor_addr(sensor_key="moisture_2")
 
     # Get the port for the SHT45 sensor
-    port_sht45 = config["sht45"]["port"]
+    port_sht45 = get_sht45_port()
 
     # Get the mode string for the SHT45 sensor
-    mode_str_sht45 = config["sht45"]["mode"]
+    mode_str_sht45 = get_sht45_mode()
 
     # Get the port number for the AS7341 sensor
-    port_as7341 = config["as7341"]["port"]
+    port_as7341 = get_as7341_port()
 
     # Create I2C bus as normal
     i2c = board.I2C()  # uses board.SCL and board.SDA
@@ -157,30 +117,27 @@ def initialise(config: dict) -> Sequence[Any]:
         
     return moisture_0, moisture_1, moisture_2, sht45, light_sensor
 
-def initialise_actuators(config: dict) -> None:
+def initialise_actuators() -> None:
     '''Initializes the actuators.'''
 
     # Get actuator configuration from the config file
-    config = config["plant"]["actuators"]
-
-    # Get the scedules for the actuators
-    schedule_pump_1 = config["pump_1"]["schedule"]
-    schedule_pump_2 = config["pump_2"]["schedule"]
-    schedule_pump_3 = config["pump_3"]["schedule"]
+    schedule_pump_1 = get_actuator_shedule(pump_key="pump_1")
+    schedule_pump_2 = get_actuator_shedule(pump_key="pump_2")
+    schedule_pump_3 = get_actuator_shedule(pump_key="pump_3")
 
     # Set the schedule for the actuators
     if schedule_pump_1:
-        every().monday.at(schedule_pump_1).do(water_plant_1)
-        every().wednesday.at(schedule_pump_1).do(water_plant_1)
-        every().friday.at(schedule_pump_1).do(water_plant_1)
+        every().monday.at(schedule_pump_1).do(lambda: water_plant_1(store_influx=store_influx))
+        every().wednesday.at(schedule_pump_1).do(lambda: water_plant_1(store_influx=store_influx))
+        every().friday.at(schedule_pump_1).do(lambda: water_plant_1(store_influx=store_influx))
     if schedule_pump_2:
         # Set the schedule for pump 2
-        every().day.at(schedule_pump_2).do(water_plant_2)
+        every().day.at(schedule_pump_2).do(lambda: water_plant_2(store_influx=store_influx))
     if schedule_pump_3:
         # Set the schedule for pump 3
-        every().monday.at(schedule_pump_3).do(water_plant_3)
-        every().wednesday.at(schedule_pump_3).do(water_plant_3)
-        every().friday.at(schedule_pump_3).do(water_plant_3)
+        every().monday.at(schedule_pump_3).do(lambda: water_plant_3(store_influx=store_influx))
+        every().wednesday.at(schedule_pump_3).do(lambda: water_plant_3(store_influx=store_influx))
+        every().friday.at(schedule_pump_3).do(lambda: water_plant_3(store_influx=store_influx))
 
 def readings(moisture_0, moisture_1, moisture_2, sht45, light_sensor):
     print(f"Sample at: {datetime.now().isoformat()}")
@@ -253,21 +210,22 @@ def readings(moisture_0, moisture_1, moisture_2, sht45, light_sensor):
 
 
 if __name__ == "__main__": 
-    # Get the configuration from the config file
-    config = get_config()
     # Initialize the actuators
-    initialise_actuators(config)
+    initialise_actuators()
     # Initialize the sensors
-    moisture_0, moisture_1, moisture_2, sht45, light_sensor = initialise(config)
+    moisture_0, moisture_1, moisture_2, sht45, light_sensor = initialise()
     
     # reading interval
     # Set up schedule for sensors
-    sampling_period = config["plant"]["sensors"]["sampling_period"]
+    sampling_period = get_sensor_sampling_period()
     if sampling_period:
         pass
     else:
         raise ValueError(f"No sampling_period given in config file for sensors: {sampling_period}")
     
+    # Create STOMP client
+    stomp_client = stompClient(pump_water)
+
     print("init done") 
 
     while True:
@@ -278,7 +236,7 @@ if __name__ == "__main__":
             #raise Exception("I2C device error")
 
         except Exception as e:
-            moisture_0, moisture_1, moisture_2, sht45, light_sensor = initialise(config)
+            moisture_0, moisture_1, moisture_2, sht45, light_sensor = initialise()
             print(f"Exception at: {datetime.now().isoformat()}")
 
             point = create_exception_point(e)
