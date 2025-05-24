@@ -18,9 +18,14 @@ def pump_water(sec: int, pump_pin: int):
         pump_id = get_pump_id_by_pin(pump_pin)
     except ValueError as e:
         print(f"[ValueError] Error: {e}")
+        return
     print("Pumping water for {} seconds...".format(sec))
     # Get the relay object from the relay name
-    relay_str = get_relay_by_pump_id(pump_id)
+    try:
+        relay_str = get_relay_by_pump_id(pump_id)
+    except ValueError as e:
+        print(f"[ValueError] Error: {e}")
+        return
     relay = getattr(automationhat.relay, relay_str)
 
     relay.on()
