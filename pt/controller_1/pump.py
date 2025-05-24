@@ -14,7 +14,10 @@ def pump_water(sec: int, pump_pin: int):
     :param pump_pin: pump pin number
     """
     # Get pump id from pin number
-    pump_id = get_pump_id_by_pin(pump_pin)
+    try: 
+        pump_id = get_pump_id_by_pin(pump_pin)
+    except ValueError as e:
+        print(f"[ValueError] Error: {e}")
     print("Pumping water for {} seconds...".format(sec))
     # Get the relay object from the relay name
     relay_str = get_relay_by_pump_id(pump_id)
