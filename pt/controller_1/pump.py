@@ -3,22 +3,16 @@ import time
 from influxdb_client import Point
 from store import InfluxDBStore
 
-from config import get_pump_id_by_pin, get_relay_by_pump_id
+from config import get_relay_by_pump_id
 from datetime import datetime
 
 
-def pump_water(sec: int, pump_pin: int):
+def pump_water(sec: int, pump_id: str):
     """
     Pump water for a given number of seconds.
     :param sec: Number of seconds to pump water
-    :param pump_pin: pump pin number
+    :param pump_id: pump_id
     """
-    # Get pump id from pin number
-    try: 
-        pump_id = get_pump_id_by_pin(pump_pin)
-    except ValueError as e:
-        print(f"[ValueError] Error: {e}")
-        return
     print("Pumping water for {} seconds...".format(sec))
     # Get the relay object from the relay name
     try:

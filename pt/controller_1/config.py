@@ -80,21 +80,6 @@ def get_stomp_port() -> int:
     config = get_config()
     return config["services"]["external"]["stomp"]["port"]
 
-def get_stomp_actuator_ids() -> list:
-    config = get_config()
-    return config["services"]["external"]["stomp"]["actuator_ids"]
-
-def get_pump_id_by_pin(pin_number: int) -> str:
-    """
-    Returns the pump_id (e.g., 'pump_1') for a given pin number.
-    """
-    config = get_config()
-    actuators = config["plant"]["actuators"]
-    for pump_id, actuator in actuators.items():
-        if actuator.get("pin") == pin_number:
-            return pump_id
-    raise ValueError(f"No pump_id found for pin number: {pin_number}")
-
 def get_relay_by_pump_id(pump_id: str) -> str:
     """
     Returns the relay name (e.g., 'one') for a given pump_id (e.g., 'pump_1').
@@ -104,3 +89,21 @@ def get_relay_by_pump_id(pump_id: str) -> str:
     if pump_id in actuators:
         return actuators[pump_id]["relay"]
     raise ValueError(f"No relay found for pump_id: {pump_id}")
+
+def get_STOMP_destination_topics() -> list:
+    """
+    Returns a list of STOMP destination topics for all actuators.
+    """
+    config = get_config()
+    topics = config["services"]["external"]["stomp"]["topics"]
+    return [key for key in topics.keys()]
+
+def get_pump_id_by_topic(topic: str) -> str:
+    """
+    Returns the pump_id for a given STOMP topic.
+    """
+    config = get_config()
+    topics = config["services"]["external"]["stomp"]["topics"]
+    if topic in topics:
+        return topics[topic]
+    raise ValueError(f"No pump_id found for topic: {topic}")

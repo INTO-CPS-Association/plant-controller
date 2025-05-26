@@ -4,11 +4,14 @@ from config import (
     get_stomp_user,
     get_stomp_password,
     get_stomp_port,
-    get_stomp_actuator_ids,
+    get_STOMP_destination_topics,
+    get_pump_id_by_topic
 )
 from pump import pump_water
 import time
 
+HEARTBEAT_CLIENT = 15000  # Heartbeat interval from client to server in milliseconds
+HEARTBEAT_SERVER = 15000  # Heartbeat interval from server to client in milliseconds
 
 class stompClient(stomp.ConnectionListener):
     def __init__(self, func):
@@ -17,11 +20,11 @@ class stompClient(stomp.ConnectionListener):
         self._user = get_stomp_user()
         self._password = get_stomp_password()
         self._port = get_stomp_port()
-        self._ids = get_stomp_actuator_ids()
+        self._topics = get_STOMP_destination_topics()
         self.heartbeats = (
-            15000,
-            15000,
-        )  # Heartbeat interval in milliseconds (from client to server, from server to client)
+            HEARTBEAT_CLIENT,
+            HEARTBEAT_SERVER,
+        )
         self.conn = stomp.Connection(
             [(self._url, self._port)], heartbeats=self.heartbeats
         )
@@ -31,8 +34,8 @@ class stompClient(stomp.ConnectionListener):
 
     def on_connected(self, frame):
         print("Connected: %s" % frame.body)
-        for index, id in enumerate(self._ids):
-            queue_destination = f"actuator.{str(id)}.water"
+        for index, topic in enumerate(self._topics):
+            queue_destination = topic
             try:
                 self.conn.subscribe(destination=queue_destination, id=index, ack="auto")
                 print(f"Subscribed to {queue_destination} with id {index}")
@@ -46,13 +49,17 @@ class stompClient(stomp.ConnectionListener):
     def on_message(self, frame):
         print("STOMP Command Message: %s" % frame.body)
         # We need to command [WATER]<pump_pin> <duration>
+        topic = frame.headers['destination']
         command = frame.body.split("[WATER]")[1]
         command_list = command.split(" ")
-
-        if command_list[0] == "water":
-            self._func(int(command_list[1]), int(command_list[2]))
-        else:  # pin, duration
-            self._func(int(command_list[1]), int(command_list[0]))
+        # Get pump id from topic
+        try: 
+            pump_id = get_pump_id_by_topic(topic)
+        except ValueError as e:
+            print(f"[ValueError] Error: {e}")
+            return
+        # duration, pump_id
+        self._func(int(command_list[1]), pump_id)
 
     def send_message(self, destination, message):
         self.conn.send(destination=destination, body=message)
