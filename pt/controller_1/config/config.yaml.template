@@ -14,7 +14,7 @@ services:
       topics:
           "actuator.1.water": pump_1
           "actuator.2.water": pump_2
-          "actuator.2.water": pump_2
+          "actuator.3.water": pump_3
 plant:
   sensors:
     seesaw:

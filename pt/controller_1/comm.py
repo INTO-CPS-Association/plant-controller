@@ -29,7 +29,6 @@ class stompClient(stomp.ConnectionListener):
             [(self._url, self._port)], heartbeats=self.heartbeats
         )
         self.conn.set_listener("", self)
-        self.conn.start()
         self.conn.connect(self._user, self._password, wait=True)
 
     def on_connected(self, frame):
