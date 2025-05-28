@@ -10,22 +10,26 @@ precision_map = {
     "MEDHEAT_1S": adafruit_sht4x.Mode.MEDHEAT_1S,
     "MEDHEAT_100MS": adafruit_sht4x.Mode.MEDHEAT_100MS,
     "LOWHEAT_1S": adafruit_sht4x.Mode.LOWHEAT_1S,
-    "LOWHEAT_100MS": adafruit_sht4x.Mode.LOWHEAT_100MS
+    "LOWHEAT_100MS": adafruit_sht4x.Mode.LOWHEAT_100MS,
 }
 
+
 def get_config() -> dict:
-        with open("config/config.yaml", "r") as file:
-            data = yaml.safe_load(file)
-        return data
+    with open("config/config.yaml", "r") as file:
+        data = yaml.safe_load(file)
+    return data
+
 
 def get_sensor_sampling_period() -> int:
     config = get_config()
     return config["plant"]["sensors"]["sampling_period"]
 
+
 def get_actuator_shedule(pump_key: str) -> dict:
     config = get_config()
     actuators = config["plant"]["actuators"]
     return actuators[pump_key]["schedule"]
+
 
 def get_moisture_sensor_port(sensor_key: str) -> int:
     """
@@ -35,6 +39,7 @@ def get_moisture_sensor_port(sensor_key: str) -> int:
     seesaw = config["plant"]["sensors"]["seesaw"]
     return seesaw[sensor_key]["port"]
 
+
 def get_moisture_sensor_addr(sensor_key: str) -> int:
     """
     Returns the I2C address for a given moisture sensor key (e.g., 'moisture_0').
@@ -43,12 +48,14 @@ def get_moisture_sensor_addr(sensor_key: str) -> int:
     seesaw = config["plant"]["sensors"]["seesaw"]
     return seesaw[sensor_key]["addr"]
 
+
 def get_sht45_port() -> int:
     """
     Returns the port number for the SHT45 sensor.
     """
     config = get_config()
     return config["plant"]["sensors"]["sht45"]["port"]
+
 
 def get_sht45_mode() -> str:
     """
@@ -57,6 +64,7 @@ def get_sht45_mode() -> str:
     config = get_config()
     return config["plant"]["sensors"]["sht45"]["mode"]
 
+
 def get_as7341_port() -> int:
     """
     Returns the port number for the AS7341 sensor.
@@ -64,21 +72,26 @@ def get_as7341_port() -> int:
     config = get_config()
     return config["plant"]["sensors"]["as7341"]["port"]
 
+
 def get_stomp_url() -> str:
     config = get_config()
     return config["services"]["external"]["stomp"]["url"]
+
 
 def get_stomp_user() -> str:
     config = get_config()
     return config["services"]["external"]["stomp"]["user"]
 
+
 def get_stomp_password() -> str:
     config = get_config()
     return config["services"]["external"]["stomp"]["pass"]
 
+
 def get_stomp_port() -> int:
     config = get_config()
     return config["services"]["external"]["stomp"]["port"]
+
 
 def get_relay_by_pump_id(pump_id: str) -> str:
     """
@@ -90,6 +103,7 @@ def get_relay_by_pump_id(pump_id: str) -> str:
         return actuators[pump_id]["relay"]
     raise ValueError(f"No relay found for pump_id: {pump_id}")
 
+
 def get_STOMP_destination_topics() -> list:
     """
     Returns a list of STOMP destination topics for all actuators.
@@ -97,6 +111,7 @@ def get_STOMP_destination_topics() -> list:
     config = get_config()
     topics = config["services"]["external"]["stomp"]["topics"]
     return [key for key in topics.keys()]
+
 
 def get_pump_id_by_topic(topic: str) -> str:
     """
