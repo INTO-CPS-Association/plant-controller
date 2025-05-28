@@ -7,36 +7,11 @@ from config import get_relay_by_pump_id
 from datetime import datetime
 
 
-def pump_water(sec: int, pump_id: str):
-    """
-    Pump water for a given number of seconds.
-    :param sec: Number of seconds to pump water
-    :param pump_id: pump_id
-    """
-    print("Pumping water for {} seconds...".format(sec))
-    # Get the relay object from the relay name
-    try:
-        relay_str = get_relay_by_pump_id(pump_id)
-    except ValueError as e:
-        print(f"[ValueError] Error: {e}")
-        return
-    relay = getattr(automationhat.relay, relay_str)
-
-    relay.on()
-    print(f"{pump_id} turned on at: {datetime.now().isoformat()}")
-
-    time.sleep(sec)
-
-    relay.off()
-    print(f"{pump_id} turned off at: {datetime.now().isoformat()}")
-
 def create_pump_point(pump_id: str, status: int) -> Point:
-    '''Create a point for the pump measurement.'''
-    point = (
-                Point(f"{pump_id}")
-                .field("status", status)
-            )
+    """Create a point for the pump measurement."""
+    point = Point(f"{pump_id}").field("status", status)
     return point
+
 
 def water_plant(store_influx: InfluxDBStore, pump_id: str, relay, duration: int):
     """
@@ -62,12 +37,18 @@ def water_plant(store_influx: InfluxDBStore, pump_id: str, relay, duration: int)
 
 # Update the specific plant watering functions to use the refactored function
 def water_plant_1(store_influx: InfluxDBStore):
-    water_plant(store_influx, pump_id="pump-1", relay=automationhat.relay.one, duration=15)
+    water_plant(
+        store_influx, pump_id="pump-1", relay=automationhat.relay.one, duration=15
+    )
+
 
 def water_plant_2(store_influx: InfluxDBStore):
-    water_plant(store_influx, pump_id="pump-2", relay=automationhat.relay.two, duration=6)
+    water_plant(
+        store_influx, pump_id="pump-2", relay=automationhat.relay.two, duration=6
+    )
+
 
 def water_plant_3(store_influx: InfluxDBStore):
-    water_plant(store_influx, pump_id="pump-3", relay=automationhat.relay.three, duration=10)  
-
-    
+    water_plant(
+        store_influx, pump_id="pump-3", relay=automationhat.relay.three, duration=10
+    )
