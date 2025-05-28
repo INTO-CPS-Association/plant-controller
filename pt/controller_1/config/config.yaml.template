@@ -5,6 +5,16 @@ services:
       token: "xxxx"
       url: "https://influxdb.example.com"
       org: "plants"
+  external:
+    stomp:
+      url: "localhost.com"
+      user: "admin"
+      pass: "admin"
+      port: "1234"
+      topics:
+          "actuator.1.water": pump_1
+          "actuator.2.water": pump_2
+          "actuator.3.water": pump_3
 plant:
   sensors:
     seesaw:
@@ -25,8 +35,11 @@ plant:
     sampling_period: 60
   actuators:
     pump_1:
+      relay: one
       schedule: "10:15"
     pump_2:
+      relay: two
       schedule: "14:30"
     pump_3:
+      relay: three
       schedule: "10:15"
