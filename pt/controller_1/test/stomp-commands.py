@@ -1,7 +1,14 @@
-import stomp
 import sys
+import os
 #import time
-from ..config import (
+
+# Add parent directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import stomp
+
+# Now you can import modules from the parent directory
+from config import (
     get_stomp_url,
     get_stomp_user,
     get_stomp_password,

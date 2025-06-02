@@ -10,7 +10,7 @@ from config import (
     get_relay_by_pump_id,
 )
 
-HEARTBEAT_CLIENT = 0  # Heartbeat interval from client to server in milliseconds
+HEARTBEAT_CLIENT = 10000  # Heartbeat interval from client to server in milliseconds
 HEARTBEAT_SERVER = 0  # Heartbeat interval from server to client in milliseconds
 
 
