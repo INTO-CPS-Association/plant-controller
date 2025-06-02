@@ -41,19 +41,25 @@ def water_plant(store_influx: InfluxDBStore, pump_id: str, relay, duration: int)
 def water_plant_1(store_influx: InfluxDBStore):
     water_plant(
         store_influx,
-        pump_id="pump-1",
+        pump_id="pump_1",
         relay=automationhat.relay.one,
-        duration=get_pump_config("pump-1").get("on_duration", 15)
+        duration=get_pump_config("pump_1").get("on_duration", 15)
     )
 
 
 def water_plant_2(store_influx: InfluxDBStore):
     water_plant(
-        store_influx, pump_id="pump-2", relay=automationhat.relay.two, duration=6
+        store_influx,
+        pump_id="pump_2",
+        relay=automationhat.relay.two,
+        duration=get_pump_config("pump_2").get("on_duration", 6)
     )
 
 
 def water_plant_3(store_influx: InfluxDBStore):
     water_plant(
-        store_influx, pump_id="pump-3", relay=automationhat.relay.three, duration=10
+        store_influx,
+        pump_id="pump_3",
+        relay=automationhat.relay.three,
+        duration=get_pump_config("pump_1").get("on_duration", 10)
     )
