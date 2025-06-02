@@ -31,7 +31,6 @@ from pump import water_plant, water_plant_1, water_plant_2, water_plant_3
 store_influx = InfluxDBStore()
 
 from comm import stompClient
-from pump import pump_water
 
 
 def create_point(measurements: dict) -> Point:

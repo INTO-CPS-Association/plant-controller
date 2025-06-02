@@ -9,11 +9,9 @@ from config import (
     get_pump_id_by_topic,
     get_relay_by_pump_id,
 )
-from pump import pump_water
-import time
 
-HEARTBEAT_CLIENT = 15000  # Heartbeat interval from client to server in milliseconds
-HEARTBEAT_SERVER = 15000  # Heartbeat interval from server to client in milliseconds
+HEARTBEAT_CLIENT = 0  # Heartbeat interval from client to server in milliseconds
+HEARTBEAT_SERVER = 0  # Heartbeat interval from server to client in milliseconds
 
 
 class stompClient(stomp.ConnectionListener):
