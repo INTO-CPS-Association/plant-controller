@@ -13,6 +13,7 @@ precision_map = {
     "LOWHEAT_100MS": adafruit_sht4x.Mode.LOWHEAT_100MS,
 }
 
+RESTART_DELAY = 5  # restart delay to init sensors
 
 def get_config() -> dict:
     with open("config/config.yaml", "r") as file:
@@ -122,3 +123,14 @@ def get_pump_id_by_topic(topic: str) -> str:
     if topic in topics:
         return topics[topic]
     raise ValueError(f"No pump_id found for topic: {topic}")
+
+
+def get_pump_config(pump_id: str) -> dict:
+    """
+    Returns the configuration for a given pump_id.
+    """
+    config = get_config()
+    actuators = config["plant"]["actuators"]
+    if pump_id in actuators:
+        return actuators[pump_id]
+    raise ValueError(f"No configuration found for pump_id: {pump_id}")

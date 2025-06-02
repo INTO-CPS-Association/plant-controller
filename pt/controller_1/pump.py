@@ -1,10 +1,12 @@
-import automationhat
+from datetime import datetime
 import time
+import automationhat
 from influxdb_client import Point
 from store import InfluxDBStore
 
-from config import get_relay_by_pump_id
-from datetime import datetime
+from config import (
+  get_relay_by_pump_id,
+  get_pump_config)
 
 
 def create_pump_point(pump_id: str, status: int) -> Point:
@@ -38,7 +40,10 @@ def water_plant(store_influx: InfluxDBStore, pump_id: str, relay, duration: int)
 # Update the specific plant watering functions to use the refactored function
 def water_plant_1(store_influx: InfluxDBStore):
     water_plant(
-        store_influx, pump_id="pump-1", relay=automationhat.relay.one, duration=15
+        store_influx,
+        pump_id="pump-1",
+        relay=automationhat.relay.one,
+        duration=get_pump_config("pump-1").get("on_duration", 15)
     )
 
 

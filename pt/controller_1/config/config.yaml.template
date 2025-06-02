@@ -37,9 +37,12 @@ plant:
     pump_1:
       relay: one
       schedule: "10:15"
+      on_duration: 15   #pump turn on time
     pump_2:
       relay: two
       schedule: "14:30"
+      on_duration: 6   #pump turn on time
     pump_3:
       relay: three
       schedule: "10:15"
+      on_duration: 10   #pump turn on time

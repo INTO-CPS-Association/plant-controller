@@ -25,6 +25,7 @@ from config import (
     get_sht45_mode,
     get_as7341_port,
     get_actuator_shedule,
+    RESTART_DELAY
 )
 from pump import water_plant, water_plant_1, water_plant_2, water_plant_3
 
@@ -276,12 +277,12 @@ if __name__ == "__main__":
             # raise Exception("I2C device error")
 
         except Exception as e:
+            time.sleep(RESTART_DELAY)
             moisture_0, moisture_1, moisture_2, sht45, light_sensor = initialise()
             print(f"Exception at: {datetime.now().isoformat()}")
 
             point = create_exception_point(e)
             store_influx.write(record=point)
-            time.sleep(5)
             continue
 
         # water the plants if needed
