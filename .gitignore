@@ -206,5 +206,5 @@ cython_debug/
 # keep documentation of the hardware parts
 !docs/pt/parts
 
-config/*.yaml
+**/config/*.yaml
 
