@@ -37,7 +37,12 @@ class stompClient(stomp.ConnectionListener):
         for index, topic in enumerate(self._topics):
             queue_destination = topic
             try:
-                self.conn.subscribe(destination=queue_destination, id=index, ack="auto")
+                self.conn.subscribe(
+                    destination=queue_destination,
+                    id=index,
+                    ack="auto",
+                    headers={"activemq.subscriptionName": f"anycast-{index}", "subscription-type": "ANYCAST"}
+                )
                 print(f"Subscribed to {queue_destination} with id {index}")
             except Exception as e:
                 print(f"Error subscribing to {queue_destination}: {e}")
