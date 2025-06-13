@@ -8,7 +8,6 @@ import yaml
 import ssl
 import requests
 
-
 class InfluxDBStore:
     def __init__(self):
         config = self.get_config()
