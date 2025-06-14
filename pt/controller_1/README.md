@@ -74,12 +74,15 @@ plant:
     pump_1:                 # First water pump
       relay: one            # Relay name on the Automation HAT
       schedule: "10:15"     # Daily watering time (HH:MM)
+      on_duration: 15       #pump turn on time
     pump_2:                 # Second water pump
       relay: two
       schedule: "14:30"
+      on_duration: 6        #pump turn on time
     pump_3:                 # Third water pump
       relay: three
       schedule: "10:15"
+      on_duration: 10       #pump turn on time
 ```
 
 ### Configuration Sections

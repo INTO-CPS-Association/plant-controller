@@ -1,5 +1,26 @@
 # Updates
 
+## 13-June-2025
+
+Adds integration of STOMP client. Now there is an ability to send
+water pump turn on instructions from remote STOMP clients which
+can be digital twins. This new feature has been tested with
+[greenhouse DT](https://github.com/sievericcardo/greenhouse-dt-api).
+
+## 15-May-2025
+
+Removes duplication in controller code and adds better code structure
+
+## 25-April-2025
+
+Separates InfluxDB code from the main controller code.
+Updates the configuration file to include the InfluxDB credentials.
+
+## 14-April-2025
+
+Adds assembly instructions and documentation for the controller.
+Makes the first public release.
+
 ## 28-March-2025
 
 The projects have been renamed from **greenhouse** to **controller**.

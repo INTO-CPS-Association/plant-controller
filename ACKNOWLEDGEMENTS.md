@@ -7,6 +7,9 @@ many contributors. Some of the notable contributors are
 
 Mikkel Ejsing Petersen has replicated the first prototype and extensively
 documented the same for the benefit of everyone.
+Riccardo Sieve collaborated with us to integrate his
+[greenhouse DT](https://github.com/sievericcardo/greenhouse-dt-api)
+with the plant controller software.
 
 ## Research Advice
 
