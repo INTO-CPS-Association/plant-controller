@@ -46,8 +46,11 @@ def init_moisture_sensor(moisture_name: str) -> Seesaw:
     try:
         # Initialize the Seesaw moisture sensor
         return Seesaw(tca[port], addr=addr)
-    except Exception as e:
-        print(f"Error initializing {moisture_name} sensor: {e}")
+    except ValueError as e:
+        print(f"ValueError initializing {moisture_name} sensor: {e}")
+        return None
+    except OSError as e:
+        print(f"OSError initializing {moisture_name} sensor: {e}")
         return None
 
 def get_moisture_sensor_reading(moisture_sensor: Seesaw) -> Tuple[float, float]:
@@ -61,7 +64,7 @@ def get_moisture_sensor_reading(moisture_sensor: Seesaw) -> Tuple[float, float]:
         # Read the temperature
         temperature = moisture_sensor.get_temp()
         return moisture, temperature
-    except Exception as e:
+    except OSError as e:
         print(f"Error reading from moisture sensor: {e}")
         return None, None
 
@@ -102,8 +105,10 @@ def print_as7341_measurements(measurements: dict) -> None:
 
 def print_soil_sensor_measurements(measurements: dict) -> None:
     """Print the soil sensor measurements."""
+    moisture_str = f"{measurements['moisture']:.1f}" if measurements['moisture'] is not None else "None"
+    temperature_str = f"{measurements['temperature']:.1f} C" if measurements['temperature'] is not None else "None"
     print(
-        f"{measurements['name']} --> Moisture: {measurements['moisture']:0.1f}, Temperature: {measurements['temperature']:0.1f} C"
+        f"{measurements['name']} --> Moisture: {moisture_str}, Temperature: {temperature_str} C"
     )
 
 
