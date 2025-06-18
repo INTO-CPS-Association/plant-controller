@@ -74,15 +74,15 @@ plant:
     pump_1:                 # First water pump
       relay: one            # Relay name on the Automation HAT
       schedule: "10:15"     # Daily watering time (HH:MM)
-      on_duration: 15       #pump turn on time
+      on_duration: 15       # Pump turn on time
     pump_2:                 # Second water pump
       relay: two
       schedule: "14:30"
-      on_duration: 6        #pump turn on time
+      on_duration: 6        # Pump turn on time
     pump_3:                 # Third water pump
       relay: three
       schedule: "10:15"
-      on_duration: 10       #pump turn on time
+      on_duration: 10       # Pump turn on time
 ```
 
 ### Configuration Sections
@@ -123,3 +123,20 @@ python controller-1.py
 1. The I2C bus communication may not be very robust.
    The sensors produce errors sometimes in an hour and sometimes in
    a day. So python exception checking is required.
+
+## PM2 - Process Manager
+
+PM2 is a process manager for applications, which allows them to stay alive, if they exits unexpectedly due to errors. The ouput and errors gets stored in a log file.
+
+To install PM2, run the following command:
+
+```bash
+npm install -g pm2
+```
+Then you can start the controller using PM2:
+
+```bash
+pm2 start controller-1.py --interpreter .venv/bin/python --restart-delay=60000 --log controller-1.log
+```
+
+The above command starts the controller-1.py script using the Python interpreter from the virtual environment (.venv) and restarts it after 60 seconds if it exits unexpectedly. The logs will be stored in controller-1.log.

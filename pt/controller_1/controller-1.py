@@ -33,6 +33,37 @@ store_influx = InfluxDBStore()
 
 from comm import stompClient
 
+def init_moisture_sensor(moisture_name: str) -> Seesaw:
+    """Initialize a moisture sensor based on its name."""
+    port = get_moisture_sensor_port(sensor_key=moisture_name)
+    addr = get_moisture_sensor_addr(sensor_key=moisture_name)
+
+    # Create I2C bus as normal
+    i2c = board.I2C()  # uses board.SCL and board.SDA
+
+    # Create the TCA9548A object and give it the I2C bus
+    tca = adafruit_tca9548a.TCA9548A(i2c)
+    try:
+        # Initialize the Seesaw moisture sensor
+        return Seesaw(tca[port], addr=addr)
+    except Exception as e:
+        print(f"Error initializing {moisture_name} sensor: {e}")
+        return None
+
+def get_moisture_sensor_reading(moisture_sensor: Seesaw) -> Tuple[float, float]:
+    """Get the moisture and temperature readings from a Seesaw moisture sensor."""
+    if moisture_sensor is None:
+        return None, None
+
+    try:
+        # Read the moisture level
+        moisture = moisture_sensor.moisture_read()
+        # Read the temperature
+        temperature = moisture_sensor.get_temp()
+        return moisture, temperature
+    except Exception as e:
+        print(f"Error reading from moisture sensor: {e}")
+        return None, None
 
 def create_point(measurements: dict) -> Point:
     """Create a point for the measurement.
@@ -85,16 +116,6 @@ def create_exception_point(e: Exception) -> Point:
 def initialise() -> Sequence[Any]:
     """Initializes the sensor objects for the TCA9548A multiplexer."""
 
-    # Get the moisture sensor port numbers
-    port_moisture_0 = get_moisture_sensor_port(sensor_key="moisture_0")
-    port_moisture_1 = get_moisture_sensor_port(sensor_key="moisture_1")
-    port_moisture_2 = get_moisture_sensor_port(sensor_key="moisture_2")
-
-    # Get the moisture sensor addresses
-    addr_moisture_0 = get_moisture_sensor_addr(sensor_key="moisture_0")
-    addr_moisture_1 = get_moisture_sensor_addr(sensor_key="moisture_1")
-    addr_moisture_2 = get_moisture_sensor_addr(sensor_key="moisture_2")
-
     # Get the port for the SHT45 sensor
     port_sht45 = get_sht45_port()
 
@@ -112,9 +133,9 @@ def initialise() -> Sequence[Any]:
 
     # For each sensor, create it using the TCA9548A channel instead of the I2C object
     # moisture sensor with temperature sensing capabilities
-    moisture_0 = Seesaw(tca[port_moisture_0], addr=addr_moisture_0)
-    moisture_1 = Seesaw(tca[port_moisture_1], addr=addr_moisture_1)
-    moisture_2 = Seesaw(tca[port_moisture_2], addr=addr_moisture_2)
+    moisture_0 = init_moisture_sensor(moisture_name="moisture_0")
+    moisture_1 = init_moisture_sensor(moisture_name="moisture_1")
+    moisture_2 = init_moisture_sensor(moisture_name="moisture_2")
 
     # SHT45 is a temperature and humidity sensor
     sht45 = adafruit_sht4x.SHT4x(tca[port_sht45])
@@ -202,8 +223,7 @@ def readings(moisture_0, moisture_1, moisture_2, sht45, light_sensor):
     point = create_point(measurements=measurements)
     store_influx.write(record=point)
 
-    moisture_reading = moisture_0.moisture_read()
-    temperature_reading = moisture_0.get_temp()
+    moisture_reading, temperature_reading = get_moisture_sensor_reading(moisture_0)
     # Create a dict from the measurements
     measurements = {
         "name": "soil-sensor-0",
@@ -215,8 +235,7 @@ def readings(moisture_0, moisture_1, moisture_2, sht45, light_sensor):
 
     store_influx.write(record=point)
 
-    moisture_reading = moisture_1.moisture_read()
-    temperature_reading = moisture_1.get_temp()
+    moisture_reading, temperature_reading = get_moisture_sensor_reading(moisture_1)
     # Create a dict from the measurements
     measurements = {
         "name": "soil-sensor-1",
@@ -228,8 +247,7 @@ def readings(moisture_0, moisture_1, moisture_2, sht45, light_sensor):
 
     store_influx.write(record=point)
 
-    moisture_reading = moisture_2.moisture_read()
-    temperature_reading = moisture_2.get_temp()
+    moisture_reading, temperature_reading = get_moisture_sensor_reading(moisture_2)
     # Create a dict from the measurements
     measurements = {
         "name": "soil-sensor-2",
