@@ -13,30 +13,30 @@ from influxdb_client import Point
 from typing import Sequence, Tuple, Any
 import yaml
 
-from pt.controller_1.store import InfluxDBStore, create_point, create_exception_point
+from store import InfluxDBStore, create_point, create_exception_point
 
-from pt.controller_1.config import (
+from config import (
     precision_map,
     get_sensor_sampling_period,
     get_actuator_shedule,
     RESTART_DELAY,
 )
-from pt.controller_1.pump import (
+from pump import (
     water_plant,
     water_plant_1,
     water_plant_2,
     water_plant_3,
 )
-from pt.controller_1.sensors.moisture import (
+from sensors.moisture import (
     init_moisture_sensors,
     get_moisture_sensor_reading,
     print_soil_sensor_measurements,
 )
-from pt.controller_1.sensors.environment import (
+from sensors.environment import (
     print_sht45_measurements,
     print_as7341_measurements,
 )
-from pt.controller_1.sensors.environment import (
+from sensors.environment import (
     get_sht45_reading,
     get_as7341_reading,
     init_sht45,
@@ -45,7 +45,7 @@ from pt.controller_1.sensors.environment import (
 
 store_influx = InfluxDBStore()
 
-from pt.controller_1.comm.stomp import stompClient
+from comm.stomp import stompClient
 
 
 def initialise() -> Sequence[Any]:

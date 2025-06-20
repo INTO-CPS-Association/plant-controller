@@ -5,7 +5,7 @@ from influxdb_client import Point
 from store import InfluxDBStore
 from functools import partial
 
-from pt.controller_1.config import get_pump_config
+from config import get_pump_config
 
 
 def create_pump_point(pump_id: str, status: int) -> Point:

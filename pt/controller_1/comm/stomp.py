@@ -1,6 +1,6 @@
 import stomp
 import automationhat
-from pt.controller_1.config import (
+from config import (
     get_stomp_url,
     get_stomp_user,
     get_stomp_password,

@@ -2,7 +2,7 @@ import adafruit_sht4x
 import adafruit_tca9548a
 from adafruit_as7341 import AS7341
 
-from pt.controller_1.config import (
+from config import (
     precision_map,
     get_sht45_port,
     get_sht45_mode,
