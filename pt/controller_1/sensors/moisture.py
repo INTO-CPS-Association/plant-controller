@@ -3,8 +3,6 @@ import adafruit_tca9548a
 from typing import Tuple
 
 from config import (
-    get_moisture_sensor_port,
-    get_moisture_sensor_addr,
     get_moisture_sensors,
 )
 

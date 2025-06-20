@@ -1,7 +1,6 @@
 import urllib3
 import socket
-from influxdb_client.rest import ApiException
-from influxdb_client import InfluxDBClient, Point, WritePrecision
+from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 from influxdb_client.client.exceptions import InfluxDBError
 import yaml

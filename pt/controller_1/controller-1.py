@@ -1,17 +1,11 @@
 from datetime import datetime
-from schedule import every, repeat
+from schedule import every
 import schedule
 
-import adafruit_sht4x
 import adafruit_tca9548a
-from adafruit_as7341 import AS7341
-from adafruit_seesaw.seesaw import Seesaw
-import automationhat
 import board
-import os, time
-from influxdb_client import Point
-from typing import Sequence, Tuple, Any
-import yaml
+import time
+from typing import Sequence, Any
 
 from store import InfluxDBStore, create_point, create_exception_point
 
@@ -99,15 +93,15 @@ def readings(
     print(f"Sample at: {datetime.now().isoformat()}")
     # Create a dict from the measurements
     measurements = get_sht45_reading(sht45)
-    print_sht45_measurements(measurements=measurements)
-    point = create_point(measurements=measurements)
-    store_influx.write(record=point)
+    print_sht45_measurements(measurements)
+    point = create_point(measurements)
+    store_influx.write(point)
 
     # Create a dict from the measurements
     measurements = get_as7341_reading(light_sensor)
-    print_as7341_measurements(measurements=measurements)
-    point = create_point(measurements=measurements)
-    store_influx.write(record=point)
+    print_as7341_measurements(measurements)
+    point = create_point(measurements)
+    store_influx.write(point)
 
     # Iterate over the moisture sensors and get their readings
     # moisture_sensors is a dict with the sensor name as key and Seesaw object as value
@@ -121,10 +115,10 @@ def readings(
             "moisture": moisture_reading,
             "temperature": temperature_reading,
         }
-        point = create_point(measurements=measurements)
-        print_soil_sensor_measurements(measurements=measurements)
+        point = create_point(measurements)
+        print_soil_sensor_measurements(measurements)
 
-        store_influx.write(record=point)
+        store_influx.write(point)
 
     print("")
 
