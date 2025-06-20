@@ -1,108 +1,49 @@
 from datetime import datetime
-from schedule import every, repeat
+from schedule import every
 import schedule
 
-import adafruit_sht4x
 import adafruit_tca9548a
-from adafruit_as7341 import AS7341
-from adafruit_seesaw.seesaw import Seesaw
-import automationhat
 import board
-import os, time
-from influxdb_client import Point
-from typing import Sequence, Tuple, Any
-import yaml
+import time
+from typing import Sequence, Any
 
-from store import InfluxDBStore
+from store import InfluxDBStore, create_point, create_exception_point
 
 from config import (
     precision_map,
-    get_config,
     get_sensor_sampling_period,
-    get_moisture_sensor_port,
-    get_moisture_sensor_addr,
-    get_sht45_port,
-    get_sht45_mode,
-    get_as7341_port,
     get_actuator_shedule,
-    RESTART_DELAY
+    RESTART_DELAY,
 )
-from pump import water_plant, water_plant_1, water_plant_2, water_plant_3
+from pump import (
+    water_plant,
+    water_plant_1,
+    water_plant_2,
+    water_plant_3,
+)
+from sensors.moisture import (
+    init_moisture_sensors,
+    read_moisture_sensor,
+    print_soil_sensor_measurements,
+)
+from sensors.environment import (
+    print_sht45_measurements,
+    print_as7341_measurements,
+)
+from sensors.environment import (
+    get_sht45_reading,
+    get_as7341_reading,
+    init_sht45,
+    init_as7341,
+)
 
 store_influx = InfluxDBStore()
 
-from comm import stompClient
-
-
-def create_point(measurements: dict) -> Point:
-    """Create a point for the measurement.
-    Args:
-        measurements (dict): A dictionary containing the measurement data.
-        The dictionary should have a "name" key for the measurement name
-        and other keys for the measurement fields.
-    Returns:
-        Point: An InfluxDB Point object with the measurement data.
-    """
-    point = Point(measurements["name"])
-    for key, value in measurements.items():
-        if key != "name":
-            point.field(key, value)
-    return point
-
-
-def print_sht45_measurements(measurements: dict) -> None:
-    """Print the SHT45 temperature and humidity measurements."""
-    print(
-        f"SHT45 --> Temperature: {measurements['temperature']:0.1f} C, Humidity: {measurements['relative_humidity']:0.1f} %"
-    )
-
-
-def print_as7341_measurements(measurements: dict) -> None:
-    """Print the AS7341 light sensor measurements."""
-    print("AS7341 light sensor: 415nm wavelength (Violet)  %s" % measurements["violet"])
-    print("AS7341 light sensor: 445nm wavelength (Indigo) %s" % measurements["indigo"])
-    print("AS7341 light sensor: 480nm wavelength (Blue)   %s" % measurements["blue"])
-    print("AS7341 light sensor: 515nm wavelength (Cyan)   %s" % measurements["cyan"])
-    print("AS7341 light sensor: 555nm wavelength (Green)   %s" % measurements["green"])
-    print("AS7341 light sensor: 590nm wavelength (Yellow)  %s" % measurements["yellow"])
-    print("AS7341 light sensor: 630nm wavelength (Orange)  %s" % measurements["orange"])
-    print("AS7341 light sensor: 680nm wavelength (Red)     %s" % measurements["red"])
-
-
-def print_soil_sensor_measurements(measurements: dict) -> None:
-    """Print the soil sensor measurements."""
-    print(
-        f"{measurements['name']} --> Moisture: {measurements['moisture']:0.1f}, Temperature: {measurements['temperature']:0.1f} C"
-    )
-
-
-def create_exception_point(e: Exception) -> Point:
-    """Create a point for the exception measurement."""
-    point = Point("exception").field("status", 0)
-    return point
+from comm.stomp import stompClient
 
 
 def initialise() -> Sequence[Any]:
     """Initializes the sensor objects for the TCA9548A multiplexer."""
-
-    # Get the moisture sensor port numbers
-    port_moisture_0 = get_moisture_sensor_port(sensor_key="moisture_0")
-    port_moisture_1 = get_moisture_sensor_port(sensor_key="moisture_1")
-    port_moisture_2 = get_moisture_sensor_port(sensor_key="moisture_2")
-
-    # Get the moisture sensor addresses
-    addr_moisture_0 = get_moisture_sensor_addr(sensor_key="moisture_0")
-    addr_moisture_1 = get_moisture_sensor_addr(sensor_key="moisture_1")
-    addr_moisture_2 = get_moisture_sensor_addr(sensor_key="moisture_2")
-
-    # Get the port for the SHT45 sensor
-    port_sht45 = get_sht45_port()
-
-    # Get the mode string for the SHT45 sensor
-    mode_str_sht45 = get_sht45_mode()
-
-    # Get the port number for the AS7341 sensor
-    port_as7341 = get_as7341_port()
 
     # Create I2C bus as normal
     i2c = board.I2C()  # uses board.SCL and board.SDA
@@ -112,28 +53,15 @@ def initialise() -> Sequence[Any]:
 
     # For each sensor, create it using the TCA9548A channel instead of the I2C object
     # moisture sensor with temperature sensing capabilities
-    moisture_0 = Seesaw(tca[port_moisture_0], addr=addr_moisture_0)
-    moisture_1 = Seesaw(tca[port_moisture_1], addr=addr_moisture_1)
-    moisture_2 = Seesaw(tca[port_moisture_2], addr=addr_moisture_2)
+    moisture_sensors = init_moisture_sensors(tca)
 
     # SHT45 is a temperature and humidity sensor
-    sht45 = adafruit_sht4x.SHT4x(tca[port_sht45])
-
-    if mode_str_sht45 in precision_map:
-        # Set the sensor mode based on the string value
-        mode_value = precision_map[mode_str_sht45]
-        sht45.mode = mode_value
-    else:
-        raise ValueError(f"Invalid mode string: {mode_str_sht45}")
-
-    # Can also set the mode to enable heater
-    # sht45.mode = adafruit_sht4x.Mode.LOWHEAT_100MS
-    print("Current mode for SHT45 is: ", adafruit_sht4x.Mode.string[sht45.mode])
+    sht45 = init_sht45(tca)
 
     # AS7341 is a ten-channel (eight color) light sensor
-    light_sensor = AS7341(tca[port_as7341])
+    light_sensor = init_as7341(tca)
 
-    return moisture_0, moisture_1, moisture_2, sht45, light_sensor
+    return moisture_sensors, sht45, light_sensor
 
 
 def initialise_actuators() -> None:
@@ -146,100 +74,49 @@ def initialise_actuators() -> None:
 
     # Set the schedule for the actuators
     if schedule_pump_1:
-        every().monday.at(schedule_pump_1).do(
-            lambda: water_plant_1(store_influx=store_influx)
-        )
-        every().wednesday.at(schedule_pump_1).do(
-            lambda: water_plant_1(store_influx=store_influx)
-        )
-        every().friday.at(schedule_pump_1).do(
-            lambda: water_plant_1(store_influx=store_influx)
-        )
+        every().monday.at(schedule_pump_1).do(lambda: water_plant_1(store_influx))
+        every().wednesday.at(schedule_pump_1).do(lambda: water_plant_1(store_influx))
+        every().friday.at(schedule_pump_1).do(lambda: water_plant_1(store_influx))
     if schedule_pump_2:
         # Set the schedule for pump 2
-        every().day.at(schedule_pump_2).do(
-            lambda: water_plant_2(store_influx=store_influx)
-        )
+        every().day.at(schedule_pump_2).do(lambda: water_plant_2(store_influx))
     if schedule_pump_3:
         # Set the schedule for pump 3
-        every().monday.at(schedule_pump_3).do(
-            lambda: water_plant_3(store_influx=store_influx)
-        )
-        every().wednesday.at(schedule_pump_3).do(
-            lambda: water_plant_3(store_influx=store_influx)
-        )
-        every().friday.at(schedule_pump_3).do(
-            lambda: water_plant_3(store_influx=store_influx)
-        )
+        every().monday.at(schedule_pump_3).do(lambda: water_plant_3(store_influx))
+        every().wednesday.at(schedule_pump_3).do(lambda: water_plant_3(store_influx))
+        every().friday.at(schedule_pump_3).do(lambda: water_plant_3(store_influx))
 
 
-def readings(moisture_0, moisture_1, moisture_2, sht45, light_sensor):
+def readings(moisture_sensors, sht45, light_sensor):
     print(f"Sample at: {datetime.now().isoformat()}")
-    temperature, relative_humidity = sht45.measurements
     # Create a dict from the measurements
-    measurements = {
-        "name": "sht45",
-        "temperature": temperature,
-        "relative_humidity": relative_humidity,
-    }
-    print_sht45_measurements(measurements=measurements)
-    point = create_point(measurements=measurements)
-    store_influx.write(record=point)
+    measurements = get_sht45_reading(sht45)
+    print_sht45_measurements(measurements)
+    point = create_point(measurements)
+    store_influx.write(point)
 
     # Create a dict from the measurements
-    measurements = {
-        "name": "as7341",
-        "violet": light_sensor.channel_415nm,
-        "indigo": light_sensor.channel_445nm,
-        "blue": light_sensor.channel_480nm,
-        "cyan": light_sensor.channel_515nm,
-        "green": light_sensor.channel_555nm,
-        "yellow": light_sensor.channel_590nm,
-        "orange": light_sensor.channel_630nm,
-        "red": light_sensor.channel_680nm,
-    }
-    print_as7341_measurements(measurements=measurements)
-    point = create_point(measurements=measurements)
-    store_influx.write(record=point)
+    measurements = get_as7341_reading(light_sensor)
+    print_as7341_measurements(measurements)
+    point = create_point(measurements)
+    store_influx.write(point)
 
-    moisture_reading = moisture_0.moisture_read()
-    temperature_reading = moisture_0.get_temp()
-    # Create a dict from the measurements
-    measurements = {
-        "name": "soil-sensor-0",
-        "moisture": moisture_reading,
-        "temperature": temperature_reading,
-    }
-    point = create_point(measurements=measurements)
-    print_soil_sensor_measurements(measurements=measurements)
+    # Iterate over the moisture sensors and get their readings
+    # moisture_sensors is a dict with the sensor name as key and Seesaw object as value
+    for moisture_sensor_name, moisture_sensor_value in moisture_sensors.items():
+        moisture_reading, temperature_reading = read_moisture_sensor(
+            moisture_sensor_value
+        )
+        # Create a dict from the measurements
+        measurements = {
+            "name": moisture_sensor_name,
+            "moisture": moisture_reading,
+            "temperature": temperature_reading,
+        }
+        point = create_point(measurements)
+        print_soil_sensor_measurements(measurements)
 
-    store_influx.write(record=point)
-
-    moisture_reading = moisture_1.moisture_read()
-    temperature_reading = moisture_1.get_temp()
-    # Create a dict from the measurements
-    measurements = {
-        "name": "soil-sensor-1",
-        "moisture": moisture_reading,
-        "temperature": temperature_reading,
-    }
-    point = create_point(measurements=measurements)
-    print_soil_sensor_measurements(measurements=measurements)
-
-    store_influx.write(record=point)
-
-    moisture_reading = moisture_2.moisture_read()
-    temperature_reading = moisture_2.get_temp()
-    # Create a dict from the measurements
-    measurements = {
-        "name": "soil-sensor-2",
-        "moisture": moisture_reading,
-        "temperature": temperature_reading,
-    }
-    point = create_point(measurements=measurements)
-    print_soil_sensor_measurements(measurements=measurements)
-
-    store_influx.write(record=point)
+        store_influx.write(point)
 
     print("")
 
@@ -248,7 +125,7 @@ if __name__ == "__main__":
     # Initialize the actuators
     initialise_actuators()
     # Initialize the sensors
-    moisture_0, moisture_1, moisture_2, sht45, light_sensor = initialise()
+    moisture_sensors, sht45, light_sensor = initialise()
 
     # reading interval
     # Set up schedule for sensors
@@ -271,14 +148,14 @@ if __name__ == "__main__":
 
     while True:
         try:
-            readings(moisture_0, moisture_1, moisture_2, sht45, light_sensor)
+            readings(moisture_sensors, sht45, light_sensor)
 
             # time.sleep(5)
             # raise Exception("I2C device error")
 
         except Exception as e:
             time.sleep(RESTART_DELAY)
-            moisture_0, moisture_1, moisture_2, sht45, light_sensor = initialise()
+            moisture_sensors, sht45, light_sensor = initialise()
             print(f"Exception at: {datetime.now().isoformat()}")
 
             point = create_exception_point(e)
