@@ -80,21 +80,21 @@ def initialise_actuators() -> None:
 
     # Set the schedule for the actuators
     if schedule_pump_1:
-        every().monday.at(schedule_pump_1).do(water_plant_1(store_influx))
-        every().wednesday.at(schedule_pump_1).do(water_plant_1(store_influx))
-        every().friday.at(schedule_pump_1).do(water_plant_1(store_influx))
+        every().monday.at(schedule_pump_1).do(lambda: water_plant_1(store_influx))
+        every().wednesday.at(schedule_pump_1).do(lambda: water_plant_1(store_influx))
+        every().friday.at(schedule_pump_1).do(lambda: water_plant_1(store_influx))
     if schedule_pump_2:
         # Set the schedule for pump 2
-        every().day.at(schedule_pump_2).do(water_plant_2(store_influx))
+        every().day.at(schedule_pump_2).do(lambda: water_plant_2(store_influx))
     if schedule_pump_3:
         # Set the schedule for pump 3
-        every().monday.at(schedule_pump_3).do(water_plant_3(store_influx))
-        every().wednesday.at(schedule_pump_3).do(water_plant_3(store_influx))
-        every().friday.at(schedule_pump_3).do(water_plant_3(store_influx))
+        every().monday.at(schedule_pump_3).do(lambda: water_plant_3(store_influx))
+        every().wednesday.at(schedule_pump_3).do(lambda: water_plant_3(store_influx))
+        every().friday.at(schedule_pump_3).do(lambda: water_plant_3(store_influx))
 
 
 def readings(
-    moisture_senors, sht45, light_sensor
+    moisture_sensors, sht45, light_sensor
 ):  # list of mositure, sht45, light_sensor):
     print(f"Sample at: {datetime.now().isoformat()}")
     # Create a dict from the measurements
@@ -110,8 +110,8 @@ def readings(
     store_influx.write(record=point)
 
     # Iterate over the moisture sensors and get their readings
-    # moisture_senors is a dict with the sensor name as key and Seesaw object as value
-    for moisture_sensor_name, moisture_sensor_value in moisture_senors.items():
+    # moisture_sensors is a dict with the sensor name as key and Seesaw object as value
+    for moisture_sensor_name, moisture_sensor_value in moisture_sensors.items():
         moisture_reading, temperature_reading = get_moisture_sensor_reading(
             moisture_sensor_value
         )
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     # Initialize the actuators
     initialise_actuators()
     # Initialize the sensors
-    moisture_senors, sht45, light_sensor = initialise()
+    moisture_sensors, sht45, light_sensor = initialise()
 
     # reading interval
     # Set up schedule for sensors
@@ -156,14 +156,14 @@ if __name__ == "__main__":
 
     while True:
         try:
-            readings(moisture_senors, sht45, light_sensor)
+            readings(moisture_sensors, sht45, light_sensor)
 
             # time.sleep(5)
             # raise Exception("I2C device error")
 
         except Exception as e:
             time.sleep(RESTART_DELAY)
-            moisture_senors, sht45, light_sensor = initialise()
+            moisture_sensors, sht45, light_sensor = initialise()
             print(f"Exception at: {datetime.now().isoformat()}")
 
             point = create_exception_point(e)

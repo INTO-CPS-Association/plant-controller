@@ -11,8 +11,6 @@ from config import (
 
 def init_moisture_sensors(tca: adafruit_tca9548a.TCA9548A) -> dict:
     """Initialize a moisture sensor based on its name."""
-    port = get_moisture_sensor_port(sensor_key=moisture_name)
-    addr = get_moisture_sensor_addr(sensor_key=moisture_name)
 
     # empty moisture sensors dict with name as key and Seesaw object as value
     moisture_sensors_dict = {}
@@ -30,6 +28,8 @@ def init_moisture_sensors(tca: adafruit_tca9548a.TCA9548A) -> dict:
         except OSError as e:
             print(f"OSError initializing {moisture_name} sensor: {e}")
             moisture_sensors_dict[moisture_name] = None
+    
+    return moisture_sensors_dict
 
 
 def get_moisture_sensor_reading(moisture_sensor: Seesaw) -> Tuple[float, float]:
