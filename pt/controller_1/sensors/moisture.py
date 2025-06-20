@@ -23,10 +23,10 @@ def init_moisture_sensors(tca: adafruit_tca9548a.TCA9548A) -> dict:
             # Initialize the Seesaw moisture sensor
             moisture_sensors_dict[moisture_name] = Seesaw(tca[port], addr=addr)
         except ValueError as e:
-            print(f"ValueError initializing {moisture_name} sensor: {e}")
+            print(f"[ValueError] initializing {moisture_name} sensor: {e}")
             moisture_sensors_dict[moisture_name] = None
         except OSError as e:
-            print(f"OSError initializing {moisture_name} sensor: {e}")
+            print(f"[OSError] initializing {moisture_name} sensor: {e}")
             moisture_sensors_dict[moisture_name] = None
     
     return moisture_sensors_dict
@@ -44,7 +44,7 @@ def get_moisture_sensor_reading(moisture_sensor: Seesaw) -> Tuple[float, float]:
         temperature = moisture_sensor.get_temp()
         return moisture, temperature
     except OSError as e:
-        print(f"Error reading from moisture sensor: {e}")
+        print(f"[OSError] reading from moisture sensor: {e}")
         return None, None
 
 

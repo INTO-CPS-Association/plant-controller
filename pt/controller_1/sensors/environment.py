@@ -19,21 +19,25 @@ def init_sht45(tca: adafruit_tca9548a.TCA9548A) -> adafruit_sht4x.SHT4x:
     # Get the mode string for the SHT45 sensor
     mode_str_sht45 = get_sht45_mode()
 
-    # SHT45 is a temperature and humidity sensor
-    sht45 = adafruit_sht4x.SHT4x(tca[port_sht45])
+    try:
+        # SHT45 is a temperature and humidity sensor
+        sht45 = adafruit_sht4x.SHT4x(tca[port_sht45])
 
-    if mode_str_sht45 in precision_map:
-        # Set the sensor mode based on the string value
-        mode_value = precision_map[mode_str_sht45]
-        sht45.mode = mode_value
-    else:
-        raise ValueError(f"Invalid mode string: {mode_str_sht45}")
+        if mode_str_sht45 in precision_map:
+            # Set the sensor mode based on the string value
+            mode_value = precision_map[mode_str_sht45]
+            sht45.mode = mode_value
+        else:
+            raise ValueError(f"Invalid mode string: {mode_str_sht45}")
 
-    # Can also set the mode to enable heater
-    # sht45.mode = adafruit_sht4x.Mode.LOWHEAT_100MS
-    print("Current mode for SHT45 is: ", adafruit_sht4x.Mode.string[sht45.mode])
+        # Can also set the mode to enable heater
+        # sht45.mode = adafruit_sht4x.Mode.LOWHEAT_100MS
+        print("Current mode for SHT45 is: ", adafruit_sht4x.Mode.string[sht45.mode])
 
-    return sht45
+        return sht45
+    except ValueError as e:
+        print(f"[ValueError] initializing SHT45 sensor: {e}")
+        return None
 
 
 def init_as7341(tca: adafruit_tca9548a.TCA9548A) -> AS7341:
@@ -42,11 +46,22 @@ def init_as7341(tca: adafruit_tca9548a.TCA9548A) -> AS7341:
     # Get the port number for the AS7341 sensor
     port_as7341 = get_as7341_port()
 
-    return AS7341(tca[port_as7341])
+    try:
+        return AS7341(tca[port_as7341])
+    except ValueError as e:
+        print(f"[ValueError] initializing AS7341 sensor: {e}")
+        return None
 
 
 def get_sht45_reading(sht45: adafruit_sht4x.SHT4x) -> dict:
     """Get the temperature and humidity readings from the SHT45 sensor."""
+    if sht45 is None:
+        return {
+            "name": "sht45",
+            "temperature": None,
+            "relative_humidity": None,
+        }
+
     try:
         temperature, relative_humidity = sht45.measurements
         return {
@@ -55,12 +70,25 @@ def get_sht45_reading(sht45: adafruit_sht4x.SHT4x) -> dict:
             "relative_humidity": relative_humidity,
         }
     except OSError as e:
-        print(f"Error reading from SHT45 sensor: {e}")
+        print(f"[OSError] reading from SHT45 sensor: {e}")
         return {"name": "sht45", "temperature": None, "relative_humidity": None}
 
 
 def get_as7341_reading(light_sensor: AS7341) -> dict:
     """Get the light sensor readings from the AS7341 sensor."""
+    if light_sensor is None:
+        return {
+            "name": "as7341",
+            "violet": None,
+            "indigo": None,
+            "blue": None,
+            "cyan": None,
+            "green": None,
+            "yellow": None,
+            "orange": None,
+            "red": None,
+        }
+
     try:
         # Read the light sensor values
         measurements = {
