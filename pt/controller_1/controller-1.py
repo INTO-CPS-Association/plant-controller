@@ -87,9 +87,7 @@ def initialise_actuators() -> None:
         every().friday.at(schedule_pump_3).do(lambda: water_plant_3(store_influx))
 
 
-def readings(
-    moisture_sensors, sht45, light_sensor
-):  # list of mositure, sht45, light_sensor):
+def readings(moisture_sensors, sht45, light_sensor):
     print(f"Sample at: {datetime.now().isoformat()}")
     # Create a dict from the measurements
     measurements = get_sht45_reading(sht45)

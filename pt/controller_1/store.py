@@ -47,7 +47,7 @@ class InfluxDBStore:
             )
         except urllib3.exceptions.NewConnectionError as e:
             print(
-                f"[NewConection Error] Failed to write point '{record.to_line_protocol()}' with exception NewConnectionError: {e}"
+                f"[NewConnection Error] Failed to write point '{record.to_line_protocol()}' with exception NewConnectionError: {e}"
             )
         except urllib3.exceptions.ProtocolError as e:
             print(

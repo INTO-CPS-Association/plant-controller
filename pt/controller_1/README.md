@@ -126,7 +126,7 @@ python controller-1.py
 
 ## Process Manager
 
-PM2 is a process manager for applications, which allows them to stay alive, if they exits unexpectedly due to errors. The ouput and errors gets stored in a log file.
+PM2 is a process manager for applications, which allows them to stay alive, if they exits unexpectedly due to errors. The output and errors gets stored in a log file.
 
 To install PM2, run the following command:
 
