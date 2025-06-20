@@ -1,6 +1,6 @@
 import stomp
 import automationhat
-from config import (
+from pt.controller_1.config import (
     get_stomp_url,
     get_stomp_user,
     get_stomp_password,
@@ -41,7 +41,10 @@ class stompClient(stomp.ConnectionListener):
                     destination=queue_destination,
                     id=index,
                     ack="auto",
-                    headers={"activemq.subscriptionName": f"anycast-{index}", "subscription-type": "ANYCAST"}
+                    headers={
+                        "activemq.subscriptionName": f"anycast-{index}",
+                        "subscription-type": "ANYCAST",
+                    },
                 )
                 print(f"Subscribed to {queue_destination} with id {index}")
             except Exception as e:

@@ -3,10 +3,9 @@ import time
 import automationhat
 from influxdb_client import Point
 from store import InfluxDBStore
+from functools import partial
 
-from config import (
-  get_relay_by_pump_id,
-  get_pump_config)
+from pt.controller_1.config import get_pump_config
 
 
 def create_pump_point(pump_id: str, status: int) -> Point:
@@ -38,28 +37,21 @@ def water_plant(store_influx: InfluxDBStore, pump_id: str, relay, duration: int)
 
 
 # Update the specific plant watering functions to use the refactored function
-def water_plant_1(store_influx: InfluxDBStore):
-    water_plant(
-        store_influx,
-        pump_id="pump_1",
-        relay=automationhat.relay.one,
-        duration=get_pump_config("pump_1").get("on_duration", 15)
-    )
-
-
-def water_plant_2(store_influx: InfluxDBStore):
-    water_plant(
-        store_influx,
-        pump_id="pump_2",
-        relay=automationhat.relay.two,
-        duration=get_pump_config("pump_2").get("on_duration", 6)
-    )
-
-
-def water_plant_3(store_influx: InfluxDBStore):
-    water_plant(
-        store_influx,
-        pump_id="pump_3",
-        relay=automationhat.relay.three,
-        duration=get_pump_config("pump_1").get("on_duration", 10)
-    )
+water_plant_1 = partial(
+    water_plant,
+    pump_id="pump_1",
+    relay=automationhat.relay.one,
+    duration=get_pump_config("pump_1").get("on_duration", 15),
+)
+water_plant_2 = partial(
+    water_plant,
+    pump_id="pump_2",
+    relay=automationhat.relay.two,
+    duration=get_pump_config("pump_2").get("on_duration", 6),
+)
+water_plant_3 = partial(
+    water_plant,
+    pump_id="pump_3",
+    relay=automationhat.relay.three,
+    duration=get_pump_config("pump_3").get("on_duration", 10),
+)

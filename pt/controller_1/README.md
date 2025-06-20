@@ -124,7 +124,7 @@ python controller-1.py
    The sensors produce errors sometimes in an hour and sometimes in
    a day. So python exception checking is required.
 
-## PM2 - Process Manager
+## Process Manager
 
 PM2 is a process manager for applications, which allows them to stay alive, if they exits unexpectedly due to errors. The ouput and errors gets stored in a log file.
 

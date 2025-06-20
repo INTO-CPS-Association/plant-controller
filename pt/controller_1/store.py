@@ -8,6 +8,7 @@ import yaml
 import ssl
 import requests
 
+
 class InfluxDBStore:
     def __init__(self):
         config = self.get_config()
@@ -42,20 +43,54 @@ class InfluxDBStore:
             print(f"[InfluxDB Error] Error Message: {e.body}")
             print(f"[InfluxDB Error] Error Headers: {e.headers}")
         except urllib3.exceptions.ConnectTimeoutError as e:
-            print(f"[Connection Timeout Error] Failed to write point '{record.to_line_protocol()}' with exception ConnectTimeoutError: {e}")
+            print(
+                f"[Connection Timeout Error] Failed to write point '{record.to_line_protocol()}' with exception ConnectTimeoutError: {e}"
+            )
         except urllib3.exceptions.NewConnectionError as e:
-            print(f"[NewConection Error] Failed to write point '{record.to_line_protocol()}' with exception NewConnectionError: {e}")
+            print(
+                f"[NewConection Error] Failed to write point '{record.to_line_protocol()}' with exception NewConnectionError: {e}"
+            )
         except urllib3.exceptions.ProtocolError as e:
-            print(f"[Protocol Error] Failed to write point '{record.to_line_protocol()}' with exception ProtocolError: {e}")
+            print(
+                f"[Protocol Error] Failed to write point '{record.to_line_protocol()}' with exception ProtocolError: {e}"
+            )
         except urllib3.exceptions.HTTPError as e:
-            print(f"[HTTP Error] Failed to write point '{record.to_line_protocol()}' with exception HTTPError (generic): {e}")
+            print(
+                f"[HTTP Error] Failed to write point '{record.to_line_protocol()}' with exception HTTPError (generic): {e}"
+            )
         except socket.gaierror as e:
-            print(f"[DNS Error] Failed to write point '{record.to_line_protocol()}' with exception socket.gaierror (DNS resolution): {e}")
+            print(
+                f"[DNS Error] Failed to write point '{record.to_line_protocol()}' with exception socket.gaierror (DNS resolution): {e}"
+            )
         except socket.timeout as e:
-            print(f"[Timeout Error] Failed to write point '{record.to_line_protocol()}' with exception socket.timeout: {e}")
+            print(
+                f"[Timeout Error] Failed to write point '{record.to_line_protocol()}' with exception socket.timeout: {e}"
+            )
         except (ssl.SSLError, requests.exceptions.SSLError) as e:
             print(
                 f"[SSL/TLS Error] Failed to write point '{record.to_line_protocol()}' with exception {type(e).__name__}: {e}"
             )
         except ValueError as e:
             print(f"[ValueError] Failed to write point: {e}")
+
+
+def create_point(measurements: dict) -> Point:
+    """Create a point for the measurement.
+    Args:
+        measurements (dict): A dictionary containing the measurement data.
+        The dictionary should have a "name" key for the measurement name
+        and other keys for the measurement fields.
+    Returns:
+        Point: An InfluxDB Point object with the measurement data.
+    """
+    point = Point(measurements["name"])
+    for key, value in measurements.items():
+        if key != "name":
+            point.field(key, value)
+    return point
+
+
+def create_exception_point(e: Exception) -> Point:
+    """Create a point for the exception measurement."""
+    point = Point("exception").field("status", 0)
+    return point
