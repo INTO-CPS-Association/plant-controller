@@ -1,6 +1,7 @@
+from typing import Tuple, Optional
 from adafruit_seesaw.seesaw import Seesaw
 import adafruit_tca9548a
-from typing import Tuple
+
 
 from config import (
     get_moisture_sensors,
@@ -30,7 +31,7 @@ def init_moisture_sensors(tca: adafruit_tca9548a.TCA9548A) -> dict:
     return moisture_sensors_dict
 
 
-def get_moisture_sensor_reading(moisture_sensor: Seesaw) -> Tuple[float, float]:
+def read_moisture_sensor(moisture_sensor: Seesaw) -> Tuple[Optional[float], Optional[float]]:
     """Get the moisture and temperature readings from a Seesaw moisture sensor."""
     if moisture_sensor is None:
         return None, None

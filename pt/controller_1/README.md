@@ -112,11 +112,12 @@ plant:
 Please execute the following commands to start the controller.
 
 ```sh
+# create and load virtual environment
 pip install -r requirements.txt
 python controller-1.py
 ```
 
-## Note
+### Caveat
 
 1. Accessing the I2C bus in parallel in two programs leads to errors.
    Use multiplexer for such a purpose.
@@ -126,17 +127,24 @@ python controller-1.py
 
 ## Process Manager
 
-PM2 is a process manager for applications, which allows them to stay alive, if they exits unexpectedly due to errors. The output and errors gets stored in a log file.
+PM2 is a process manager for applications, which allows them to stay alive,
+if they exits unexpectedly due to errors. The output and errors get stored
+in a log file.
 
 To install PM2, run the following command:
 
 ```bash
 npm install -g pm2
 ```
+
 Then you can start the controller using PM2:
 
 ```bash
+# create but do not load it
 pm2 start controller-1.py --interpreter .venv/bin/python --restart-delay=60000 --log controller-1.log
 ```
 
-The above command starts the controller-1.py script using the Python interpreter from the virtual environment (.venv) and restarts it after 60 seconds if it exits unexpectedly. The logs will be stored in controller-1.log.
+The above command starts the `controller-1.py` script using
+the Python interpreter from the virtual environment (`.venv`) and
+restarts it after 60 seconds if it exits unexpectedly. The logs will
+be stored in controller-1.log.

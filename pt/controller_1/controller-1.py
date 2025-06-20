@@ -23,7 +23,7 @@ from pump import (
 )
 from sensors.moisture import (
     init_moisture_sensors,
-    get_moisture_sensor_reading,
+    read_moisture_sensor,
     print_soil_sensor_measurements,
 )
 from sensors.environment import (
@@ -104,7 +104,7 @@ def readings(moisture_sensors, sht45, light_sensor):
     # Iterate over the moisture sensors and get their readings
     # moisture_sensors is a dict with the sensor name as key and Seesaw object as value
     for moisture_sensor_name, moisture_sensor_value in moisture_sensors.items():
-        moisture_reading, temperature_reading = get_moisture_sensor_reading(
+        moisture_reading, temperature_reading = read_moisture_sensor(
             moisture_sensor_value
         )
         # Create a dict from the measurements
