@@ -28,7 +28,7 @@ _CONFIG_PATH = os.path.join(_IMPL_DIR, "config.toml")
 _PLANTS_DIR = os.path.join(_IMPL_DIR, "plants")
 _SCHEDULES_DIR = os.path.join(_IMPL_DIR, "pump_schedules")
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 logging.basicConfig(
     handlers=[
@@ -59,7 +59,7 @@ async def controller_run(args: argparse.Namespace):
             log_level=args.log_level
         )
 
-        logger.info("Starting main loop")
+        _logger.info("Starting main loop")
         async with anyio.create_task_group() as tg:
             tg.start_soon(api.start)
             for u in units:
@@ -68,7 +68,7 @@ async def controller_run(args: argparse.Namespace):
                     tg.start_soon(u.start_watering)
             print("Plant controller is now running. Press Ctrl+C to quit.")
     except Exception as e:
-        logger.error(f"Error in main loop: {e}")
+        _logger.error(f"Error in main loop: {e}")
     finally:
         busses[com_bus._MODBUS].close()
 
@@ -119,9 +119,9 @@ async def controller_setup(args: argparse.Namespace):
                 
 
     except KeyboardInterrupt:
-        logger.info("Got SIGINT, shutting down...")
+        _logger.info("Got SIGINT, shutting down...")
     except Exception as e:
-        logger.error(f"Error in main loop: {e}")
+        _logger.error(f"Error in main loop: {e}")
     finally:
         busses[com_bus._MODBUS].close()
 
@@ -131,31 +131,31 @@ async def common_startup_tasks():
     Returns:
         Tuple of (units, db_client, busses).
     """
-    logger.info("Performing common startup tasks...")
+    _logger.info("Performing common startup tasks...")
 
     if not os.path.exists(_IMPL_DIR):
-        logger.info(f"Implementation directory not found at '{_IMPL_DIR}', creating it...")
+        _logger.info(f"Implementation directory not found at '{_IMPL_DIR}', creating it...")
         os.makedirs(_IMPL_DIR)
 
     if not os.path.exists(_LOG_PATH):
-        logger.info(f"Log file not found at '{_LOG_PATH}', creating it...")
+        _logger.info(f"Log file not found at '{_LOG_PATH}', creating it...")
         with open(_LOG_PATH, "w") as f:
             pass
 
     file_handler = logging.FileHandler(_LOG_PATH)
     file_handler.setFormatter(logging.Formatter("%(asctime)s - [%(levelname)s] %(message)s"))
-    logger.addHandler(file_handler)
+    _logger.addHandler(file_handler)
 
     if not os.path.exists(_CONFIG_PATH):
-        logger.critical(f"Config file not found at '{_CONFIG_PATH}'.")
+        _logger.critical(f"Config file not found at '{_CONFIG_PATH}'.")
         exit(1)
 
     if not os.path.exists(_PLANTS_DIR):
-        logger.info(f"Plants directory not found at '{_PLANTS_DIR}', creating it...")
+        _logger.info(f"Plants directory not found at '{_PLANTS_DIR}', creating it...")
         os.makedirs(_PLANTS_DIR)
 
     if not os.path.exists(_SCHEDULES_DIR):
-        logger.info(f"Pump schedules directory not found at '{_SCHEDULES_DIR}', creating it...")
+        _logger.info(f"Pump schedules directory not found at '{_SCHEDULES_DIR}', creating it...")
         os.makedirs(_SCHEDULES_DIR)
 
     config = load_config()
@@ -168,7 +168,7 @@ async def common_startup_tasks():
         )
         return units, db_client, busses
     except Exception as e:
-        logger.error(f"Error during startup: {e}")
+        _logger.error(f"Error during startup: {e}")
         busses[com_bus._MODBUS].close()
         raise
 
@@ -213,7 +213,7 @@ def create_units(
         )
 
     if not units:
-        logger.warning(f"No plants configured for the controller. Add plant configuration files to '{_PLANTS_DIR}'.")
+        _logger.warning(f"No plants configured for the controller. Add plant configuration files to '{_PLANTS_DIR}'.")
 
     units.append(
         greenhouse.Greenhouse(
@@ -226,7 +226,7 @@ def create_units(
 
 def connect_to_db(config: dict) -> database.DatabaseClient:
     """Create a database client from the 'database' section of the config."""
-    logger.info(f"Connecting to database {config['database']['name']} at {config['database']['host']}...")
+    _logger.info(f"Connecting to database {config['database']['name']} at {config['database']['host']}...")
     db = database.Database(
         name=config["database"]["name"],
         host=config["database"]["host"],
@@ -277,7 +277,7 @@ def parse_args(*args, **kwargs) -> argparse.Namespace:
 async def main():
     """Entry point: parse arguments and dispatch to the chosen subcommand."""
     args = parse_args()
-    logger.setLevel(args.log_level)
+    _logger.setLevel(args.log_level)
     if not hasattr(args, "func"):
         parse_args(["--help"])
         return

@@ -50,7 +50,7 @@ Example minimal schedule::
 """
 
 import logging
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable
@@ -148,7 +148,7 @@ class NonSchedule(PumpSchedule):
         return "No schedule, the plant will not be watered automatically."
 
     async def run_schedule(self, pump_function: Callable[[int], None]):
-        logger.warning("Plant running empty schedule, no watering will happen.")
+        _logger.warning("Plant running empty schedule, no watering will happen.")
         await anyio.sleep_forever()
 
 def parse_schedule(schedule_location: str) -> PumpSchedule:
@@ -170,10 +170,10 @@ def parse_schedule(schedule_location: str) -> PumpSchedule:
         schedule_module = importlib.import_module(__name__ + "." + schedule_dict["type"])
         return getattr(schedule_module, "Schedule")(schedule_dict.get("schedule"))
     except ValueError as e:
-        logger.error(f"Schedule config at {schedule_location} is invalid: {e}")
+        _logger.error(f"Schedule config at {schedule_location} is invalid: {e}")
         return NonSchedule()
     except Exception as e:
-        logger.error(f"Error loading schedule config at {schedule_location}: {e}")
+        _logger.error(f"Error loading schedule config at {schedule_location}: {e}")
         return NonSchedule()
         
 

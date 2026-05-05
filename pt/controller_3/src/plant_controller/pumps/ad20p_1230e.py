@@ -6,7 +6,7 @@ test procedures accessible via the setup utility.
 """
 
 import logging
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 from collections.abc import Coroutine
 from time import sleep
@@ -60,7 +60,7 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
         if not (1 <= relay_address <= 247):
             raise ValueError(f"Invalid relay address {relay_address} for pump. MODBUS relay addresses must be between 1 and 247 inclusive.")
         if relay_address == 1:
-            logger.warning(f"A pump is configured with relay address 1, which is typically reserved for the controller itself. If your relay module is configured to use address 1, consider changing it to avoid potential conflicts on the MODBUS network.")
+            _logger.warning(f"A pump is configured with relay address 1, which is typically reserved for the controller itself. If your relay module is configured to use address 1, consider changing it to avoid potential conflicts on the MODBUS network.")
         self.bus = bus
         self.db_save_function = db_save_function
         self.calibration_parameters = calibration_parameters
@@ -90,7 +90,7 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
             dosage: Amount to pump in milliliters.
         """
         pump_time = self.doseage_to_time(dosage)
-        logger.debug(f"Starting pump {self.relay_address}-{self.coil_number} for {pump_time} seconds, corresponding to a dosage of {dosage} ml")
+        _logger.debug(f"Starting pump {self.relay_address}-{self.coil_number} for {pump_time} seconds, corresponding to a dosage of {dosage} ml")
         await self._toggle_pump_on_for_duration(pump_time)
         await self.db_save_function(WateringEvent(dosage=dosage))
     
@@ -116,7 +116,7 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
                 device_id=self.relay_address
             )
         await anyio.to_thread.run_sync(_blocking_pump)
-        logger.debug(f"Stopped pump {self.relay_address}-{self.coil_number}")
+        _logger.debug(f"Stopped pump {self.relay_address}-{self.coil_number}")
     
     async def calibrate(self):
         """Interactive calibration procedure for determining pump flow rate.
@@ -226,12 +226,12 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
                 except Exception:
                     print(f"The given input '{response}' wasn't a whole number!")
             if response > 0:
-                logger.debug(f"Recorded pumped amount: {response} ml")
-                logger.debug(f"Recorded pumping time: {pumping_time} seconds")
+                _logger.debug(f"Recorded pumped amount: {response} ml")
+                _logger.debug(f"Recorded pumping time: {pumping_time} seconds")
                 pumped_amounts.append(response)
                 pumped_durations.append(pumping_time)
             else:
-                logger.debug("Calibrater recorded a pumped amount of 0ml, discarding this data point.")
+                _logger.debug("Calibrater recorded a pumped amount of 0ml, discarding this data point.")
 
             print("Empty the measuring cup.")
             print("(Press enter to continue)")
@@ -261,7 +261,7 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
         print("")
         print(f"Old slope: {old_slope}, Old offset: {old_offset}")
         print(f"New slope: {slope}, New offset: {offset}")
-        logger.debug(f"Pump {self.relay_address}-{self.coil_number} calibrated with slope {slope} and offset {offset}. Old slope was {old_slope} and old offset was {old_offset}. Calibration data points were: {list(zip(pumped_amounts, pumped_durations))}")
+        _logger.debug(f"Pump {self.relay_address}-{self.coil_number} calibrated with slope {slope} and offset {offset}. Old slope was {old_slope} and old offset was {old_offset}. Calibration data points were: {list(zip(pumped_amounts, pumped_durations))}")
         self.calibration_save_function(slope, offset)
         print("")
         print("The pump is now calibrated. You can test the pump with its new calibration by running the 'test' setup function.")
@@ -278,7 +278,7 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
             except ValueError:
                 print("Invalid input. Please enter an integer value for the dosage.")
         pump_time = self.doseage_to_time(dosage)
-        logger.info(f"Starting pump {self.relay_address}-{self.coil_number} for {pump_time} seconds, corresponding to a dosage of {dosage} ml")
+        _logger.info(f"Starting pump {self.relay_address}-{self.coil_number} for {pump_time} seconds, corresponding to a dosage of {dosage} ml")
         await self._toggle_pump_on_for_duration(pump_time)
 
     def setup_functions(self) -> dict[str, dict[str, any]]:

@@ -6,7 +6,7 @@ to the base sensing functionality.
 """
 
 import logging
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 import datetime, json, os
 from typing import Any
@@ -89,7 +89,7 @@ class Plant(Unit):
         pump_config = config["actuators"]["water_pump"]
 
         if "calibration_date" not in pump_config["calibration"]:
-            logger.warning(f"The pump for plant '{self.name}' has not yet been calibrated.")
+            _logger.warning(f"The pump for plant '{self.name}' has not yet been calibrated.")
 
         self.pump = CS_IO404_Based_AD20P_1230E(
             bus=busses[CS_IO404_Based_AD20P_1230E.bus_type()],

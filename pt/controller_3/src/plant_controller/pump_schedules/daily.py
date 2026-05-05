@@ -18,7 +18,7 @@ Each "dose" is an integer number of milliliters.
 """
 
 import logging
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 from collections.abc import Coroutine
 from typing import Any
@@ -71,7 +71,7 @@ class Schedule(PumpSchedule):
             pump_function: Async callback to activate the pump with a dosage.
         """
         if len(self.schedule_list) < 1:
-            logger.warning("No watering events in schedule, skipping watering.")
+            _logger.warning("No watering events in schedule, skipping watering.")
             await anyio.sleep_forever()
 
         while True:
@@ -97,7 +97,7 @@ class Schedule(PumpSchedule):
                 sleep_time = sleep_time_delta.total_seconds()
                 dose = tomorrows_first_event[1]
 
-            logger.info(f"Current time is {current_time.isoformat()}. Next watering event is at {datetime_event.isoformat()} with a dose of {dose} ml. Scheduled to sleep for {sleep_time_delta}.")
+            _logger.info(f"Current time is {current_time.isoformat()}. Next watering event is at {datetime_event.isoformat()} with a dose of {dose} ml. Scheduled to sleep for {sleep_time_delta}.")
         
             await anyio.sleep(sleep_time)
 

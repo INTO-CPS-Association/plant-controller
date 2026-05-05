@@ -10,7 +10,7 @@ Bus type constants:
 """
 
 import logging
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 from abc import ABC, abstractmethod
 import threading
@@ -79,7 +79,7 @@ class BlinkaI2CBus(Bus):
         self.wrapped_bus = board.I2C()
         self.multiplexers = {}
         super().__init__()
-        logger.info("Blinka I2C bus initialized")
+        _logger.info("Blinka I2C bus initialized")
 
     def ensure_multiplexer(self, address: int) -> adafruit_tca9548a.TCA9548A:
         """Get or create a TCA9548A multiplexer at the given I2C address.
@@ -92,7 +92,7 @@ class BlinkaI2CBus(Bus):
         """
         if address not in self.multiplexers:
             self.multiplexers[address] = adafruit_tca9548a.TCA9548A(self.wrapped_bus, address=address)
-            logger.info(f"Initialized new I2C multiplexer at address {address}")
+            _logger.info(f"Initialized new I2C multiplexer at address {address}")
         return self.multiplexers[address]
 
 
@@ -178,16 +178,16 @@ class MODBUS(Bus):
         """Open the serial connection to the MODBUS network."""
         try:
             self.client.connect()
-            logger.info("Connected to MODBUS client")
+            _logger.info("Connected to MODBUS client")
         except Exception as e:
-            logger.error(f"Failed to connect to MODBUS client: {e}")
+            _logger.error(f"Failed to connect to MODBUS client: {e}")
             raise e
 
     def close(self):
         """Close the serial connection."""
         with self._serial_lock:
             self.client.close()
-        logger.info("Closed MODBUS client connection")
+        _logger.info("Closed MODBUS client connection")
 
 
 class BusInterface(ABC):
