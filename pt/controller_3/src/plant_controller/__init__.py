@@ -41,7 +41,7 @@ async def controller_run(args: argparse.Namespace):
             tg.start_soon(api.start)
             for u in units:
                 tg.start_soon(u.start_sensing)
-                if isinstance(unit, plant.Plant):
+                if isinstance(u, plant.Plant):
                     tg.start_soon(u.start_watering)
             print("Plant controller is now running. Press Ctrl+C to quit.")
     except Exception as e:
