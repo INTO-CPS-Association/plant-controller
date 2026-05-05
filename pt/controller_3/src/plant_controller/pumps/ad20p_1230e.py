@@ -1,3 +1,10 @@
+"""AD20P-1230E pump implementation via CS-IO404 Modbus relay module.
+
+Controls an AD20P-1230E 12V submersible pump through a CS-IO404 4-channel
+relay module on the MODBUS RTU bus. Includes interactive calibration and
+test procedures accessible via the setup utility.
+"""
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -13,7 +20,18 @@ from ..cli_helpers import clear_screen
 from ..com_bus import MODBUS, MODBUSInterface
 from ..setup_actions import HasSetupFunctionsMixin
 
+
 class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
+    """AD20P-1230E pump controlled via a CS-IO404 Modbus relay.
+
+    Converts dosage requests (ml) to timed relay activations using linear
+    calibration parameters. The relay module is addressed via MODBUS RTU.
+
+    Attributes:
+        relay_address: MODBUS device address of the CS-IO404 module (1-247).
+        coil_number: Output coil index on the relay module (0-3).
+        calibration_save_function: Callback to persist new calibration data.
+    """
     def __init__(
         self,
         bus: MODBUS,
@@ -23,6 +41,20 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
         relay_address: int,
         coil_number: int
     ):
+        """Initialize the pump with relay addressing and calibration.
+
+        Args:
+            bus: MODBUS bus instance.
+            db_save_function: Async function to persist watering events.
+            calibration_parameters: Dict with 'slope' and 'offset' keys.
+            calibration_save_function: Callable(slope, offset) to persist
+                new calibration values after the calibration procedure.
+            relay_address: MODBUS address of the CS-IO404 (1-247).
+            coil_number: Relay output index (0-3).
+
+        Raises:
+            ValueError: If coil_number or relay_address is out of range.
+        """
         if not (0 <= coil_number < 4):
             raise ValueError(f"Invalid coil number {coil_number} for pump. Coil number must be between 0 and 3 inclusive, corresponding to the 4 outputs of the CS-IO404 relay module.")
         if not (1 <= relay_address <= 247):
@@ -37,17 +69,40 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
         self.coil_number = coil_number
 
     def doseage_to_time(self, dosage: int) -> float:
+        """Convert a dosage in ml to pumping duration in seconds.
+
+        Uses the linear model: time = slope * dosage + offset.
+
+        Args:
+            dosage: Desired water amount in milliliters.
+
+        Returns:
+            Pumping duration in seconds.
+        """
         slope = self.calibration_parameters["slope"]
         offset = self.calibration_parameters["offset"]
         return slope * dosage + offset
 
     async def pumping_callback(self, dosage: int):
+        """Pump the specified dosage and record the watering event.
+
+        Args:
+            dosage: Amount to pump in milliliters.
+        """
         pump_time = self.doseage_to_time(dosage)
         logger.debug(f"Starting pump {self.relay_address}-{self.coil_number} for {pump_time} seconds, corresponding to a dosage of {dosage} ml")
         await self._toggle_pump_on_for_duration(pump_time)
         await self.db_save_function(WateringEvent(dosage=dosage))
     
     async def _toggle_pump_on_for_duration(self, duration: float):
+        """Activate the relay for a precise duration, then deactivate.
+
+        Runs the blocking relay toggle in a worker thread to avoid
+        blocking the async event loop during the sleep.
+
+        Args:
+            duration: Time in seconds to keep the pump running.
+        """
         def _blocking_pump():
             self.bus.write_coil(
                 address=self.coil_number,
@@ -64,6 +119,13 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
         logger.debug(f"Stopped pump {self.relay_address}-{self.coil_number}")
     
     async def calibrate(self):
+        """Interactive calibration procedure for determining pump flow rate.
+
+        Guides the user through multiple pump cycles at different durations,
+        collecting volume measurements to compute a linear fit (slope and
+        offset) for the dosage-to-time relationship. Results are saved via
+        the calibration_save_function.
+        """
         import numpy
         import datetime
         clear_screen()
@@ -207,6 +269,7 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
         input()
 
     async def test_pump(self):
+        """Interactive test: pump a user-specified dosage to verify calibration."""
         print("How many ml do you want to pump for the test?")
         while True:
             try:
@@ -219,6 +282,11 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
         await self._toggle_pump_on_for_duration(pump_time)
 
     def setup_functions(self) -> dict[str, dict[str, any]]:
+        """Return available setup actions for this pump.
+
+        Returns:
+            Dict with 'calibrate' and 'test' entries.
+        """
         return {
             "calibrate": {
                 "description": "Run the calibration procedure for the pump.",

@@ -1,3 +1,10 @@
+"""SHT45 temperature and humidity sensor implementation.
+
+Measures air temperature (°C) and relative humidity (%) using the
+Sensirion SHT45 sensor. Confidence intervals are condition-dependent
+for humidity.
+"""
+
 from collections.abc import Coroutine
 from typing import Any
 
@@ -7,7 +14,22 @@ from . import Sensor
 from ..datapoint import Datapoint, Confidence, Measurement
 from ..com_bus import BlinkaI2CBus, I2CInterface
 
+
 class GreenhouseSHT45(Sensor, I2CInterface):
+    """SHT45 temperature and humidity sensor for greenhouse monitoring.
+
+    Reports two parameters: 'temperature' (°C) and 'humidity' (%).
+    Uses high-precision mode with no heater. Humidity confidence varies
+    with operating conditions per the datasheet specifications.
+
+    This sensor does not use the standard Sensor.__init__ because it
+    reports multiple parameters from a single physical device.
+
+    Attributes:
+        wrapped_sensor: The adafruit_sht4x.SHT4x driver instance.
+        time_between_reads: Interval between measurements (seconds).
+        temperature_confidence: Fixed confidence for temperature readings.
+    """
     def __init__(
         self,
         bus: BlinkaI2CBus,
@@ -22,6 +44,18 @@ class GreenhouseSHT45(Sensor, I2CInterface):
 
     @staticmethod
     def humidity_confidence(temperature, humidity):
+        """Compute condition-dependent confidence interval for humidity.
+
+        The SHT45 datasheet specifies wider tolerances at extreme
+        temperature or humidity values.
+
+        Args:
+            temperature: Current temperature reading in °C.
+            humidity: Current humidity reading in %.
+
+        Returns:
+            A Confidence instance with the appropriate interval.
+        """
         if humidity > 95:
             return Confidence(interval=1.75, level=0.95)
         elif humidity > 75 or humidity < 15 or temperature > 55 or temperature < 15:
@@ -30,6 +64,7 @@ class GreenhouseSHT45(Sensor, I2CInterface):
             return Confidence(interval=1, level=0.95)
 
     async def read(self):
+        """Read temperature and humidity, saving both as Measurements."""
         temperature, humidity = self.wrapped_sensor.measurements
         await self.db_save_function(
             [
@@ -49,6 +84,7 @@ class GreenhouseSHT45(Sensor, I2CInterface):
         )
 
     def get_capabilities(self):
+        """Return capabilities for temperature and humidity parameters."""
         return {
             "temperature": {
                 "units": "°C",

@@ -1,3 +1,54 @@
+"""Pump schedule modules for automated watering.
+
+This package defines the abstract base class for pump schedules and provides
+the dynamic loading mechanism. Schedules control *when* and *how much* water
+is delivered to a plant.
+
+Writing a custom schedule module:
+    1. Create a new ``.py`` file in this package (e.g. ``my_schedule.py``).
+    2. Define a class called **exactly** ``Schedule`` that inherits from
+       ``PumpSchedule``.
+    3. Implement the three abstract methods: ``__init__``, ``get_schedule``,
+       and ``run_schedule``.
+    4. Optionally implement ``validate_schedule_conf`` as a ``@staticmethod``
+       to validate config data before instantiation.
+    5. Create a schedule JSON file in ``~/.plant_controller/pump_schedules/``
+       named ``<plant_name>.json``::
+
+           {
+               "type": "my_schedule",
+               "schedule": { ... schedule-specific data ... }
+           }
+
+       The ``"type"`` value must match the module filename (without .py).
+       The ``"schedule"`` value is passed to ``Schedule.__init__``.
+
+Example minimal schedule::
+
+    import anyio
+    from plant_controller.pump_schedules import PumpSchedule
+
+    class Schedule(PumpSchedule):
+        def __init__(self, schedule):
+            self.dose = schedule["dose_ml"]
+            self.interval = schedule["interval_seconds"]
+
+        def get_schedule(self):
+            return f"Pump {self.dose}ml every {self.interval}s"
+
+        async def run_schedule(self, pump_function):
+            while True:
+                await anyio.sleep(self.interval)
+                await pump_function(self.dose)
+
+        @staticmethod
+        def validate_schedule_conf(schedule_conf):
+            if "dose_ml" not in schedule_conf:
+                raise ValueError("Must include 'dose_ml'")
+            if "interval_seconds" not in schedule_conf:
+                raise ValueError("Must include 'interval_seconds'")
+"""
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -9,80 +60,109 @@ import importlib, json
 import anyio
 
 class PumpSchedule(ABC):
+    """Abstract base class for all pump schedule implementations.
+
+    A pump schedule determines when watering events occur and how much water
+    is delivered. The schedule has full control over timing, enabling both
+    simple time-based schedules and dynamic sensor-driven strategies.
+
+    Subclasses must be named ``Schedule`` in their module so that the dynamic
+    loader can find them.
+    """
+
     @abstractmethod
     def __init__(self, schedule: Any | None):
-        """
-        Creates the Schedule objet.
+        """Initialize the schedule from configuration data.
 
-        Including the 'schedule' parameter is mandatory - using it is not.
-        The structure and type of 'schedule' is left up to the implementer.
-        
-        :param schedule: Any 
-        :type schedule: Any | None
+        The ``schedule`` parameter receives whatever was in the "schedule"
+        field of the JSON config file. Its structure is entirely up to the
+        implementer.
+
+        Args:
+            schedule: Schedule-specific configuration data (type defined by
+                the implementation). May be None if the schedule requires no
+                configuration.
         """
         pass
-    
+
     @abstractmethod
     def get_schedule(self) -> str | dict:
-        """
-        Returns a representation of the schedule.
+        """Return a human-readable representation of this schedule.
 
-        This should return an overview of the scheduled watering events, or
-        at least explain how the schedule works, so that someone not familiar
-        with the schedules implementation can intuit when watering will happen
-        and how much water will be dosed.
-        
-        :return: The overwiew. If in a dict, expect it to be expressed as a json object
-        :rtype: str | dict
+        This is served via the HTTP API so that users can inspect the
+        current watering plan without reading config files.
+
+        Returns:
+            A string description or dict (serialized as JSON) explaining
+            when watering will occur and at what dosages.
         """
         pass
 
     @abstractmethod
     async def run_schedule(self, pump_function: Callable[[int], None]):
-        """
-        Calls the given pump function according to the schedule defined in the
-        implementation of this class.
+        """Execute the schedule, calling pump_function at appropriate times.
 
-        The dosage as specified by the schedule should be passed to the
-        pump function.
+        This coroutine runs indefinitely. It should await ``anyio.sleep()``
+        until the next watering event, then call
+        ``await pump_function(dosage_ml)`` to trigger the pump.
 
-        The intent is to put the responsibility for when the pumping should be
-        done entirely on the schedule, allowing for both basic time based
-        schedules and more dynamic, sensing based schedules
-        
-        :param pump_function: Callback function that runs the pump that should
-                              be activated at the scheduled time, pumping the
-                              desired dosage.
-        :type pump_function: Callable[[int], None])
+        The method must not return under normal operation. If the schedule
+        is cancelled externally (via CancelScope), it will be restarted
+        with a freshly parsed config.
+
+        Args:
+            pump_function: Async callback that activates the pump.
+                Call with an integer dosage in milliliters.
         """
         pass
 
     @staticmethod
     def validate_schedule_conf(schedule_conf: Any):
-        """
-        Goes through the passed schedule_conf and ensures that it is properly
-        formatted, raising ValueErrors if not.
+        """Validate schedule-specific configuration data.
 
-        If validation is unwanted or irrelevant, then this method can be left
-        unimplemented.
-        
-        :param schedule_conf: Description
-        :type schedule_conf: Any
+        Called during schedule loading to catch config errors early.
+        Should raise ``ValueError`` with a descriptive message if the
+        configuration is invalid.
+
+        If validation is not needed, this method can be left as a no-op.
+
+        Args:
+            schedule_conf: The "schedule" field from the JSON config file.
+
+        Raises:
+            ValueError: If the configuration is invalid.
         """
         pass
 
 class NonSchedule(PumpSchedule):
+    """A no-op schedule that never triggers watering.
+
+    Used as a fallback when no valid schedule config exists or when
+    schedule parsing fails.
+    """
+
     def __init__(self, schedule: Any | None = None):
         pass
-    
+
     def get_schedule(self) -> str:
         return "No schedule, the plant will not be watered automatically."
-    
+
     async def run_schedule(self, pump_function: Callable[[int], None]):
         logger.warning("Plant running empty schedule, no watering will happen.")
         await anyio.sleep_forever()
 
 def parse_schedule(schedule_location: str) -> PumpSchedule:
+    """Load and instantiate a PumpSchedule from a JSON config file.
+
+    If the file cannot be loaded or is invalid, returns a NonSchedule
+    instance and logs the error.
+
+    Args:
+        schedule_location: Filesystem path to the schedule JSON file.
+
+    Returns:
+        An initialized PumpSchedule instance (or NonSchedule on failure).
+    """
     try:
         with open(schedule_location, "rb") as schedule_file:
             schedule_dict = json.loads(schedule_file.read())
@@ -98,14 +178,19 @@ def parse_schedule(schedule_location: str) -> PumpSchedule:
         
 
 def validate_schedule(schedule_config: dict[str, Any]):
-    """
-    Validates the contents of a schedule config.
+    """Validate the top-level structure of a schedule config dict.
 
-    Raises a ValueError incase the schedule is invalid.
-    
-    :param schedule_config: dict describing a Schedule.
-    :type schedule_config: dict[str, Any]
-    :raises: ValueError
+    Checks that the required 'type' and 'schedule' keys exist, that the
+    referenced module can be imported and contains a 'Schedule' class,
+    and delegates to that class's validate_schedule_conf for content
+    validation.
+
+    Args:
+        schedule_config: Parsed JSON dict with 'type' and 'schedule' keys.
+
+    Raises:
+        ValueError: If the config structure is invalid or the module/class
+            cannot be loaded.
     """
     if "type" not in schedule_config:
         raise ValueError("Schedule must have a 'type' field, indicating type of the schedule and the underlying python module that defines it.")

@@ -1,3 +1,22 @@
+"""Daily pump schedule implementation.
+
+Waters the plant at fixed times each day with specified dosages. The
+schedule repeats every 24 hours.
+
+Schedule JSON format::
+
+    {
+        "type": "daily",
+        "schedule": [
+            {"time": "08:00", "dose": 50},
+            {"time": "18:00", "dose": 75}
+        ]
+    }
+
+Each entry's "time" must be an ISO 8601 time string (HH:MM or HH:MM:SS).
+Each "dose" is an integer number of milliliters.
+"""
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -9,8 +28,25 @@ import anyio
 
 from . import PumpSchedule
 
+
 class Schedule(PumpSchedule):
+    """Daily repeating watering schedule.
+
+    Waters at fixed times each day. Events are sorted chronologically.
+    If the current time is past all events for today, the schedule sleeps
+    until the first event tomorrow.
+
+    Attributes:
+        schedule_list: Sorted list of (time, dose) tuples.
+    """
+
     def __init__(self, schedule: Any | None):
+        """Parse the schedule list into sorted (time, dose) tuples.
+
+        Args:
+            schedule: List of dicts with 'time' (ISO time str) and
+                'dose' (int, ml) keys.
+        """
         self.schedule_list = sorted(list(
                 map(
                     lambda event: (datetime.time.fromisoformat(event["time"]), event["dose"]),
@@ -20,7 +56,8 @@ class Schedule(PumpSchedule):
             key=lambda event: event[0]
         )
     
-    def get_schedule(self) -> str  | dict:
+    def get_schedule(self) -> str | dict:
+        """Return a dict describing the daily schedule and its events."""
         return {
             "type": "daily",
             "description": "Daily watering schedule. The plant is watered each day at the given times.",
@@ -28,6 +65,11 @@ class Schedule(PumpSchedule):
         }
 
     async def run_schedule(self, pump_function: Coroutine[Any, int]):
+        """Sleep until the next scheduled time, then pump. Repeats forever.
+
+        Args:
+            pump_function: Async callback to activate the pump with a dosage.
+        """
         if len(self.schedule_list) < 1:
             logger.warning("No watering events in schedule, skipping watering.")
             await anyio.sleep_forever()
@@ -63,6 +105,14 @@ class Schedule(PumpSchedule):
 
     @staticmethod
     def validate_schedule_conf(schedule_conf: Any):
+        """Validate that schedule_conf is a list of {time, dose} dicts.
+
+        Args:
+            schedule_conf: The "schedule" field from the config JSON.
+
+        Raises:
+            ValueError: If format requirements are not met.
+        """
         if not isinstance(schedule_conf, list):
             raise ValueError("A schedule of type 'daily' needs a list of dictionaries containing watering events in the 'schedule' value.")
         

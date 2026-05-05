@@ -1,3 +1,25 @@
+"""Plant controller system for greenhouse monitoring and actuation.
+
+A modular plant controller that provides sensing and actuation capabilities
+for plants in a greenhouse environment, designed as a Physical Twin (PT)
+for Digital Twin (DT) research.
+
+The controller is configured via TOML and JSON files stored in
+``~/.plant_controller/``. Each plant gets its own JSON configuration file
+in ``~/.plant_controller/plants/``, and pump schedules are stored in
+``~/.plant_controller/pump_schedules/``.
+
+Subcommands:
+    run     Start the controller (sensing loops, watering schedules, HTTP API).
+    setup   Interactive setup utility for calibration and diagnostics.
+
+Extending the controller:
+    Custom sensors, pumps, and pump schedules can be added as submodules.
+    See the ``plant_controller.sensors``, ``plant_controller.pumps``, and
+    ``plant_controller.pump_schedules`` packages for the abstract base
+    classes that must be implemented.
+"""
+
 import logging
 import os
 _IMPL_DIR = os.path.expanduser("~/.plant_controller")
@@ -24,6 +46,7 @@ from . import _version, com_bus, database, greenhouse, plant, unit, web_api
 from .cli_helpers import clear_screen
 
 async def controller_run(args: argparse.Namespace):
+    """Start the controller: sensing loops, watering schedules, and HTTP API."""
     print("Starting plant controller...")
     units, db_client, busses = await common_startup_tasks()
 
@@ -50,6 +73,7 @@ async def controller_run(args: argparse.Namespace):
         busses[com_bus._MODBUS].close()
 
 async def controller_setup(args: argparse.Namespace):
+    """Interactive setup utility for calibration and diagnostics."""
     clear_screen()
     print("Welcome to the plant controller setup utility.")
     print("Here you are able to perform different setup actions, depending on the connected units and sensors.")
@@ -102,6 +126,11 @@ async def controller_setup(args: argparse.Namespace):
         busses[com_bus._MODBUS].close()
 
 async def common_startup_tasks():
+    """Perform shared initialization: directories, logging, config, DB, busses, units.
+
+    Returns:
+        Tuple of (units, db_client, busses).
+    """
     logger.info("Performing common startup tasks...")
 
     if not os.path.exists(_IMPL_DIR):
@@ -144,6 +173,7 @@ async def common_startup_tasks():
         raise
 
 def load_config(path: str = _CONFIG_PATH) -> dict:
+    """Load and parse the TOML configuration file."""
     with open(path, "rb") as f:
         config = tomllib.load(f)
     return config
@@ -152,6 +182,18 @@ def create_units(
     db_client: database.DatabaseClient,
     busses: dict[str, com_bus.Bus]
 ) -> list[unit.Unit]:
+    """Instantiate all configured units (plants and the greenhouse).
+
+    Reads plant JSON configs from the plants directory and creates Plant
+    instances for each. Always appends a Greenhouse unit.
+
+    Args:
+        db_client: Database client for persisting measurements.
+        busses: Dictionary mapping bus type names to Bus instances.
+
+    Returns:
+        List of initialized Unit instances.
+    """
     units = []
 
     for config, config_location in [
@@ -183,6 +225,7 @@ def create_units(
     return units
 
 def connect_to_db(config: dict) -> database.DatabaseClient:
+    """Create a database client from the 'database' section of the config."""
     logger.info(f"Connecting to database {config['database']['name']} at {config['database']['host']}...")
     db = database.Database(
         name=config["database"]["name"],
@@ -192,6 +235,7 @@ def connect_to_db(config: dict) -> database.DatabaseClient:
     return db.spawn_client()
 
 def parse_args(*args, **kwargs) -> argparse.Namespace:
+    """Parse command-line arguments for the plant controller."""
     parser = argparse.ArgumentParser(
         prog="plant_controller",
         description="System for monitoring and watering of plants."
@@ -231,6 +275,7 @@ def parse_args(*args, **kwargs) -> argparse.Namespace:
     return parser.parse_args(*args, **kwargs)
 
 async def main():
+    """Entry point: parse arguments and dispatch to the chosen subcommand."""
     args = parse_args()
     logger.setLevel(args.log_level)
     if not hasattr(args, "func"):

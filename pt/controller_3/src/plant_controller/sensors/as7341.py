@@ -1,3 +1,10 @@
+"""AS7341 10-channel spectral light sensor implementation.
+
+Measures photon flux across 9 spectral bands (415nm to 910nm) using
+the AMS AS7341 sensor IC. Readings are converted from raw photon counts
+to flux (photons/s) using the configured integration time.
+"""
+
 from collections.abc import Coroutine
 from typing import Any
 
@@ -7,7 +14,18 @@ from . import Sensor
 from ..datapoint import Datapoint, Confidence, Measurement
 from ..com_bus import BlinkaI2CBus, I2CInterface
 
+
 class LightConfidence(Confidence):
+    """Confidence specification for spectral light measurements.
+
+    Instead of a simple +/- interval, spectral sensors have channel-specific
+    uncertainty expressed as center wavelength variance and full width at
+    half maximum (FWHM).
+
+    Attributes:
+        center_wavelength_variance: Uncertainty in peak wavelength (nm).
+        full_width_half_maximum: Channel bandwidth at half sensitivity (nm).
+    """
     def __init__(
         self,
         center_wavelenght_variance: int,
@@ -19,7 +37,21 @@ class LightConfidence(Confidence):
     def str_representation(self) -> str:
         return f"Center wavelength ±{self.center_wavelength_variance}nm, FWHM ±{self.full_width_half_maximum}nm"
 
+
 class GreenhouseAS7341(Sensor, I2CInterface):
+    """AS7341 spectral light sensor for greenhouse-level measurements.
+
+    Reads 9 spectral channels (415nm through 910nm NIR) and reports
+    photon flux in photons/s. Uses 64x gain by default.
+
+    This sensor does not use the standard Sensor.__init__ because it
+    reports multiple parameters from a single physical device.
+
+    Attributes:
+        wrapped_sensor: The adafruit_as7341.AS7341 driver instance.
+        time_between_reads: Interval between measurement cycles (seconds).
+        integration_time: Computed integration time per reading (seconds).
+    """
     def __init__(
         self,
         bus: BlinkaI2CBus,
@@ -37,9 +69,18 @@ class GreenhouseAS7341(Sensor, I2CInterface):
         )
 
     def photon_count_to_flux(self, count):
+        """Convert a raw photon count to flux (photons/s).
+
+        Args:
+            count: Raw channel count from the sensor.
+
+        Returns:
+            Photon flux in photons per second.
+        """
         return count / self.integration_time
 
     async def read(self):
+        """Read all 9 spectral channels and save as Measurements."""
         await self.db_save_function(
             [
                 Measurement(
@@ -141,6 +182,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
         )
 
     def get_capabilities(self):
+        """Return capabilities for all 9 spectral channels."""
         return {
             "415nm": {
                 "units": "photons/s",

@@ -1,3 +1,12 @@
+"""HTTP API for the plant controller.
+
+Provides a FastAPI-based REST interface for:
+    - Querying sensor measurements (``/sensing/{unit}/{parameter}``)
+    - Viewing watering events (``/actuation/{unit}/watering_events``)
+    - Inspecting and updating pump schedules
+    - Listing available units and their capabilities
+"""
+
 from typing import Any, Annotated
 from datetime import datetime
 
@@ -10,17 +19,31 @@ from .database import DatabaseClient
 from .unit import Unit
 from ._version import __version__
 
+
 class ScheduleJSON(BaseModel):
+    """Request body model for schedule update endpoints."""
     type: str
     schedule: Any
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert to a plain dict for passing to validate_schedule."""
         return {
             "type": self.type,
             "schedule": self.schedule
         }
 
+
 class WebAPI:
+    """HTTP API server wrapping the plant controller's data and commands.
+
+    Attributes:
+        host: Bind address for the HTTP server.
+        port: Port number for the HTTP server.
+        db_client: Database client for reading historical data.
+        sensed_units: Dict of all units (keyed by name).
+        actuated_units: Dict of units with actuation (keyed by name).
+        server: The uvicorn server instance.
+    """
     def __init__(
         self,
         host: str,
@@ -29,6 +52,15 @@ class WebAPI:
         units: list[Unit],
         log_level: str = "INFO"
     ):
+        """Initialize the web API and define all routes.
+
+        Args:
+            host: IP address to bind to (e.g. '0.0.0.0').
+            port: TCP port number.
+            db_client: Database client for querying measurements.
+            units: List of all Unit instances to expose.
+            log_level: Logging level for uvicorn (default: 'INFO').
+        """
         self.host = host
         self.port = port
         self.db_client = db_client
@@ -44,6 +76,7 @@ class WebAPI:
         router = APIRouter()
 
         def check_unit_in_units(unit: str, units: dict[str, Unit]):
+            """Raise 404 if the given unit name is not in the units dict."""
             if unit not in units:
                 raise HTTPException(
                     status_code=404,
@@ -51,6 +84,7 @@ class WebAPI:
                 )
         
         def parse_timestamp(timestamp: str) -> datetime:
+            """Parse an ISO 8601 timestamp string, raising 400 on failure."""
             try:
                 return datetime.fromisoformat(timestamp)
             except Exception as e:
@@ -66,6 +100,7 @@ class WebAPI:
 
         @router.get("/", include_in_schema=False)
         async def root() -> dict[str, Any]:
+            """Return controller version, current time, and docs link."""
             return {
                 "plant-controller": {
                     "version": __version__,
@@ -76,14 +111,17 @@ class WebAPI:
         
         @router.get("/favicon.ico", include_in_schema=False)
         async def dummy_favicon():
+            """No-op handler to suppress browser favicon 404s."""
             return
         
         @router.get("/sensing")
         async def sensed_units_overview() -> dict[str, Any]:
+            """List all units that have sensors attached."""
             return {"sensed units": list(self.sensed_units)}
         
         @router.get("/sensing/{unit}")
         async def sensed_unit_parameters(unit: str) -> JSONResponse:
+            """List the sensed parameters and capabilities for a unit."""
             check_unit_in_units(unit, self.sensed_units)
             return self.sensed_units[unit].get_sensing_capabilites()
 
@@ -107,11 +145,9 @@ class WebAPI:
                 )
             ] = None
         ) -> JSONResponse:
-            """
-            Fetch measurements for a given physical unit and parameter.
-            
-            Optionally, limit the number of measurements returned and/or
-            only return measurements taken after a certain timestamp.
+            """Fetch measurements for a given unit and parameter.
+
+            Optionally limit the number of results and/or filter by timestamp.
             """
             check_unit_in_units(unit, self.sensed_units)
             if parameter not in self.sensed_units[unit].get_sensing_capabilites():
@@ -125,10 +161,12 @@ class WebAPI:
         
         @router.get("/actuation")
         async def actuated_units_overview() -> dict[str, Any]:
+            """List all units that have actuation (pumps) attached."""
             return {"actuated units": list(self.actuated_units)}
         
         @router.get("/actuation/{unit}")
         async def actuated_unit_endpoints(unit: str) -> dict[str, Any]:
+            """List available actuation endpoints for a unit."""
             check_unit_in_units(unit, self.actuated_units)
             return {
                 "Show watering events": f"/actuation/{unit}/watering_events",
@@ -155,6 +193,10 @@ class WebAPI:
                 )
             ] = None
         ):
+            """Fetch watering event history for a unit.
+
+            Optionally limit the number of results and/or filter by timestamp.
+            """
             check_unit_in_units(unit, self.actuated_units)
             if since_timestamp != None:
                 since_timestamp = parse_timestamp(since_timestamp)
@@ -162,11 +204,13 @@ class WebAPI:
         
         @router.get("/actuation/{unit}/show_schedule")
         async def show_watering_schedule(unit: str):
+            """Return the current watering schedule for a unit."""
             check_unit_in_units(unit, self.actuated_units)
             return self.actuated_units[unit].schedule.get_schedule()
         
         @router.put("/actuation/{unit}/update_schedule", status_code=204)
         async def update_watering_schedule(unit: str, schedule: ScheduleJSON):
+            """Replace the watering schedule for a unit. Returns 204 on success."""
             check_unit_in_units(unit, self.actuated_units)
             try:
                 # FastAPI implicitly transforms json request bodies into python dictionaries,
@@ -177,6 +221,7 @@ class WebAPI:
         
         @router.get("/actuation/rocket_silo/nuclear_missile/launch", include_in_schema=False)
         async def launch_missile() -> JSONResponse:
+            """Easter egg. Returns 418 I'm a teapot."""
             return JSONResponse(
                 status_code=418,
                 content={"error": "Sorry, but firing nuclear missiles is not conducive to plant health. Please water your plants instead :)"},
@@ -195,5 +240,6 @@ class WebAPI:
         )
     
     async def start(self):
+        """Start the HTTP server (runs indefinitely)."""
         await self.server.serve()
 
