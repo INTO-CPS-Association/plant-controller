@@ -39,27 +39,29 @@ class Schedule(PumpSchedule):
             for event in self.schedule_list:
                 datetime_event = datetime.datetime.combine(today, event[0])
                 if current_time < datetime_event:
-                    sleep_time_delta = (datetime_event - current_time)
+                    sleep_time_delta = datetime_event - current_time
                     sleep_time = sleep_time_delta.total_seconds()
                     dose = event[1]
                     break
         
             # Current time is later than last time for the day:
             if sleep_time == None:
-                tomorrow = today + datetime.timedelta(hours=24)
+                tomorrow = today + datetime.timedelta(days=1)
                 tomorrows_first_event = self.schedule_list[0]
-                tomorrows_first_event_datetime = datetime.datetime.combine(
+                datetime_event = datetime.datetime.combine(
                     tomorrow, tomorrows_first_event[0]
                 )
-                sleep_time_delta = tomorrows_first_event_datetime - current_time
+                sleep_time_delta = datetime_event - current_time
                 sleep_time = sleep_time_delta.total_seconds()
                 dose = tomorrows_first_event[1]
-            logger.info(f"Current time is {current_time.isoformat()}. Next watering event is at {tomorrows_first_event_datetime.isoformat()} with a dose of {dose} ml. Scheduled to sleep for {sleep_time_delta}.")
+
+            logger.info(f"Current time is {current_time.isoformat()}. Next watering event is at {datetime_event.isoformat()} with a dose of {dose} ml. Scheduled to sleep for {sleep_time_delta}.")
         
             await anyio.sleep(sleep_time)
 
             await pump_function(dose)
 
+    @staticmethod
     def validate_schedule_conf(schedule_conf: Any):
         if not isinstance(schedule_conf, list):
             raise ValueError("A schedule of type 'daily' needs a list of dictionaries containing watering events in the 'schedule' value.")

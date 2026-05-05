@@ -20,6 +20,7 @@ class Datapoint(ABC):
     def to_point(self, unit: str) -> dict[str, Any]:
         pass
 
+    @staticmethod
     def format_for_table_name(physical_unit: str, parameter: str) -> str:
         return f'{physical_unit}_{parameter}'.lower()
 
@@ -59,9 +60,11 @@ class WateringEvent(Datapoint):
     def __init__(
         self,
         dosage: int,
-        time: datetime = datetime.now()
+        time: None | datetime = None
     ):
         self.dosage = dosage
+        if time is None:
+            time = datetime.now()
         self.time = time
 
     def to_point(self, unit: str):

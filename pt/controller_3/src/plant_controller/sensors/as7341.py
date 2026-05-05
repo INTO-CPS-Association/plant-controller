@@ -36,7 +36,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
             * 2.78e-6
         )
 
-    def phtoton_count_to_flux(self, count):
+    def photon_count_to_flux(self, count):
         return count / self.integration_time
 
     async def read(self):
@@ -44,7 +44,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
             [
                 Measurement(
                     parameter="415nm",
-                    value=self.phtoton_count_to_flux(
+                    value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_415nm
                     ),
                     confidence=LightConfidence(
@@ -55,7 +55,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                 ),
                 Measurement(
                     parameter="445nm",
-                    value=self.phtoton_count_to_flux(
+                    value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_445nm
                     ),
                     confidence=LightConfidence(
@@ -66,7 +66,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                 ),
                 Measurement(
                     parameter="480nm",
-                    value=self.phtoton_count_to_flux(
+                    value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_480nm
                     ),
                     confidence=LightConfidence(
@@ -77,7 +77,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                 ),
                 Measurement(
                     parameter="515nm",
-                    value=self.phtoton_count_to_flux(
+                    value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_515nm
                     ),
                     confidence=LightConfidence(
@@ -88,7 +88,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                 ),
                 Measurement(
                     parameter="555nm",
-                    value=self.phtoton_count_to_flux(
+                    value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_555nm
                     ),
                     confidence=LightConfidence(
@@ -99,7 +99,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                 ),
                 Measurement(
                     parameter="590nm",
-                    value=self.phtoton_count_to_flux(
+                    value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_590nm
                     ),
                     confidence=LightConfidence(
@@ -110,7 +110,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                 ),
                 Measurement(
                     parameter="630nm",
-                    value=self.phtoton_count_to_flux(
+                    value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_630nm
                     ),
                     confidence=LightConfidence(
@@ -121,7 +121,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                 ),
                 Measurement(
                     parameter="680nm",
-                    value=self.phtoton_count_to_flux(
+                    value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_680nm
                     ),
                     confidence=LightConfidence(
@@ -131,8 +131,8 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                     units="photons/s"
                 ),
                 Measurement(
-                    parameter="infrared (910nm)",
-                    value=self.phtoton_count_to_flux(
+                    parameter="infrared_910nm",
+                    value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_nir
                     ),
                     units="photons/s"
@@ -182,7 +182,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                 "time between reads": str(self.time_between_reads) + " seconds",
                 "integration time": str(self.integration_time) + " seconds"
             },
-            "IR": {
+            "infrared_910nm": {
                 "units": "photons/s",
                 "time between reads": str(self.time_between_reads) + " seconds",
                 "integration time": str(self.integration_time) + " seconds"

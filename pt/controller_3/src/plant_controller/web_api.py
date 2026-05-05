@@ -43,7 +43,7 @@ class WebAPI:
         )
         router = APIRouter()
 
-        def check_unit_in_units(unit: str, units: dict[Unit]):
+        def check_unit_in_units(unit: str, units: dict[str, Unit]):
             if unit not in units:
                 raise HTTPException(
                     status_code=404,

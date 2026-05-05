@@ -76,30 +76,13 @@ class Sensor(ABC):
             }
         }
 
-class SyncSensor(Sensor):
-    """
-    Sensor subclass for devices that require synchronous reads (e.g., Blinka-based I2C sensors).
-
-    Inheritors of this class must implement the synced_read method.
-    """
-
-    @abstractmethod
-    def synced_read(self):
-        """Synchronous method to take a measurement."""
-        pass
-
-    async def read(self):
-        """Async wrapper that calls the synchronous read method."""
-        return self.synced_read()
-
-
 def init_sensor(
     module_name: str,
     class_name: str,
     parameter: str,
     busses: dict[str, Bus],
     db_save_function: Coroutine[Any, Datapoint | list[Datapoint]],
-    sensor_kwargs: dict[Any] = {}
+    sensor_kwargs: dict[Any] | None = None
 ) -> Sensor:
     """
     Dynamically initialize a sensor from a module.
@@ -115,6 +98,8 @@ def init_sensor(
     Returns:
         Initialized Sensor instance
     """
+    if sensor_kwargs is None:
+        sensor_kwargs = {}
     sensor_module = importlib.import_module(__name__ + "." + module_name)
     sensor_class = getattr(sensor_module, class_name)
     return sensor_class(

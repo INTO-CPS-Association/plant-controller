@@ -43,23 +43,25 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
 
     async def pumping_callback(self, dosage: int):
         pump_time = self.doseage_to_time(dosage)
-        logger.info(f"Starting pump {self.relay_address}-{self.coil_number} for {pump_time} seconds, corresponding to a dosage of {dosage} ml")
+        logger.debug(f"Starting pump {self.relay_address}-{self.coil_number} for {pump_time} seconds, corresponding to a dosage of {dosage} ml")
         await self._toggle_pump_on_for_duration(pump_time)
         await self.db_save_function(WateringEvent(dosage=dosage))
     
-    async def _toggle_pump_on_for_duration(self, time: float):
-        self.bus.write_coil(
-            address=self.coil_number,
-            value=True,
-            device_id=self.relay_address
-        )
-        sleep(time)
-        self.bus.write_coil(
-            address=self.coil_number,
-            value=False,
-            device_id=self.relay_address
-        )
-        logger.info(f"Stopped pump {self.relay_address}-{self.coil_number}")
+    async def _toggle_pump_on_for_duration(self, duration: float):
+        def _blocking_pump():
+            self.bus.write_coil(
+                address=self.coil_number,
+                value=True,
+                device_id=self.relay_address
+            )
+            sleep(duration)
+            self.bus.write_coil(
+                address=self.coil_number,
+                value=False,
+                device_id=self.relay_address
+            )
+        await anyio.to_thread.run_sync(_blocking_pump)
+        logger.debug(f"Stopped pump {self.relay_address}-{self.coil_number}")
     
     async def calibrate(self):
         import numpy

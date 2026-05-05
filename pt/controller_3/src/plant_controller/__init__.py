@@ -39,13 +39,11 @@ async def controller_run(args: argparse.Namespace):
         logger.info("Starting main loop")
         async with anyio.create_task_group() as tg:
             tg.start_soon(api.start)
-            for unit in units:
-                tg.start_soon(unit.start_sensing)
+            for u in units:
+                tg.start_soon(u.start_sensing)
                 if isinstance(unit, plant.Plant):
-                    tg.start_soon(unit.start_watering)
+                    tg.start_soon(u.start_watering)
             print("Plant controller is now running. Press Ctrl+C to quit.")
-    except KeyboardInterrupt:
-        logger.info("Got SIGINT, shutting down...")
     except Exception as e:
         logger.error(f"Error in main loop: {e}")
     finally:
@@ -61,10 +59,10 @@ async def controller_setup(args: argparse.Namespace):
     
     try:
         setup_actions = {}
-        for unit in units:
-            unit_setup_functions = unit.setup_functions()
+        for u in units:
+            unit_setup_functions = u.setup_functions()
             if unit_setup_functions:
-                setup_actions[unit.name] = unit_setup_functions
+                setup_actions[u.name] = unit_setup_functions
         
         if not setup_actions:
             print("The connected units and sensors do not have any setup actions.")
@@ -136,7 +134,6 @@ async def common_startup_tasks():
     busses = await com_bus.busses()
     try:
         units = create_units(
-            config=config,
             db_client=db_client,
             busses=busses
         )
@@ -152,7 +149,6 @@ def load_config(path: str = _CONFIG_PATH) -> dict:
     return config
 
 def create_units(
-    config: dict,
     db_client: database.DatabaseClient,
     busses: dict[str, com_bus.Bus]
 ) -> list[unit.Unit]:
@@ -175,7 +171,7 @@ def create_units(
         )
 
     if not units:
-        logger.warning(f"No plants configured for the controller. Add plant configuration files to '{_SCHEDULES_DIR}'.")
+        logger.warning(f"No plants configured for the controller. Add plant configuration files to '{_PLANTS_DIR}'.")
 
     units.append(
         greenhouse.Greenhouse(
@@ -198,7 +194,7 @@ def connect_to_db(config: dict) -> database.DatabaseClient:
 def parse_args(*args, **kwargs) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="plant_controller",
-        description="System for mointoring and watering of plants."
+        description="System for monitoring and watering of plants."
     )
 
     parser.add_argument(

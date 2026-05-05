@@ -57,6 +57,7 @@ class PumpSchedule(ABC):
         """
         pass
 
+    @staticmethod
     def validate_schedule_conf(schedule_conf: Any):
         """
         Goes through the passed schedule_conf and ensures that it is properly

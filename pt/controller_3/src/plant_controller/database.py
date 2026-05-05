@@ -34,7 +34,7 @@ class DatabaseClient(InfluxDBClient3):
             + f' ORDER BY time DESC'
             + (f' LIMIT {limit}' if limit else '')
         )
-        print(f'Executing query: {query}')
+        logger.debug(f'Executing query: {query}')
         return self.query(
             query
         ).to_pandas()

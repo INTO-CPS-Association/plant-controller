@@ -66,13 +66,13 @@ class Plant(Unit):
         )
 
         self.schedule_location = os.path.join(schedules_directory, self.name + ".json")
-        self.schedule = None
+        self.schedule = pump_schedules.NonSchedule()
         self.pump_schedule_coroutine_cancel_scope = None
     
     def update_schedule(self, schedule: dict[str, Any]):
+        pump_schedules.validate_schedule(schedule)
         if self.pump_schedule_coroutine_cancel_scope != None:
             self.pump_schedule_coroutine_cancel_scope.cancel()
-        pump_schedules.validate_schedule(schedule)
         with open(self.schedule_location, 'w', encoding="utf-8") as schedule_file:
             schedule_file.write(json.dumps(schedule, indent=4))
     
