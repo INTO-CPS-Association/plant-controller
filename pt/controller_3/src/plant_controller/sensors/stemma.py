@@ -5,8 +5,7 @@ through a TCA9548A I2C multiplexer. Multiple STEMMA sensors can share the
 same I2C bus by using different multiplexer ports.
 """
 
-from collections.abc import Coroutine
-from typing import Any
+from typing import Any, Callable
 
 from adafruit_seesaw.seesaw import Seesaw
 
@@ -36,7 +35,7 @@ class MultiplexedStemma(Sensor, I2CInterface):
             self,
             parameter: str,
             bus: BlinkaI2CBus,
-            db_save_function: Coroutine[Any, Datapoint | list[Datapoint]],
+            db_save_function: Callable[[Datapoint | list[Datapoint]], None],
             multiplexer_address: int,
             multiplexer_port: int,
             address: int,
@@ -54,7 +53,7 @@ class MultiplexedStemma(Sensor, I2CInterface):
 
     async def read(self):
         """Read moisture level and save as a percentage Measurement."""
-        await self.db_save_function(
+        self.db_save_function(
             Measurement(
                 parameter=self.parameter,
                 value=self.process_raw_value(

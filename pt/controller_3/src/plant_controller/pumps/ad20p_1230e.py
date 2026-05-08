@@ -8,9 +8,8 @@ test procedures accessible via the setup utility.
 import logging
 _logger = logging.getLogger(__name__)
 
-from collections.abc import Coroutine
 from time import sleep
-from typing import Any
+from typing import Any, Callable
 
 import anyio
 
@@ -35,9 +34,9 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
     def __init__(
         self,
         bus: MODBUS,
-        db_save_function: Coroutine[Any, Datapoint | list[Datapoint]],
+        db_save_function: Callable[[Datapoint | list[Datapoint]], None],
         calibration_parameters: dict[str, Any],
-        calibration_save_function: callable,
+        calibration_save_function: Callable,
         relay_address: int,
         coil_number: int
     ):
@@ -92,7 +91,7 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
         pump_time = self.doseage_to_time(dosage)
         _logger.debug(f"Starting pump {self.relay_address}-{self.coil_number} for {pump_time} seconds, corresponding to a dosage of {dosage} ml")
         await self._toggle_pump_on_for_duration(pump_time)
-        await self.db_save_function(WateringEvent(dosage=dosage))
+        self.db_save_function(WateringEvent(dosage=dosage))
     
     async def _toggle_pump_on_for_duration(self, duration: float):
         """Activate the relay for a precise duration, then deactivate.

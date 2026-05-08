@@ -47,8 +47,7 @@ Example minimal pump::
 """
 
 from abc import ABC, abstractmethod
-from collections.abc import Coroutine
-from typing import Any
+from typing import Any, Callable
 
 from ..com_bus import Bus
 from ..datapoint import Datapoint
@@ -63,7 +62,7 @@ class Pump(ABC):
 
     Attributes:
         bus: The communication bus instance for hardware control.
-        db_save_function: Async callable to persist WateringEvent datapoints.
+        db_save_function: Callable to persist WateringEvent datapoints.
         calibration_parameters: Dict containing at minimum 'slope' (sec/ml)
             and 'offset' (sec) for dosage-to-time conversion.
     """
@@ -71,14 +70,14 @@ class Pump(ABC):
     def __init__(
         self,
         bus: Bus,
-        db_save_function: Coroutine[Any, Datapoint | list[Datapoint]],
+        db_save_function: Callable[[Datapoint | list[Datapoint]], None],
         calibration_parameters: dict[str, Any]
     ):
         """Initialize the pump.
 
         Args:
             bus: Communication bus instance (I2C or MODBUS).
-            db_save_function: Async function to save watering events to DB.
+            db_save_function: Function to save watering events to DB.
             calibration_parameters: Dict with 'slope' (sec/ml) and 'offset'
                 (sec) for the linear dosage-to-time model.
         """

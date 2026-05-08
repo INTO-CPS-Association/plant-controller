@@ -96,7 +96,7 @@ class Measurement(Datapoint):
         Args:
             unit: Name of the physical unit this measurement belongs to.
         """
-        return {
+        dict = {
             "measurement": Datapoint.format_for_table_name(unit, self.parameter),
             "tags": {
                 "physical_unit": unit,
@@ -104,11 +104,13 @@ class Measurement(Datapoint):
             },
             "fields": {
                 "value": self.value,
-                "confidence": str(self.confidence),
                 "units": self.units
             },
             "time": self.time
         }
+        if self.confidence is not None:
+            dict["fields"]["confidence"] = str(self.confidence)
+        return dict
 
 
 class WateringEvent(Datapoint):

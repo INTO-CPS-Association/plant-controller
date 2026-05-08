@@ -16,7 +16,6 @@ Config kwargs:
 import logging
 _logger = logging.getLogger(__name__)
 
-from collections.abc import Coroutine
 from typing import Any, Callable
 
 import anyio
@@ -58,7 +57,7 @@ class DFRobotRS485SoilTemperatureHumidityECSensor(Sensor, MODBUSInterface, HasSe
         self,
         parameter: str,
         bus: MODBUS,
-        db_save_function: Coroutine[Any, Datapoint | list[Datapoint]],
+        db_save_function: Callable[[Datapoint | list[Datapoint]], None],
         config_save_function: Callable,
         device_id: int,
         tbr: int,
@@ -93,43 +92,50 @@ class DFRobotRS485SoilTemperatureHumidityECSensor(Sensor, MODBUSInterface, HasSe
         to avoid stalling the async event loop.
         """
         def _blocking_read():
-            return [
-                Measurement(
-                    parameter=f"{self.parameter}.moisture",
-                    value=self.bus.convert_from_registers(
-                        registers=self.bus.read_holding_registers(
-                            address=_DF_HUM_TEMP_EC_MOISTURE_ADDRESS,
-                            device_id=self.device_id
-                        ).registers,
-                        data_type=self.bus.DATATYPE.UINT16
-                    ) / 10,
-                    units="%RH"
-                ),
-                Measurement(
-                    parameter=f"{self.parameter}.temperature",
-                    value=self.bus.convert_from_registers(
-                        registers=self.bus.read_holding_registers(
-                            address=_DF_HUM_TEMP_EC_TEMPERATURE_ADDRESS,
-                            device_id=self.device_id
-                        ).registers,
-                        data_type=self.bus.DATATYPE.INT16
-                    ) / 10,
-                    units="°C"
-                ),
-                Measurement(
-                    parameter=f"{self.parameter}.electrical_conductivity",
-                    value=self.bus.convert_from_registers(
-                        registers=self.bus.read_holding_registers(
-                            address=_DF_HUM_TEMP_EC_CONDUCTIVITY_ADDRESS,
-                            device_id=self.device_id
-                        ).registers,
-                        data_type=self.bus.DATATYPE.UINT16
+            _logger.debug(f"Fetching readings from sensor [{self.parameter}]")
+            try:
+                return [
+                    Measurement(
+                        parameter=f"{self.parameter}_moisture",
+                        value=self.bus.convert_from_registers(
+                            registers=self.bus.read_holding_registers(
+                                address=_DF_HUM_TEMP_EC_MOISTURE_ADDRESS,
+                                device_id=self.device_id
+                            ).registers,
+                            data_type=self.bus.DATATYPE.UINT16
+                        ) / 10,
+                        units="%RH"
                     ),
-                    units="μS/cm"
-                )
-            ]
+                    Measurement(
+                        parameter=f"{self.parameter}_temperature",
+                        value=self.bus.convert_from_registers(
+                            registers=self.bus.read_holding_registers(
+                                address=_DF_HUM_TEMP_EC_TEMPERATURE_ADDRESS,
+                                device_id=self.device_id
+                            ).registers,
+                            data_type=self.bus.DATATYPE.INT16
+                        ) / 10,
+                        units="°C"
+                    ),
+                    Measurement(
+                        parameter=f"{self.parameter}_electrical_conductivity",
+                        value=self.bus.convert_from_registers(
+                            registers=self.bus.read_holding_registers(
+                                address=_DF_HUM_TEMP_EC_CONDUCTIVITY_ADDRESS,
+                                device_id=self.device_id
+                            ).registers,
+                            data_type=self.bus.DATATYPE.UINT16
+                        ),
+                        units="μS/cm"
+                    )
+                ]
+            except Exception as e:
+                _logger.error(f"Failed to fetch sensor values for parameter [{self.parameter}]: {e}")
+                raise e
+        _logger.debug(f"Starting blocking sensing for parameter [{self.parameter}] in seperate thread.")
         measurements = await anyio.to_thread.run_sync(_blocking_read)
-        await self.db_save_function(measurements)
+        _logger.debug(f"Saving for parameter [{self.parameter}] in database the measurements {measurements}")
+        self.db_save_function(measurements)
 
     def get_capabilities(self):
         """Return capabilities for the three sub-parameters.
@@ -140,21 +146,21 @@ class DFRobotRS485SoilTemperatureHumidityECSensor(Sensor, MODBUSInterface, HasSe
             ``<parameter>.electrical_conductivity``.
         """
         return {
-            f"{self.parameter}.moisture": {
+            f"{self.parameter}_moisture": {
                 "units": "%RH (Relative Humidity)",
                 "time between reads": str(self.time_between_reads) + " seconds"
             },
-            f"{self.parameter}.temperature": {
+            f"{self.parameter}_temperature": {
                 "units": "°C",
                 "time between reads": str(self.time_between_reads) + " seconds"
             },
-            f"{self.parameter}.electrical_conductivity": {
+            f"{self.parameter}_electrical_conductivity": {
                 "units": "μS/cm",
                 "time between reads": str(self.time_between_reads) + " seconds"
             }
         }
     
-    def change_id(self):
+    async def change_id(self):
         """Interactive procedure to change the sensor's MODBUS device ID.
 
         Guides the user through safely reassigning the sensor's address on
@@ -209,7 +215,7 @@ class DFRobotRS485SoilTemperatureHumidityECSensor(Sensor, MODBUSInterface, HasSe
             return
 
         self.device_id = response
-        self.config_save_function(device_id = response)
+        self.config_save_function(device_id=response)
         print(f"The sensor was updated with the new id '{response}'.")
         print("")
         return

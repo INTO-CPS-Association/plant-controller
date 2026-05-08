@@ -30,14 +30,14 @@ class Greenhouse(Unit):
         self.register_sensor(init_sensor(
             module_name="as7341",
             class_name="GreenhouseAS7341",
-            parameter="_", # Defined by sensor 
+            parameter="light_level", # Defined by sensor 
             busses=busses,
             db_save_function=self.db_save_function
         ))
         self.register_sensor(init_sensor(
             module_name="sht45",
             class_name="GreenhouseSHT45",
-            parameter="_", # Defined by sensor
+            parameter="air", # Defined by sensor
             busses=busses,
             db_save_function=self.db_save_function
         ))

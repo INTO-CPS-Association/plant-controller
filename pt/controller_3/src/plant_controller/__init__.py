@@ -68,7 +68,7 @@ async def controller_run(args: argparse.Namespace):
                     tg.start_soon(u.start_watering)
             print("Plant controller is now running. Press Ctrl+C to quit.")
     except Exception as e:
-        _logger.error(f"Error in main loop: {e}")
+        _logger.error(f"Error in main loop: {e}", exc_info=True)
     finally:
         busses[com_bus._MODBUS].close()
 

@@ -4,6 +4,8 @@ A Unit represents a physical entity (plant or greenhouse) that has sensors
 attached to it and optionally actuators. Units are the primary organizational
 abstraction: each unit has its own database namespace and sensor set.
 """
+import logging
+_logger = logging.getLogger(__name__)
 
 import anyio
 
@@ -20,7 +22,6 @@ class Unit(HasSetupFunctionsMixin):
     Attributes:
         name: Unique identifier for this unit (used as DB namespace).
         db_client: Database client for persisting measurements.
-        db_lock: Async lock ensuring serialized DB writes.
         sensors: List of registered Sensor instances.
     """
 
@@ -33,7 +34,6 @@ class Unit(HasSetupFunctionsMixin):
         """
         self.name = name
         self.db_client = db_client
-        self.db_lock = anyio.Lock()
         self.sensors = []
 
     def register_sensor(self, new_sensor):
@@ -59,20 +59,23 @@ class Unit(HasSetupFunctionsMixin):
         Each sensor's reading_loop is launched as a task in a task group.
         This coroutine runs indefinitely.
         """
+        _logger.debug(f"Unit {self.name} started sensing.")
         async with anyio.create_task_group() as tg:
             for sensor in self.sensors:
+                _logger.debug(f"Starting sensing of {sensor.parameter} for unit {self.name}.")
                 tg.start_soon(sensor.reading_loop)
 
-    async def db_save_function(self, data: Datapoint | list[Datapoint]):
-        """Persist measurement data to the database (thread-safe).
+    def db_save_function(self, data: Datapoint | list[Datapoint]):
+        """Persist measurement data to the database.
 
         This method is passed to sensors and pumps as their save callback.
 
         Args:
             data: A single Datapoint or list of Datapoints to persist.
         """
-        async with self.db_lock:
-            self.db_client.write_measurements(self.name, data)
+        _logger.debug(f"For unit {self.name}, saving datapoint(s): {data}")
+        self.db_client.write_measurements(self.name, data)
+        _logger.debug(f"For unit {self.name}, saved datapoint(s) succesfully!: {data}")
 
     def get_sensing_capabilites(self):
         """Return combined capabilities of all registered sensors.

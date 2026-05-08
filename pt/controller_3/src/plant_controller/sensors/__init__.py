@@ -57,8 +57,10 @@ Example minimal sensor::
             )
 """
 
+import logging
+_logger = logging.getLogger(__name__)
+
 from abc import ABC, abstractmethod
-from collections.abc import Coroutine
 from typing import Any, Callable
 import importlib
 
@@ -81,7 +83,7 @@ class Sensor(ABC):
         confidence: Measurement confidence/uncertainty specification.
         units: Unit string for the measured values (e.g. "°C", "%").
         time_between_reads: Interval in seconds between consecutive reads.
-        db_save_function: Async callable that persists Datapoint(s).
+        db_save_function: Callable that persists Datapoint(s).
     """
 
     def __init__(
@@ -91,7 +93,7 @@ class Sensor(ABC):
         confidence: Confidence,
         units: str,
         time_between_reads: float,
-        db_save_function: Coroutine[Any, Datapoint | list[Datapoint]],
+        db_save_function: Callable[[Datapoint | list[Datapoint]], None],
         config_save_function: Callable | None = None
     ):
         """Initialize the sensor.
@@ -102,7 +104,7 @@ class Sensor(ABC):
             confidence: Measurement confidence interval specification.
             units: Unit of measurement (e.g. '°C', '%').
             time_between_reads: Seconds between automatic readings.
-            db_save_function: Async function to persist measurements to the DB.
+            db_save_function: Function to persist measurements to the DB.
             config_save_function: Callable for saving the passed arguments in the sensors config.
         """
         self.parameter = parameter
@@ -130,6 +132,7 @@ class Sensor(ABC):
         This method is started as a task by the Unit's sensing task group.
         Override only if non-uniform timing is needed.
         """
+        _logger.debug(f"Started reading from sensor for parameter {self.parameter}")
         while True:
             await self.read()
             await anyio.sleep(self.time_between_reads)
@@ -157,8 +160,8 @@ def init_sensor(
     class_name: str,
     parameter: str,
     busses: dict[str, Bus],
-    db_save_function: Coroutine[Any, Datapoint | list[Datapoint]],
-    config_save_function: callable,
+    db_save_function: Callable[[Datapoint | list[Datapoint]], None],
+    config_save_function: Callable | None = None,
     sensor_kwargs: dict[Any] | None = None
 ) -> Sensor:
     """Dynamically load and instantiate a sensor from a submodule.
@@ -174,7 +177,7 @@ def init_sensor(
         class_name: Name of the Sensor subclass within that module.
         parameter: The physical parameter name for the sensor.
         busses: Dict mapping bus type strings to Bus instances.
-        db_save_function: Async callable for persisting datapoints.
+        db_save_function: Callable for persisting datapoints.
         config_save_function: Callable for saving the passed arguments in the sensors config.
         sensor_kwargs: Extra keyword arguments forwarded to the sensor's
             ``__init__`` (from the config's "kwargs" field).

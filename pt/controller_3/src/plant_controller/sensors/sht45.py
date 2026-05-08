@@ -5,8 +5,7 @@ Sensirion SHT45 sensor. Confidence intervals are condition-dependent
 for humidity.
 """
 
-from collections.abc import Coroutine
-from typing import Any
+from typing import Any, Callable
 
 import adafruit_sht4x
 
@@ -32,10 +31,12 @@ class GreenhouseSHT45(Sensor, I2CInterface):
     """
     def __init__(
         self,
+        parameter: str,
         bus: BlinkaI2CBus,
-        db_save_function: Coroutine[Any, Datapoint | list[Datapoint]],
+        db_save_function: Callable[[Datapoint | list[Datapoint]], None],
         **kwargs: Any
     ):
+        self.parameter = parameter
         self.wrapped_sensor = adafruit_sht4x.SHT4x(bus.wrapped_bus)
         self.wrapped_sensor.mode = adafruit_sht4x.Mode.NOHEAT_HIGHPRECISION
         self.db_save_function = db_save_function
@@ -66,16 +67,16 @@ class GreenhouseSHT45(Sensor, I2CInterface):
     async def read(self):
         """Read temperature and humidity, saving both as Measurements."""
         temperature, humidity = self.wrapped_sensor.measurements
-        await self.db_save_function(
+        self.db_save_function(
             [
                 Measurement(
-                    parameter="temperature",
+                    parameter=self.parameter + ".temperature",
                     value=temperature,
                     confidence=self.temperature_confidence,
                     units="°C"
                 ),
                 Measurement(
-                    parameter="humidity",
+                    parameter=self.parameter + ".humidity",
                     value=humidity,
                     confidence=GreenhouseSHT45.humidity_confidence(temperature, humidity),
                     units="%"
@@ -86,12 +87,12 @@ class GreenhouseSHT45(Sensor, I2CInterface):
     def get_capabilities(self):
         """Return capabilities for temperature and humidity parameters."""
         return {
-            "temperature": {
+            self.parameter + ".temperature": {
                 "units": "°C",
                 "confidence": str(self.temperature_confidence),
                 "time between reads": str(self.time_between_reads) + " seconds"
             },
-            "humidity": {
+            self.parameter + ".humidity": {
                 "units": "%",
                 "confidence": "Varies based on temperature and humidity",
                 "time between reads": str(self.time_between_reads) + " seconds"

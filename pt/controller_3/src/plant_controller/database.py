@@ -32,10 +32,19 @@ class DatabaseClient(InfluxDBClient3):
             physical_unit: Name of the unit (used for table naming).
             data: A single Datapoint or list of Datapoints to persist.
         """
-        if isinstance(data, Datapoint):
-            self.write(data.to_point(physical_unit))
-        else:
-            self.write([dp.to_point(physical_unit) for dp in data])
+        _logger.debug(f"Writing point for unit: {physical_unit}")
+        try:
+            if isinstance(data, Datapoint):
+                point = data.to_point(physical_unit)
+                _logger.debug(f"Writing single point: {point}")
+                self.write(point)
+            else:
+                points = [dp.to_point(physical_unit) for dp in data]
+                _logger.debug(f"Writing multiple points: {points}")
+                self.write(points)
+        except Exception as e:
+            _logger.error(f"Failed to write point(s) for unit {physical_unit}: {e}", exc_info=True)
+            raise e
 
     def read_measurements(
         self,

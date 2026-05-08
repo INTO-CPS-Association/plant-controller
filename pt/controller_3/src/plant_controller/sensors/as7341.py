@@ -5,8 +5,7 @@ the AMS AS7341 sensor IC. Readings are converted from raw photon counts
 to flux (photons/s) using the configured integration time.
 """
 
-from collections.abc import Coroutine
-from typing import Any
+from typing import Any, Callable
 
 import adafruit_as7341
 
@@ -54,10 +53,12 @@ class GreenhouseAS7341(Sensor, I2CInterface):
     """
     def __init__(
         self,
+        parameter: str,
         bus: BlinkaI2CBus,
-        db_save_function: Coroutine[Any, Datapoint | list[Datapoint]],
+        db_save_function: Callable[[Datapoint | list[Datapoint]], None],
         **kwargs: Any
     ):
+        self.parameter = parameter
         self.wrapped_sensor = adafruit_as7341.AS7341(bus.wrapped_bus)
         self.wrapped_sensor.gain = adafruit_as7341.Gain.GAIN_64X
         self.db_save_function = db_save_function
@@ -81,10 +82,10 @@ class GreenhouseAS7341(Sensor, I2CInterface):
 
     async def read(self):
         """Read all 9 spectral channels and save as Measurements."""
-        await self.db_save_function(
+        self.db_save_function(
             [
                 Measurement(
-                    parameter="415nm",
+                    parameter=self.parameter + "_415nm",
                     value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_415nm
                     ),
@@ -95,7 +96,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                     units="photons/s"
                 ),
                 Measurement(
-                    parameter="445nm",
+                    parameter=self.parameter + "_445nm",
                     value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_445nm
                     ),
@@ -106,7 +107,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                     units="photons/s"
                 ),
                 Measurement(
-                    parameter="480nm",
+                    parameter=self.parameter + "_480nm",
                     value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_480nm
                     ),
@@ -117,7 +118,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                     units="photons/s"
                 ),
                 Measurement(
-                    parameter="515nm",
+                    parameter=self.parameter + "_515nm",
                     value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_515nm
                     ),
@@ -128,7 +129,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                     units="photons/s"
                 ),
                 Measurement(
-                    parameter="555nm",
+                    parameter=self.parameter + "_555nm",
                     value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_555nm
                     ),
@@ -139,7 +140,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                     units="photons/s"
                 ),
                 Measurement(
-                    parameter="590nm",
+                    parameter=self.parameter + "_590nm",
                     value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_590nm
                     ),
@@ -150,7 +151,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                     units="photons/s"
                 ),
                 Measurement(
-                    parameter="630nm",
+                    parameter=self.parameter + "_630nm",
                     value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_630nm
                     ),
@@ -161,7 +162,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                     units="photons/s"
                 ),
                 Measurement(
-                    parameter="680nm",
+                    parameter=self.parameter + "_680nm",
                     value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_680nm
                     ),
@@ -172,7 +173,7 @@ class GreenhouseAS7341(Sensor, I2CInterface):
                     units="photons/s"
                 ),
                 Measurement(
-                    parameter="infrared_910nm",
+                    parameter=self.parameter + "_infrared_910nm",
                     value=self.photon_count_to_flux(
                         self.wrapped_sensor.channel_nir
                     ),
@@ -184,47 +185,47 @@ class GreenhouseAS7341(Sensor, I2CInterface):
     def get_capabilities(self):
         """Return capabilities for all 9 spectral channels."""
         return {
-            "415nm": {
+            self.parameter + "_415nm": {
                 "units": "photons/s",
                 "time between reads": str(self.time_between_reads) + " seconds",
                 "integration time": str(self.integration_time) + " seconds"
             },
-            "445nm": {
+            self.parameter + "_445nm": {
                 "units": "photons/s",
                 "time between reads": str(self.time_between_reads) + " seconds",
                 "integration time": str(self.integration_time) + " seconds"
             },
-            "480nm": {
+            self.parameter + "_480nm": {
                 "units": "photons/s",
                 "time between reads": str(self.time_between_reads) + " seconds",
                 "integration time": str(self.integration_time) + " seconds"
             },
-            "515nm": {
+            self.parameter + "_515nm": {
                 "units": "photons/s",
                 "time between reads": str(self.time_between_reads) + " seconds",
                 "integration time": str(self.integration_time) + " seconds"
             },
-            "555nm": {
+            self.parameter + "_555nm": {
                 "units": "photons/s",
                 "time between reads": str(self.time_between_reads) + " seconds",
                 "integration time": str(self.integration_time) + " seconds"
             },
-            "590nm": {
+            self.parameter + "_590nm": {
                 "units": "photons/s",
                 "time between reads": str(self.time_between_reads) + " seconds",
                 "integration time": str(self.integration_time) + " seconds"
             },
-            "630nm": {
+            self.parameter + "_630nm": {
                 "units": "photons/s",
                 "time between reads": str(self.time_between_reads) + " seconds",
                 "integration time": str(self.integration_time) + " seconds"
             },
-            "680nm": {
+            self.parameter + "_680nm": {
                 "units": "photons/s",
                 "time between reads": str(self.time_between_reads) + " seconds",
                 "integration time": str(self.integration_time) + " seconds"
             },
-            "infrared_910nm": {
+            self.parameter + "_infrared_910nm": {
                 "units": "photons/s",
                 "time between reads": str(self.time_between_reads) + " seconds",
                 "integration time": str(self.integration_time) + " seconds"

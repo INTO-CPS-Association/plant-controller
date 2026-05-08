@@ -13,6 +13,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 from abc import ABC, abstractmethod
+import inspect
 import threading
 
 import adafruit_tca9548a
@@ -156,7 +157,7 @@ class MODBUS(Bus):
                 name = split_name[1]
                 in_new_thread = True
             attr = getattr(self.client, name)
-            if callable(attr):
+            if inspect.ismethod(attr):
                 if in_new_thread:
                     async def _locked_client_func_in_new_thread(*args, **kwargs):
                         return await self.run_sync(
