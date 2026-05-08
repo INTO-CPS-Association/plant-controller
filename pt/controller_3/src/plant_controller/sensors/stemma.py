@@ -40,7 +40,8 @@ class MultiplexedStemma(Sensor, I2CInterface):
             multiplexer_address: int,
             multiplexer_port: int,
             address: int,
-            tbr: int
+            tbr: int,
+            **_kwargs: Any
         ):
         self.parameter = parameter
         self.wrapped_sensor = Seesaw(
@@ -79,6 +80,11 @@ class MultiplexedStemma(Sensor, I2CInterface):
         return raw_value / 1023 * 100
     
     def get_capabilities(self):
+        """Return capabilities for the moisture parameter.
+
+        Returns:
+            Dict with a single entry keyed by ``self.parameter``.
+        """
         return {
             self.parameter: {
                 "units": "%",
@@ -86,47 +92,3 @@ class MultiplexedStemma(Sensor, I2CInterface):
                 "time between reads": str(self.time_between_reads) + " seconds"
              }
          }
-
-# class DummyStemmaDugtrio(Sensor, I2CInterface):
-#     def __init__(
-#             self,
-#             parameter: str,
-#             bus: Bus,
-#             db_save_function: Coroutine[Any, Datapoint | list[Datapoint]],
-#             addresses: list[str],
-#             tbr: int
-#         ):
-#         if len(addresses) < 1:
-#             raise ValueError("'addresses' must include at least one address")
-#         self.parameter = parameter
-#         self.bus = bus
-#         self.db_save_function = db_save_function
-#         self.confidence = Confidence(interval=0.5, level=0.95)
-#         self.addresses = addresses
-#         self.time_between_reads = tbr
-#     
-#     async def read(self):
-#         values = []
-#         for address in self.addresses:
-#             _dummy = await self.bus.query(address, 0x00)
-#             values.append(random.uniform(0, 100))
-#         mean = statistics.fmean(values)
-#         std_div = statistics.stdev(values)
-#         conf_int = 2*std_div/math.sqrt(len(values))
-#         await self.db_save_function(
-#             Measurement(
-#                 parameter=self.parameter,
-#                 value=mean,
-#                 confidence=Confidence(conf_int, 0.95),
-#                 units="%"
-#             )
-#         )
-#     
-#     def get_capabilities(self):
-#         return {
-#             self.parameter: {
-#                 "units": "%",
-#                 "confidence": "Variable, measurement dependent",
-#                 "time between reads": str(self.time_between_reads) + " seconds"
-#             }
-#         }

@@ -9,7 +9,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 import datetime, json, os
-from typing import Any
+from typing import Any, Callable
 
 import anyio
 
@@ -82,6 +82,7 @@ class Plant(Unit):
                     parameter=sensor_name,
                     busses=busses,
                     db_save_function=self.db_save_function,
+                    config_save_function=self.sensor_specific_config_save_function(sensor_name),
                     sensor_kwargs=kwargs
                 )
             )
@@ -117,7 +118,7 @@ class Plant(Unit):
             ValueError: If the schedule config is invalid.
         """
         pump_schedules.validate_schedule(schedule)
-        if self.pump_schedule_coroutine_cancel_scope != None:
+        if self.pump_schedule_coroutine_cancel_scope is not None:
             self.pump_schedule_coroutine_cancel_scope.cancel()
         with open(self.schedule_location, 'w', encoding="utf-8") as schedule_file:
             schedule_file.write(json.dumps(schedule, indent=4))
@@ -132,6 +133,25 @@ class Plant(Unit):
             raise ValueError("No configuration path provided for this plant, cannot save configuration.")
         with open(self.config_path, 'w', encoding="utf-8") as config_file:
             config_file.write(json.dumps(self.config, indent=4))
+
+    def sensor_specific_config_save_function(self, sensor_name) -> Callable:
+        """Create a config save callback scoped to a specific sensor.
+
+        Returns a callable that, when called with keyword arguments, merges
+        them into the sensor's ``kwargs`` section in the plant config and
+        persists the result to disk.
+
+        Args:
+            sensor_name: Name of the sensor in the config's ``sensors`` dict.
+
+        Returns:
+            A callable accepting ``**kwargs`` that saves them to the config.
+        """
+        def update_sensor_config(**kwargs):
+            for key, value in kwargs.items():
+                self.config["sensors"][sensor_name].setdefault("kwargs", {})[key] = value
+            self.save_configuration()
+        return update_sensor_config
     
     def save_pump_calibration(self, slope: float, offset: float):
         """Save new pump calibration parameters to the plant config.
@@ -159,6 +179,7 @@ class Plant(Unit):
                 await self.schedule.run_schedule(self.pump.pumping_callback)
 
     def has_actuation(self) -> bool:
+        """Return True — plants always have a pump attached."""
         return True
 
     @staticmethod
@@ -193,6 +214,6 @@ class Plant(Unit):
         for sensor in self.sensors:
             if hasattr(sensor, "setup_functions"):
                 for func_name, func in sensor.setup_functions().items():
-                    action_dict[f"sensor.{sensor.name}.{func_name}"] = func
+                    action_dict[f"sensor.{sensor.parameter}.{func_name}"] = func
 
         return action_dict
