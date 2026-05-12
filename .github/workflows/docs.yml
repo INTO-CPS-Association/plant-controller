@@ -1,0 +1,53 @@
+name: Generate Documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pt/controller_3/src/**'
+      - 'pt/controller_3/generate_docs.py'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          pip install pdoc
+          pip install anyio fastapi 'influxdb3-python>=0.18' numpy pandas pydantic pymodbus 'uvicorn[standard]'
+
+      - name: Generate documentation
+        run: python pt/controller_3/generate_docs.py
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pt/controller_3/docs_build
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

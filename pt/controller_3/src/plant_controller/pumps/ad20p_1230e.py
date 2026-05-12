@@ -1,33 +1,65 @@
-import logging
-logger = logging.getLogger(__name__)
+"""AD20P-1230E pump implementation via CS-IO404 Modbus relay module.
 
-from collections.abc import Coroutine
-from typing import Any
+Controls an AD20P-1230E 12V submersible pump through a CS-IO404 4-channel
+relay module on the MODBUS RTU bus. Includes interactive calibration and
+test procedures accessible via the setup utility.
+"""
+
+import logging
+_logger = logging.getLogger(__name__)
+
+from time import sleep
+from typing import Any, Callable
 
 import anyio
 
 from . import Pump
-from ..datapoint import Datapoint
+from ..datapoint import Datapoint, WateringEvent
 from ..cli_helpers import clear_screen
 from ..com_bus import MODBUS, MODBUSInterface
 from ..setup_actions import HasSetupFunctionsMixin
 
+
 class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
+    """AD20P-1230E pump controlled via a CS-IO404 Modbus relay.
+
+    Converts dosage requests (ml) to timed relay activations using linear
+    calibration parameters. The relay module is addressed via MODBUS RTU.
+
+    Attributes:
+        relay_address: MODBUS device address of the CS-IO404 module (1-247).
+        coil_number: Output coil index on the relay module (0-3).
+        calibration_save_function: Callback to persist new calibration data.
+    """
     def __init__(
         self,
         bus: MODBUS,
-        db_save_function: Coroutine[Any, Datapoint | list[Datapoint]],
+        db_save_function: Callable[[Datapoint | list[Datapoint]], None],
         calibration_parameters: dict[str, Any],
-        calibration_save_function: callable,
+        calibration_save_function: Callable,
         relay_address: int,
         coil_number: int
     ):
+        """Initialize the pump with relay addressing and calibration.
+
+        Args:
+            bus: MODBUS bus instance.
+            db_save_function: Async function to persist watering events.
+            calibration_parameters: Dict with 'slope' and 'offset' keys.
+            calibration_save_function: Callable(slope, offset) to persist
+                new calibration values after the calibration procedure.
+            relay_address: MODBUS address of the CS-IO404 (1-247).
+            coil_number: Relay output index (0-3).
+
+        Raises:
+            ValueError: If coil_number or relay_address is out of range.
+        """
         if not (0 <= coil_number < 4):
             raise ValueError(f"Invalid coil number {coil_number} for pump. Coil number must be between 0 and 3 inclusive, corresponding to the 4 outputs of the CS-IO404 relay module.")
         if not (1 <= relay_address <= 247):
             raise ValueError(f"Invalid relay address {relay_address} for pump. MODBUS relay addresses must be between 1 and 247 inclusive.")
         if relay_address == 1:
-            logger.warning(f"A pump is configured with relay address 1, which is typically reserved for the controller itself. If your relay module is configured to use address 1, consider changing it to avoid potential conflicts on the MODBUS network.")
+            _logger.warning(f"A pump is configured with relay address 1, which is typically reserved for the controller itself. If your relay module is configured to use address 1, consider changing it to avoid potential conflicts on the MODBUS network.")
         self.bus = bus
         self.db_save_function = db_save_function
         self.calibration_parameters = calibration_parameters
@@ -36,30 +68,63 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
         self.coil_number = coil_number
 
     def doseage_to_time(self, dosage: int) -> float:
+        """Convert a dosage in ml to pumping duration in seconds.
+
+        Uses the linear model: time = slope * dosage + offset.
+
+        Args:
+            dosage: Desired water amount in milliliters.
+
+        Returns:
+            Pumping duration in seconds.
+        """
         slope = self.calibration_parameters["slope"]
         offset = self.calibration_parameters["offset"]
         return slope * dosage + offset
 
     async def pumping_callback(self, dosage: int):
+        """Pump the specified dosage and record the watering event.
+
+        Args:
+            dosage: Amount to pump in milliliters.
+        """
         pump_time = self.doseage_to_time(dosage)
-        logger.info(f"Starting pump {self.relay_address}-{self.coil_number} for {pump_time} seconds, corresponding to a dosage of {dosage} ml")
+        _logger.debug(f"Starting pump {self.relay_address}-{self.coil_number} for {pump_time} seconds, corresponding to a dosage of {dosage} ml")
         await self._toggle_pump_on_for_duration(pump_time)
+        self.db_save_function(WateringEvent(dosage=dosage))
     
-    async def _toggle_pump_on_for_duration(self, time: float):
-        await self.bus.write_coil(
-            address=self.coil_number,
-            value=True,
-            device_id=self.relay_address
-        )
-        await anyio.sleep(time)
-        await self.bus.write_coil(
-            address=self.coil_number,
-            value=False,
-            device_id=self.relay_address
-        )
-        logger.info(f"Stopped pump {self.relay_address}-{self.coil_number}")
+    async def _toggle_pump_on_for_duration(self, duration: float):
+        """Activate the relay for a precise duration, then deactivate.
+
+        Runs the blocking relay toggle in a worker thread to avoid
+        blocking the async event loop during the sleep.
+
+        Args:
+            duration: Time in seconds to keep the pump running.
+        """
+        def _blocking_pump():
+            self.bus.write_coil(
+                address=self.coil_number,
+                value=True,
+                device_id=self.relay_address
+            )
+            sleep(duration)
+            self.bus.write_coil(
+                address=self.coil_number,
+                value=False,
+                device_id=self.relay_address
+            )
+        await anyio.to_thread.run_sync(_blocking_pump)
+        _logger.debug(f"Stopped pump {self.relay_address}-{self.coil_number}")
     
     async def calibrate(self):
+        """Interactive calibration procedure for determining pump flow rate.
+
+        Guides the user through multiple pump cycles at different durations,
+        collecting volume measurements to compute a linear fit (slope and
+        offset) for the dosage-to-time relationship. Results are saved via
+        the calibration_save_function.
+        """
         import numpy
         import datetime
         clear_screen()
@@ -107,7 +172,7 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
                 print(f"The given input '{response}' wasn't a whole number!")
         
         # Time to wait on water in watering tube to recede back into watertank
-        rest_time = response / 5 if response > 0 else 0
+        rest_time = response / 10 if response > 0 else 0
         clear_screen()
 
         print("The controller will now go through multiple cycles of turning on the pump for")
@@ -160,10 +225,12 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
                 except Exception:
                     print(f"The given input '{response}' wasn't a whole number!")
             if response > 0:
-                print(f"Recorded pumped amount: {response} ml")
-                print(f"Recorded pumping time: {pumping_time} seconds")
+                _logger.debug(f"Recorded pumped amount: {response} ml")
+                _logger.debug(f"Recorded pumping time: {pumping_time} seconds")
                 pumped_amounts.append(response)
                 pumped_durations.append(pumping_time)
+            else:
+                _logger.debug("Calibrater recorded a pumped amount of 0ml, discarding this data point.")
 
             print("Empty the measuring cup.")
             print("(Press enter to continue)")
@@ -193,7 +260,7 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
         print("")
         print(f"Old slope: {old_slope}, Old offset: {old_offset}")
         print(f"New slope: {slope}, New offset: {offset}")
-        logger.debug(f"Pump {self.relay_address}-{self.coil_number} calibrated with slope {slope} and offset {offset}. Old slope was {old_slope} and old offset was {old_offset}. Calibration data points were: {list(zip(pumped_amounts, pumped_durations))}")
+        _logger.debug(f"Pump {self.relay_address}-{self.coil_number} calibrated with slope {slope} and offset {offset}. Old slope was {old_slope} and old offset was {old_offset}. Calibration data points were: {list(zip(pumped_amounts, pumped_durations))}")
         self.calibration_save_function(slope, offset)
         print("")
         print("The pump is now calibrated. You can test the pump with its new calibration by running the 'test' setup function.")
@@ -201,6 +268,7 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
         input()
 
     async def test_pump(self):
+        """Interactive test: pump a user-specified dosage to verify calibration."""
         print("How many ml do you want to pump for the test?")
         while True:
             try:
@@ -208,9 +276,16 @@ class CS_IO404_Based_AD20P_1230E(Pump, MODBUSInterface, HasSetupFunctionsMixin):
                 break
             except ValueError:
                 print("Invalid input. Please enter an integer value for the dosage.")
-        await self.pumping_callback(dosage)
+        pump_time = self.doseage_to_time(dosage)
+        _logger.info(f"Starting pump {self.relay_address}-{self.coil_number} for {pump_time} seconds, corresponding to a dosage of {dosage} ml")
+        await self._toggle_pump_on_for_duration(pump_time)
 
     def setup_functions(self) -> dict[str, dict[str, any]]:
+        """Return available setup actions for this pump.
+
+        Returns:
+            Dict with 'calibrate' and 'test' entries.
+        """
         return {
             "calibrate": {
                 "description": "Run the calibration procedure for the pump.",

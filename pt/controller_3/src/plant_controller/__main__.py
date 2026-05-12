@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Entry point for running plant_controller as a module (python -m plant_controller)."""
 
 import sys
 import anyio

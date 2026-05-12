@@ -209,3 +209,6 @@ cython_debug/
 **/config/*.yaml
 **/config.toml
 
+# Generated documentation
+docs_build/
+
