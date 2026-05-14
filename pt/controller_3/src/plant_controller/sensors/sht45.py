@@ -70,13 +70,13 @@ class GreenhouseSHT45(Sensor, I2CInterface):
         self.db_save_function(
             [
                 Measurement(
-                    parameter=self.parameter + ".temperature",
+                    parameter=self.parameter + "_temperature",
                     value=temperature,
                     confidence=self.temperature_confidence,
                     units="°C"
                 ),
                 Measurement(
-                    parameter=self.parameter + ".humidity",
+                    parameter=self.parameter + "_humidity",
                     value=humidity,
                     confidence=GreenhouseSHT45.humidity_confidence(temperature, humidity),
                     units="%"
@@ -87,12 +87,12 @@ class GreenhouseSHT45(Sensor, I2CInterface):
     def get_capabilities(self):
         """Return capabilities for temperature and humidity parameters."""
         return {
-            self.parameter + ".temperature": {
+            self.parameter + "_temperature": {
                 "units": "°C",
                 "confidence": str(self.temperature_confidence),
                 "time between reads": str(self.time_between_reads) + " seconds"
             },
-            self.parameter + ".humidity": {
+            self.parameter + "_humidity": {
                 "units": "%",
                 "confidence": "Varies based on temperature and humidity",
                 "time between reads": str(self.time_between_reads) + " seconds"
