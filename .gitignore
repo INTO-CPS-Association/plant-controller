@@ -204,7 +204,7 @@ cython_debug/
 .vscode
 
 # keep documentation of the hardware parts
-!docs/pt/parts
+!docs/pt/*/parts
 
 **/config/*.yaml
 **/config.toml

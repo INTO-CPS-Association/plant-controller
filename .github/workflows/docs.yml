@@ -4,8 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'pt/controller_3/src/**'
-      - 'pt/controller_3/generate_docs.py'
+      - 'pt/**'
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'scripts/gen_api_pages.py'
+      - 'requirements-docs.txt'
       - '.github/workflows/docs.yml'
   workflow_dispatch:
 
@@ -29,17 +32,15 @@ jobs:
           python-version: '3.13'
 
       - name: Install dependencies
-        run: |
-          pip install pdoc
-          pip install anyio fastapi 'influxdb3-python>=0.18' numpy pandas pydantic pymodbus 'uvicorn[standard]'
+        run: pip install -r requirements-docs.txt
 
-      - name: Generate documentation
-        run: python pt/controller_3/generate_docs.py
+      - name: Build documentation
+        run: mkdocs build --strict
 
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: pt/controller_3/docs_build
+          path: site
 
   deploy:
     environment:

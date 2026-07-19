@@ -33,7 +33,7 @@ This physical twin has three large plants.
 ## Bill of Materials
 
 Approximate cost of items as available on
-[Raspberrypi, Denmark](raspberrypi.dk),
+[Raspberrypi, Denmark](https://raspberrypi.dk),
 [Adafruit, USA](https://www.adafruit.com/),
 [DigiKey, Denmark](https://digikey.dk),
 [Mouser, Denmark](https://mouser.dk),

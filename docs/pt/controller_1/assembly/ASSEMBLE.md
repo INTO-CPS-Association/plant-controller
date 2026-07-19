@@ -13,7 +13,7 @@ The following tutorial helps with assembling of the prototype.
 Please see the complete [parts list](../PARTS.md).
 If you are not familiar with the hardware components used in this prototype,
 please see
-[their pictures](../../parts/hardware-pictures/parts-pictures.md).
+[their pictures](../parts/hardware-pictures/parts-pictures.md).
 
 ## Step-by-step Instructions
 
@@ -26,9 +26,9 @@ the controller. Each step of the assembly is accompanied by a picture.
 In this step the sensor plate containing with three components is build.
 The plate contains two sensors and a multiplexer, namely
 
-1. Adafruit [SHT45 temperature and humidity sensor](../../parts/hardware-pictures/STH45-adafruit.jpg).
-1. Adafruit [AS7341 light sensor](../../parts/hardware-pictures/AS7341-adafruit.jpg)
-1. Adafruit [8-to-1 mulitplexer](../../parts/hardware-pictures/PCA9548-adafruit.jpg).
+1. Adafruit [SHT45 temperature and humidity sensor](../parts/hardware-pictures/STH45-adafruit.jpg).
+1. Adafruit [AS7341 light sensor](../parts/hardware-pictures/AS7341-adafruit.jpg)
+1. Adafruit [8-to-1 mulitplexer](../parts/hardware-pictures/PCA9548-adafruit.jpg).
 1. The sensors are mounted on the breadboard uisng the pre-drilled holes.
 
 Do the following assembly steps:
@@ -80,13 +80,13 @@ In this step the power board is assembled. The power board is used to power
 the pumps and gets powered by the 12v power supply. The power board build
 contains the following components:
 
-1. DF 62 [cable connector](../../parts/hardware-pictures/df-2-6-out-lever-cable-connector.jpg).
-1. Male Female [DC Power Pigtail Cable](../../parts/hardware-pictures/male-female-power-pigtail-cable.jpg).
+1. DF 62 [cable connector](../parts/hardware-pictures/df-2-6-out-lever-cable-connector.jpg).
+1. Male Female [DC Power Pigtail Cable](../parts/hardware-pictures/male-female-power-pigtail-cable.jpg).
 1. 12V variable power supply, like
-   [this](../../parts/hardware-pictures/adjustable-power-supply-dc.jpg)
+   [this](../parts/hardware-pictures/adjustable-power-supply-dc.jpg)
    or standard 12V wall plug power supply.
-1. 12V submersible water pump, like [this](../../parts/hardware-pictures/12v-pump.jpg).
-1. [Automation HAT](../../parts/hardware-pictures/automation-hat.jpg).
+1. 12V submersible water pump, like [this](../parts/hardware-pictures/12v-pump.jpg).
+1. [Automation HAT](../parts/hardware-pictures/automation-hat.jpg).
 1. Electric wire.
 
 3.1 Connect the pumps to the Automation HAT and DF 62 cable connector
@@ -129,7 +129,7 @@ In this step is installation of the raspberry Pi
 Operating System (OS) shown. To do this the following components
 and software needed:
 
-1. Raspberry [Pi 5 or 3 B+](../../parts/hardware-pictures/Raspberry-Pi-3-Model-BPlus.jpg).
+1. Raspberry [Pi 5 or 3 B+](../parts/hardware-pictures/Raspberry-Pi-3-Model-BPlus.jpg).
 1. 16GB SD card.
 1. Raspberry Pi [Imager software](https://www.raspberrypi.com/software/).
 1. USB SD card reader.
@@ -186,7 +186,7 @@ In this step are all of the compnents used from previoues steps to build
 the complete PT plant mockup. This involve the three components built
 in the previous steps, namely:
 
-1. Raspberry [Pi 5 / 3 B+](../../parts/hardware-pictures/Raspberry-Pi-3-Model-BPlus.jpg)
+1. Raspberry [Pi 5 / 3 B+](../parts/hardware-pictures/Raspberry-Pi-3-Model-BPlus.jpg)
 1. Sensor plate [with sensors connected](pictures/sensors.jpg)
 1. Power [board](pictures/motors.jpg)
 
