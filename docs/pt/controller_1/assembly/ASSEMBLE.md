@@ -113,13 +113,13 @@ contains the following components:
 
 A diagram illustrating the connection between pumps, Automation HAT,
 and power supply can be seen
-[Figure 1](#pt-electrical-schematic)<!-- markdownlint-disable MD013 -->
+[Figure 1](#pt-electrical-schematic-v0.2.0)<!-- markdownlint-disable MD013 -->
 <a id="pt-electrical-schematic-v0.2.0"></a>
 ![PT electrical schematic-v0.2.0](../PT-electrical-schematic-v0.2.0.png)
 
 An alternative is to use Raspberry Pi 5 with Pi Juice UPS HAT can also
 be assembled. Please see
-[Figure 2](#pt-electrical-schematic)<!-- markdownlint-disable MD013 -->
+[Figure 2](#pt-electrical-schematic-v0.1.2)<!-- markdownlint-disable MD013 -->
 <a id="pt-electrical-schematic-v0.1.2"></a>
 ![PT electrical schematic-v0.1.2](../PT-electrical-schematic-v0.1.2.png)
 

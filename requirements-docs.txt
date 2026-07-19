@@ -1,5 +1,2 @@
-mkdocs-material
-mkdocstrings[python]
-mkdocs-gen-files
-mkdocs-literate-nav
-mkdocs-section-index
+zensical
+mkdocstrings-python

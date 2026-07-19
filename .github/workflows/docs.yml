@@ -6,7 +6,7 @@ on:
     paths:
       - 'pt/**'
       - 'docs/**'
-      - 'mkdocs.yml'
+      - 'zensical.toml'
       - 'scripts/gen_api_pages.py'
       - 'requirements-docs.txt'
       - '.github/workflows/docs.yml'
@@ -34,8 +34,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements-docs.txt
 
+      - name: Generate API pages
+        run: python scripts/gen_api_pages.py
+
       - name: Build documentation
-        run: mkdocs build --strict
+        run: zensical build --strict
 
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3

@@ -1,37 +1,30 @@
 """Generate API reference pages from plant_controller docstrings.
 
-Executed by the mkdocs-gen-files plugin during `mkdocs build`.
+Writes mkdocstrings stub pages to docs/api/. Run before `zensical build`.
+New modules also need a nav entry in zensical.toml.
 """
 
+import shutil
 from pathlib import Path
 
-import mkdocs_gen_files
+root = Path(__file__).resolve().parent.parent
+src = root / "pt" / "controller_3" / "src"
+out = root / "docs" / "api"
 
-nav = mkdocs_gen_files.Nav()
-
-src = Path("pt/controller_3/src")
+shutil.rmtree(out, ignore_errors=True)
 
 for path in sorted(src.glob("plant_controller/**/*.py")):
     module_path = path.relative_to(src).with_suffix("")
-    doc_path = path.relative_to(src).with_suffix(".md")
-    full_doc_path = Path("api", doc_path)
-
     parts = tuple(module_path.parts)
 
     if parts[-1] == "__init__":
         parts = parts[:-1]
-        doc_path = doc_path.with_name("index.md")
-        full_doc_path = full_doc_path.with_name("index.md")
+        doc_path = module_path.parent / "index.md"
     elif parts[-1] == "__main__" or parts[-1].startswith("_"):
         continue
+    else:
+        doc_path = module_path.with_suffix(".md")
 
-    nav[parts] = doc_path.as_posix()
-
-    with mkdocs_gen_files.open(full_doc_path, "w") as fd:
-        identifier = ".".join(parts)
-        fd.write(f"::: {identifier}\n")
-
-    mkdocs_gen_files.set_edit_path(full_doc_path, path)
-
-with mkdocs_gen_files.open("api/SUMMARY.md", "w") as nav_file:
-    nav_file.writelines(nav.build_literate_nav())
+    target = out / doc_path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(f"::: {'.'.join(parts)}\n")

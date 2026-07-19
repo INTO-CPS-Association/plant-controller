@@ -211,4 +211,5 @@ cython_debug/
 
 # Generated documentation
 docs_build/
+docs/api/
 

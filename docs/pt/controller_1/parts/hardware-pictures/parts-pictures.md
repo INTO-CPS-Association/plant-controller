@@ -12,7 +12,7 @@
       - [Adafruit Stemma 2.0 soil sensor](#adafruit-stemma-20-soil-sensor)
       - [Adafruit PCA9548 8-Channel STEMMA QT](#adafruit-pca9548-8-channel-stemma-qt)
       - [Adafruit SHT45 temperature and humidity sensor](#adafruit-sht45-temperature-and-humidity-sensor)
-      - [2A 72W Adjustable Power Supply DC 3V ~ 36V](#2a-72w-adjustable-power-supply-dc-3v--36v)
+      - [2A 72W Adjustable Power Supply DC 3V ~ 36V](#2a-72w-adjustable-power-supply-dc-3v-36v)
       - [I2C Qwiic Cable Kit Stemma QT](#i2c-qwiic-cable-kit-stemma-qt)
       - [df 2 in 6 Out Lever, Compact Cable Connector](#df-2-in-6-out-lever-compact-cable-connector)
       - [18AWG DC 12V 5A 5.5 x 2.1 mm Male Female DC Power Pigtail Cable](#18awg-dc-12v-5a-55-x-21-mm-male-female-dc-power-pigtail-cable)
