@@ -5,6 +5,14 @@ docs_dir = "docs"
 site_dir = "site"
 nav = [
   {"Home" = "index.md"},
+  {"Setup" = [
+    {"Controller 3" = [
+      "pt/controller_3/setup/index.md",
+      {"Parts" = "pt/controller_3/setup/parts.md"},
+      {"Assembly" = "pt/controller_3/setup/assembly.md"},
+      {"Software installation" = "pt/controller_3/setup/software.md"},
+    ]},
+  ]},
   {"Hardware" = [
     {"Controller 1" = [
       {"Parts" = "pt/controller_1/PARTS.md"},
@@ -18,32 +26,36 @@ nav = [
       "pt/controller_3/index.md",
     ]},
   ]},
-  {"API Reference" = [
-    "api/plant_controller/index.md",
-    "api/plant_controller/cli_helpers.md",
-    "api/plant_controller/com_bus.md",
-    "api/plant_controller/database.md",
-    "api/plant_controller/datapoint.md",
-    "api/plant_controller/greenhouse.md",
-    "api/plant_controller/plant.md",
-    {"pump_schedules" = [
-      "api/plant_controller/pump_schedules/index.md",
-      "api/plant_controller/pump_schedules/daily.md",
+  {"Software" = [
+    {"Controller 3" = [
+      {"API Reference" = [
+        "api/plant_controller/index.md",
+        "api/plant_controller/cli_helpers.md",
+        "api/plant_controller/com_bus.md",
+        "api/plant_controller/database.md",
+        "api/plant_controller/datapoint.md",
+        "api/plant_controller/greenhouse.md",
+        "api/plant_controller/plant.md",
+        {"pump_schedules" = [
+          "api/plant_controller/pump_schedules/index.md",
+          "api/plant_controller/pump_schedules/daily.md",
+        ]},
+        {"pumps" = [
+          "api/plant_controller/pumps/index.md",
+          "api/plant_controller/pumps/ad20p_1230e.md",
+        ]},
+        {"sensors" = [
+          "api/plant_controller/sensors/index.md",
+          "api/plant_controller/sensors/as7341.md",
+          "api/plant_controller/sensors/df_robot_temp_moist_ec.md",
+          "api/plant_controller/sensors/sht45.md",
+          "api/plant_controller/sensors/stemma.md",
+        ]},
+        "api/plant_controller/setup_actions.md",
+        "api/plant_controller/unit.md",
+        "api/plant_controller/web_api.md",
+      ]},
     ]},
-    {"pumps" = [
-      "api/plant_controller/pumps/index.md",
-      "api/plant_controller/pumps/ad20p_1230e.md",
-    ]},
-    {"sensors" = [
-      "api/plant_controller/sensors/index.md",
-      "api/plant_controller/sensors/as7341.md",
-      "api/plant_controller/sensors/df_robot_temp_moist_ec.md",
-      "api/plant_controller/sensors/sht45.md",
-      "api/plant_controller/sensors/stemma.md",
-    ]},
-    "api/plant_controller/setup_actions.md",
-    "api/plant_controller/unit.md",
-    "api/plant_controller/web_api.md",
   ]},
 ]
 
