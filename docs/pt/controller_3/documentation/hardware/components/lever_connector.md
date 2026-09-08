@@ -1,0 +1,1 @@
+![Image of lever connector](lever_connector.md)
