@@ -15,6 +15,7 @@ precision_map = {
 
 RESTART_DELAY = 5  # restart delay to init sensors
 
+
 def get_config() -> dict:
     with open("config/config.yaml", "r") as file:
         data = yaml.safe_load(file)
@@ -134,3 +135,18 @@ def get_pump_config(pump_id: str) -> dict:
     if pump_id in actuators:
         return actuators[pump_id]
     raise ValueError(f"No configuration found for pump_id: {pump_id}")
+
+
+def get_moisture_sensors() -> dict:
+    """
+    Returns the configuration for all moisture sensors.
+    """
+    config = get_config()
+    return config["plant"]["sensors"]["seesaw"]
+
+def get_reinit_timeout() -> float:
+    """
+    Returns the timeout value for reinitializing sensors.
+    """
+    config = get_config()
+    return config["plant"]["sensors"]["reinit_timeout_seconds"]

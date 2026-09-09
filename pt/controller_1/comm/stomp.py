@@ -41,7 +41,10 @@ class stompClient(stomp.ConnectionListener):
                     destination=queue_destination,
                     id=index,
                     ack="auto",
-                    headers={"activemq.subscriptionName": f"anycast-{index}", "subscription-type": "ANYCAST"}
+                    headers={
+                        "activemq.subscriptionName": f"anycast-{index}",
+                        "subscription-type": "ANYCAST",
+                    },
                 )
                 print(f"Subscribed to {queue_destination} with id {index}")
             except Exception as e:
