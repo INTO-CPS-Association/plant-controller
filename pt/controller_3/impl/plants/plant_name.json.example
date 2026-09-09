@@ -1,12 +1,10 @@
 {
     "sensors": {
-        "moisture": {
-            "module": "stemma",
-            "class": "MultiplexedStemma",
+        "soil": {
+            "module": "df_robot_temp_moist_ec",
+            "class": "DFRobotRS485SoilTemperatureHumidityECSensor",
             "kwargs": {
-                "multiplexer_address": 112,
-                "multiplexer_port": 5,
-                "address": 54,
+                "device_id": 1,
                 "tbr": 10
             }
         }
@@ -18,7 +16,7 @@
                 "offset": 1.5
             },
             "coil_number": 0,
-            "relay_address": 7
+            "relay_address": 2
         }
     }
 }
