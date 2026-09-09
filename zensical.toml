@@ -1,6 +1,6 @@
 [project]
 site_name = "Plant Controller"
-repo_url = "https://github.com/DisasterlyDisco/plant-controller"
+repo_url = "https://github.com/INTO-CPS-Association/plant-controller"
 docs_dir = "docs"
 site_dir = "site"
 nav = [
