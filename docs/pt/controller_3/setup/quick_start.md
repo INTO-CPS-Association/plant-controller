@@ -1,13 +1,13 @@
 # Introduction
-Following this guide will give you a fully functional minimal setup of the latet version of the Plant Controller, running on a dedicated **Raspberry Pi 5**, and monitoring and controlling **1 plant**.
+Following this guide will give you a fully functional minimal setup of the latest version of the Plant Controller, running on a dedicated **Raspberry Pi 5**, and monitoring and controlling **1 plant**.
 
 ## Alternative setups
 The Plant Controller can be set up to monitor and control multiple plants, using different sensors, and running on alternative hardware.
-If it's your first time setting up version 3 of the Plant Controller, it is advised to follow this quick start quide to get a sense of the test kit before pursuing an alternative setup.
+If it's your first time setting up version 3 of the Plant Controller, it is advised to follow this quick start guide to get a sense of the test kit before pursuing an alternative setup.
 That being said, guides for alternative setups can be found [here](custom_setups.md).
 
 # Requirements
-To follow this guide you'll need some Hardware to run the controller on, access to some Software necessary to run the controller, and a handfull of tools necessary for the construction and installation of the plant controller.
+To follow this guide you'll need some Hardware to run the controller on, access to some Software necessary to run the controller, and a handful of tools necessary for the construction and installation of the plant controller.
 
 You'll also need an internet connection, and a trusted LAN that you can connect both the Controller and you extra installation computer to.
 
@@ -28,10 +28,10 @@ You'll also need an internet connection, and a trusted LAN that you can connect 
 - 1 x [STEMMA QT cable](../documentation/hardware/components/qt_cable.md)
 - 1 x [STEMMA QT to JST SH 4-pin cable](../documentation/hardware/components/qt_to_jst.md)
 - 4 x insulated wire, each in a different color, length dependent on setup. In this guide we use red, black, blue and yellow wire.
-- 4 x [2 pole, 2 to 4 lever wire connectors](../documentation/hardware/), or similar.
+- 4 x [2 pole, 2 to 4 lever wire connectors](../documentation/hardware/components/lever_connector.md), or similar.
 
 ## Software
-- The Raspberry Pi Imager, available from [Rapsberry pi's website](https://www.raspberrypi.com/software/)
+- The Raspberry Pi Imager, available from [Raspberry Pi's website](https://www.raspberrypi.com/software/)
 
 ## Tools
 - One extra computer for setup and testing, able to run the Raspberry Pi Imager, and preferably a browser and some way to run SSH. This guide assumes that the extra computer is running a Linux OS.
@@ -40,15 +40,15 @@ You'll also need an internet connection, and a trusted LAN that you can connect 
 - A pair of cutters for cutting and stripping wire
 - A container capable of holding at least a liter of water
 - A measuring cup or similar, able to measure water in milliliters in at least 10 ml increments
-- (Optionally, a screen and keyboard able to be connected to the Raspberry Pi. Unless you have complete trust and controll over you LAN, this is advised.)
+- (Optionally, a screen and keyboard able to be connected to the Raspberry Pi. Unless you have complete trust and control over your LAN, this is advised.)
 - (Optionally a cordless drill for twisting wire.)
 
 # Installation
-The installation is split into two parts, installing the software on the Raspbery Pi, and assembling the hardware around the Raspberry Pi. Software installation will come with some waiting time - during these times it is possible to assemble hardware not directly connected to the Raspberry Pi.
+The installation is split into two parts, installing the software on the Raspberry Pi, and assembling the hardware around the Raspberry Pi. Software installation will come with some waiting time - during these times it is possible to assemble hardware not directly connected to the Raspberry Pi.
 
 ## Software
 ### Install Raspberry Pi OS
-Download the [Rasperry Pi Imager](https://www.raspberrypi.com/software/) to the extra computer. (See their guide on [how to use the installer](https://www.raspberrypi.com/documentation/computers/getting-started.html#imager-install), if need be.)
+Download the [Raspberry Pi Imager](https://www.raspberrypi.com/software/) to the extra computer. (See their guide on [how to use the installer](https://www.raspberrypi.com/documentation/computers/getting-started.html#imager-install), if need be.)
 
 Connect the micro SD card to the extra computer.
 
@@ -71,7 +71,7 @@ NOTE: If you don't have a screen and keyboard for your Raspberry Pi, and can't c
 
 Finally, set imager options and start writing the OS to the micro SD card. This will erase all things previously stored on the micro SD card before writing the OS and will take a couple of minutes.
 
-When it is done, eject the micro SD card (if it hasn't already been ejected), disconnect it from the computer, and insert it into the Raspberry Pi OS.
+When it is done, eject the micro SD card (if it hasn't already been ejected), disconnect it from the computer, and insert it into the Raspberry Pi.
 
 Boot up the Raspberry Pi (connecting the screen and keyboard to it beforehand if available).
 
@@ -138,11 +138,30 @@ controller's persistent storage, and the database name to `plant-controller`,
 which is the default in the config file. Both can be changed freely, as long
 as the config file is updated accordingly.
 
+To ensure the database starts automatically, create a systemd service:
+
+```bash
+sudo tee /etc/systemd/system/influxdb3.service > /dev/null << 'EOF'
+[Unit]
+Description=InfluxDB 3
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/influxdb3 serve --node-id node0
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now influxdb3
+```
+
 !!! note
-    The database server does not start automatically. Make sure
-    `influxdb3 serve --node-id node0` is running whenever you run the
-    controller — for example by running it in a detached terminal
-    multiplexer session, or by setting it up as a systemd service.
+    If `influxdb3` was installed to a different path, update the
+    `ExecStart` line accordingly. You can find the path with
+    `which influxdb3`.
 
 ### Install the controller software
 
@@ -158,8 +177,7 @@ In the following, `<src>` refers to the full path of the cloned repository.
 Install pip and venv support:
 
 ```bash
-sudo apt-get install -y python3-pip python3-venv
-sudo apt install --upgrade python3-setuptools
+sudo apt-get install -y python3-pip python3-venv python3-setuptools
 ```
 
 Create a virtual environment (here in the home directory) and activate it:
@@ -207,9 +225,9 @@ Finally, with the Raspberry Pi 5 POWERED OFF, connect 4 JST pins of the [STEMMA 
 ### Create the RS485 bus
 Both the DF-Robots soil sensor and the CS-IO404 relay connect to the Raspberry Pi via a RS485 bus wire pair. This bus wire pair is the primary way to connect reliable peripherals to the plant controller.
 
-Measure out how far away you want the relay from the Raspberry Pi, taking into account that the 12 DC for the pump and relay must be connected near the relay, and that the pump will be getting its power from the relay. Take this length and multiply it by 1.5 for some slack - this will be the length of the RS485 bus. As a minimum though, it should be atleast 50 cm.
+Measure out how far away you want the relay from the Raspberry Pi, taking into account that the 12 DC for the pump and relay must be connected near the relay, and that the pump will be getting its power from the relay. Take this length and multiply it by 1.5 for some slack - this will be the length of the RS485 bus. As a minimum though, it should be at least 50 cm.
 
-Take two lengths of insulated wire, one blue, the other yellow, cutting each to be the lenght of the bus. Then, twist them together, tightly. (A cordless drill is handy for this.)
+Take two lengths of insulated wire, one blue, the other yellow, cutting each to be the length of the bus. Then, twist them together, tightly. (A cordless drill is handy for this.)
 
 Then, take two more lengths of insulated wire, one red, one black, cutting them to be about 20 cm. Also twist these together, tightly.
 
@@ -227,7 +245,7 @@ With both twisted pairs connected to the USB to RS485 module, lay them out side 
 
 Strip the other ends of each of the four wires, again about 11 mm.
 
-Take two [2 pole, 2 to 4 lever wire connectors](../documentation/hardware/).
+Take two [2 pole, 2 to 4 lever wire connectors](../documentation/hardware/components/lever_connector.md).
 
 Connect the yellow and blue wires to the 2 connection side of the first 2 pole, 2 to 4 lever wire connector, blue to blue, yellow to orange.
 
@@ -286,16 +304,16 @@ token = "<ADMIN_TOKEN>"
 ## Configure connected plant
 Each connected plant gets its own JSON file in
 `~/.plant_controller/plants/`, declaring its sensors and its pump.
-An example configuration made for this quick_setup is already included in the config folder. Rename it, removing the `.example` suffix and replacing `plant_name` with a useful identifier (`<PLANT_IDENTIFIER>`)for the connected plant (note this name down for later):
+An example configuration made for this quick start is already included in the config folder. Rename it, removing the `.example` suffix and replacing `plant_name` with a useful identifier (`<PLANT_IDENTIFIER>`) for the connected plant (note this name down for later):
 
 ```bash
-mv ~/.plant_controller/plants/plant_name.toml.example ~/.plant_controller/plants/<PLANT_IDENTIFIER>.toml
+mv ~/.plant_controller/plants/plant_name.json.example ~/.plant_controller/plants/<PLANT_IDENTIFIER>.json
 ```
 
 Watering of the plant is done following a schedule. Watering schedules live in `~/.plant_controller/pump_schedules/`, one JSON file per plant. This folder comes with an example schedule just like the plant configuration. As with the plant config, rename it, removing the `.example` suffix and replacing `plant_name` with the previously chosen identifier, making sure that they are the same:
 
 ```bash
-mv ~/.plant_controller/pump_schedules/plant_name.toml.example ~/.plant_controller/pump_schedules/<PLANT_IDENTIFIER>.toml
+mv ~/.plant_controller/pump_schedules/plant_name.json.example ~/.plant_controller/pump_schedules/<PLANT_IDENTIFIER>.json
 ```
 
 ## Change MODBUS address of soil sensor
@@ -305,47 +323,47 @@ To do this, first disconnect the 12V DC power supply, and check that CS-IO404 is
 
 With that done, ensure that the InfluxDB database is running, starting it if it isn't.
 
-Then, in a seperate terminal, source the previously setup python virtual environment and then start the plant_controller in setup mode:
+Then, in a separate terminal, source the previously set up Python virtual environment and then start the plant_controller in setup mode:
 
 ```bash
 cd <src>/pt/controller_3/src
 python -m plant_controller setup
 ```
 
-From within the setup utility, change the sensor address by writing `<PLANT_IDENTIFIER>.soil.change_id` (substituting `<PLANT_IDENTIFIER>` for the identifier previously chosen for the conencted plant), hitting enter, and following the guide as presented by the program.
+From within the setup utility, change the sensor address by writing `<PLANT_IDENTIFIER>.soil.change_id` (substituting `<PLANT_IDENTIFIER>` for the identifier previously chosen for the connected plant), hitting enter, and following the guide as presented by the program.
 
-If the id change was successful, exit the setup porgram, and reconnect power to the CS-IO404 relay.
+If the id change was successful, exit the setup program, and reconnect power to the CS-IO404 relay.
 
 ## Calibrate pump
 The pump needs to be calibrated after installation to ensure proper water dosage.
 
 Before doing the calibration, the whole plant controller system should be in its final location and configuration - moving pumps and pump outlets after calibration invalidates it.
 
-In preperation, remove the plant from under the pump outlet, and replace it with an empty vessel able to hold 1 liter of water.
+In preparation, remove the plant from under the pump outlet, and replace it with an empty vessel able to hold 1 liter of water.
 
-When ready, make sure that the database is running and that the python virutal environment has been sourced, then start the plant_controller in setup mode:
+When ready, make sure that the database is running and that the Python virtual environment has been sourced, then start the plant_controller in setup mode:
 
 ```bash
 cd <src>/pt/controller_3/src
 python -m plant_controller setup
 ```
 
-From here, start calibration by writing `<PLANT_IDENTIFIER>.pump.calibrate` (substituting `<PLANT_IDENTIFIER>` for the identifier previously chosen for the conencted plant), hitting enter, and following the on screen guide.
+From here, start calibration by writing `<PLANT_IDENTIFIER>.pump.calibrate` (substituting `<PLANT_IDENTIFIER>` for the identifier previously chosen for the connected plant), hitting enter, and following the on screen guide.
 
 When the pump is sufficiently calibrated, replace the plant under the pump outlet.
 
 # Running the controller
 If all previous steps have been followed the controller should now be fully functional.
 
-To run it, ensure that the database is running and that the python virtual environment has been sourced, then:
+To run it, ensure that the database is running and that the Python virtual environment has been sourced, then:
 
 ```bash
 cd <src>/pt/controller_3/src
 python -m plant_controller run
 ```
 
-The controller now monitors and waters the connected plant, and the web interface is accesible on port 8099 of the Raspberry Pi.
+The controller now monitors and waters the connected plant, and the web interface is accessible on port 8099 of the Raspberry Pi.
 
-If connected to the Raspebrry Pi over LAN, this interface can be found by typing in `<CONTROLLER_IP>:8099` in a browser from another computer on the same LAN, where `<CONTROLELR_IP>` is the IP of the Raspberry Pi.
+If connected to the Raspberry Pi over LAN, this interface can be found by typing in `<CONTROLLER_IP>:8099` in a browser from another computer on the same LAN, where `<CONTROLLER_IP>` is the IP of the Raspberry Pi.
 
-If running the Raspberry Pi with a desktop environmnet and a connected screen and keyboard, the web interface is available from within the Raspberry Pi by typing in `localhost:8099` in the Raspberry Pi's browser.
+If running the Raspberry Pi with a desktop environment and a connected screen and keyboard, the web interface is available from within the Raspberry Pi by typing in `localhost:8099` in the Raspberry Pi's browser.

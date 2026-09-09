@@ -1,1 +1,1 @@
-![Image of lever connector](lever_connector.md)
+![Image of lever connector](lever_connector.jpg)
