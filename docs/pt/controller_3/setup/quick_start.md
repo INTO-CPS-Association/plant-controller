@@ -388,7 +388,9 @@ These add to the address, dependent on their position — flipping the first
 switch on adds 1, flipping the second adds 2, flipping the third adds 4,
 flipping the fourth adds 8 and flipping the fifth adds 16.
 
-Flip the first switch to the on position. This will result in a MODBUS address
+![Location of first address switch on the CS-IO404](../images/top_down_point_to_dip_switch.png)
+
+Flip the first switch (indicated in the image above) up to the "on" position. This will result in a MODBUS address
 of "2" for the CS-IO404.
 
 ### 5.4 Wire up the pump relay
