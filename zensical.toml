@@ -5,7 +5,7 @@ docs_dir = "docs"
 site_dir = "site"
 nav = [
   {"Home" = "index.md"},
-  {"Quick Start Quide" = [
+  {"Quick Start Guide" = [
     "pt/controller_3/setup/quick_start.md",
   ]},
   {"Custom Setups" = "pt/controller_3/setup/custom_setups.md"},

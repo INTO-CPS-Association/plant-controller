@@ -1,83 +1,120 @@
-# Introduction
-Following this guide will give you a fully functional minimal setup of the latest version of the Plant Controller, running on a dedicated **Raspberry Pi 5**, and monitoring and controlling **1 plant**.
+# Quick Start Guide
 
-## Alternative setups
-The Plant Controller can be set up to monitor and control multiple plants, using different sensors, and running on alternative hardware.
-If it's your first time setting up version 3 of the Plant Controller, it is advised to follow this quick start guide to get a sense of the test kit before pursuing an alternative setup.
-That being said, guides for alternative setups can be found [here](custom_setups.md).
+This guide walks through setting up a minimal, fully functional Plant
+Controller on a dedicated **Raspberry Pi 5**, monitoring and controlling
+**1 plant**. By the end you will have a working controller that measures
+light, air temperature, humidity and soil conditions, waters the plant on a
+schedule, and exposes all data over a web interface.
 
-# Requirements
-To follow this guide you'll need some Hardware to run the controller on, access to some Software necessary to run the controller, and a handful of tools necessary for the construction and installation of the plant controller.
+!!! note "Alternative setups"
+    The Plant Controller can be set up to monitor and control multiple plants,
+    using different sensors, and running on alternative hardware. If it's your
+    first time setting up version 3 of the Plant Controller, it is advised to
+    follow this quick start guide first. Guides for alternative setups can be
+    found [here](custom_setups.md).
 
-You'll also need an internet connection, and a trusted LAN that you can connect both the Controller and you extra installation computer to.
+---
 
-## Hardware
-- 1 x [Raspberry Pi 5, with at least 4GB ram](../documentation/hardware/components/rpi5.md)
-- 1 x [Raspberry Pi USB C power supply](../documentation/hardware/components/rpipsu.md)
-- 1 x [micro SD card with at least 128 GB space](../documentation/hardware/components/sdcard.md)
-- 1 x [Adafruit AS7341 light sensor](../documentation/hardware/components/ada_as7341.md)
-- 1 x [Adafruit SHT45 air temperature and humidity sensor](../documentation/hardware/components/ada_sht45.md)
-- 1 x [DF-Robot soil sensor](../documentation/hardware/components/dfr_soil_sensor.md)
-- 1 x [CS-IO404 4-channel relay module](../documentation/hardware/components/cs-io404.md)
-- 1 x [USB to RS485 module](../documentation/hardware/components/usb_to_rs485.md)
-- 1 x [12V 1A power supply with 5.5/2.1mm barrel plug connecter](../documentation/hardware/components/12v_1a_psu.md)
-- 1 x [AD20P-1230E submersible pump](../documentation/hardware/components/ad20p-1230e_pump.md)
-- 1 x [5.5/2.1mm barrel plug with 1m leads](../documentation/hardware/components/barrel_plug.md)
-- 1 x [5.5/2.1mm barrel socket with 1m leads](../documentation/hardware/components/barrel_socket.md)
-- 2 x [120 Ohm resistors](../documentation/hardware/components/term_resistor.md)
-- 1 x [STEMMA QT cable](../documentation/hardware/components/qt_cable.md)
-- 1 x [STEMMA QT to JST SH 4-pin cable](../documentation/hardware/components/qt_to_jst.md)
-- 4 x insulated wire, each in a different color, length dependent on setup. In this guide we use red, black, blue and yellow wire.
-- 4 x [2 pole, 2 to 4 lever wire connectors](../documentation/hardware/components/lever_connector.md), or similar.
+## 1. Requirements
 
-## Software
+You'll need an internet connection, and a trusted LAN that you can connect
+both the controller and your extra installation computer to.
+
+### Hardware
+
+| Qty | Component |
+|----:|-----------|
+| 1 | [Raspberry Pi 5, at least 4 GB RAM](../documentation/hardware/components/rpi5.md) |
+| 1 | [Raspberry Pi USB-C power supply](../documentation/hardware/components/rpipsu.md) |
+| 1 | [Micro SD card, at least 128 GB](../documentation/hardware/components/sdcard.md) |
+| 1 | [Adafruit AS7341 light sensor](../documentation/hardware/components/ada_as7341.md) |
+| 1 | [Adafruit SHT45 air temperature and humidity sensor](../documentation/hardware/components/ada_sht45.md) |
+| 1 | [DF-Robot soil sensor](../documentation/hardware/components/dfr_soil_sensor.md) |
+| 1 | [CS-IO404 4-channel relay module](../documentation/hardware/components/cs-io404.md) |
+| 1 | [USB to RS485 module](../documentation/hardware/components/usb_to_rs485.md) |
+| 1 | [12V 1A power supply with 5.5/2.1 mm barrel plug connector](../documentation/hardware/components/12v_1a_psu.md) |
+| 1 | [AD20P-1230E submersible pump](../documentation/hardware/components/ad20p-1230e_pump.md) |
+| 1 | [5.5/2.1 mm barrel plug with 1 m leads](../documentation/hardware/components/barrel_plug.md) |
+| 1 | [5.5/2.1 mm barrel socket with 1 m leads](../documentation/hardware/components/barrel_socket.md) |
+| 2 | [120 Ohm resistors](../documentation/hardware/components/term_resistor.md) |
+| 1 | [STEMMA QT cable](../documentation/hardware/components/qt_cable.md) |
+| 1 | [STEMMA QT to JST SH 4-pin cable](../documentation/hardware/components/qt_to_jst.md) |
+| 4 | Insulated wire, each a different color (this guide uses red, black, blue and yellow), length dependent on setup |
+| 4 | [2 pole, 2-to-4 lever wire connectors](../documentation/hardware/components/lever_connector.md), or similar |
+
+### Software
+
 - The Raspberry Pi Imager, available from [Raspberry Pi's website](https://www.raspberrypi.com/software/)
 
-## Tools
-- One extra computer for setup and testing, able to run the Raspberry Pi Imager, and preferably a browser and some way to run SSH. This guide assumes that the extra computer is running a Linux OS.
-- A way to connect a micro SD card to the above computer, either via USB dongle or directly in a port in the computer
-- A small flat head screwdriver
-- A pair of cutters for cutting and stripping wire
-- A container capable of holding at least a liter of water
-- A measuring cup or similar, able to measure water in milliliters in at least 10 ml increments
-- (Optionally, a screen and keyboard able to be connected to the Raspberry Pi. Unless you have complete trust and control over your LAN, this is advised.)
-- (Optionally a cordless drill for twisting wire.)
+### Tools
 
-# Installation
-The installation is split into two parts, installing the software on the Raspberry Pi, and assembling the hardware around the Raspberry Pi. Software installation will come with some waiting time - during these times it is possible to assemble hardware not directly connected to the Raspberry Pi.
+- One extra computer for setup and testing, able to run the Raspberry Pi
+  Imager, and preferably a browser and some way to run SSH. This guide assumes
+  that the extra computer is running a Linux OS.
+- A way to connect a micro SD card to the above computer, either via USB
+  dongle or directly in a port on the computer.
+- A small flat head screwdriver.
+- A pair of cutters for cutting and stripping wire.
+- A container capable of holding at least a liter of water.
+- A measuring cup or similar, able to measure water in milliliters in at least
+  10 ml increments.
+- (Optionally, a screen and keyboard able to be connected to the Raspberry Pi.
+  Unless you have complete trust and control over your LAN, this is advised.)
+- (Optionally, a cordless drill for twisting wire.)
 
-## Software
-### Install Raspberry Pi OS
-Download the [Raspberry Pi Imager](https://www.raspberrypi.com/software/) to the extra computer. (See their guide on [how to use the installer](https://www.raspberrypi.com/documentation/computers/getting-started.html#imager-install), if need be.)
+---
+
+## 2. Install Raspberry Pi OS
+
+Download the [Raspberry Pi Imager](https://www.raspberrypi.com/software/) to
+the extra computer. (See their guide on
+[how to use the installer](https://www.raspberrypi.com/documentation/computers/getting-started.html#imager-install),
+if need be.)
 
 Connect the micro SD card to the extra computer.
 
 Run the Raspberry Pi Imager to start the installation process.
 
-Choose "Raspberry Pi 5" as the device.
+Choose **"Raspberry Pi 5"** as the device.
 
-If you have the optional screen and keyboard for the Raspberry Pi, choose "Raspberry Pi OS (64-bit)" for the OS. Otherwise choose "Raspberry Pi OS Lite (64-bit)".
+If you have the optional screen and keyboard for the Raspberry Pi, choose
+**"Raspberry Pi OS (64-bit)"** for the OS. Otherwise choose
+**"Raspberry Pi OS Lite (64-bit)"**.
 
 Choose the connected micro SD card as the storage.
 
 Customize your Raspberry Pi OS as desired, making sure to:
+
 - choose a hostname for the Raspberry Pi (for example "plant-controller")
 - choose your localization
 - set a username and password
 - input your LAN's Wi-Fi credentials (if you are not using a wired connection)
-- enable SSH connectivity, if you DON'T have a screen and keyboard for the Raspberry Pi
+- enable SSH connectivity, if you DON'T have a screen and keyboard for the
+  Raspberry Pi
 
-NOTE: If you don't have a screen and keyboard for your Raspberry Pi, and can't connect to your Raspberry Pi through SSH over your LAN for some reason, enable Raspberry Pi Connect. This will allow you to connect to the Raspberry Pi over a USB connection instead.
+!!! tip "No screen or keyboard?"
+    If you can't connect to your Raspberry Pi through SSH over your LAN for
+    some reason, enable **Raspberry Pi Connect**. This will allow you to
+    connect to the Raspberry Pi over a USB connection instead.
 
-Finally, set imager options and start writing the OS to the micro SD card. This will erase all things previously stored on the micro SD card before writing the OS and will take a couple of minutes.
+Finally, set imager options and start writing the OS to the micro SD card.
+This will erase all things previously stored on the micro SD card before
+writing the OS and will take a couple of minutes.
 
-When it is done, eject the micro SD card (if it hasn't already been ejected), disconnect it from the computer, and insert it into the Raspberry Pi.
+When it is done, eject the micro SD card (if it hasn't already been ejected),
+disconnect it from the computer, and insert it into the Raspberry Pi.
 
-Boot up the Raspberry Pi (connecting the screen and keyboard to it beforehand if available).
+Boot up the Raspberry Pi (connecting the screen and keyboard to it beforehand
+if available).
 
-If you installed the Raspberry Pi OS with a desktop environment and have a screen and keyboard connected to it, put away the extra computer; it won't be needed for the rest of this guide. Then, open a terminal.
+If you installed the Raspberry Pi OS with a desktop environment and have a
+screen and keyboard connected to it, put away the extra computer; it won't be
+needed for the rest of this guide. Then, open a terminal.
 
-If you installed the Raspberry Pi OS Lite you'll have to connect to the Raspberry Pi over SSH from the extra computer. In the future, when you are instructed to open a new terminal, do it by SSH'ing in from the extra computer in a new terminal.
+If you installed the Raspberry Pi OS Lite you'll have to connect to the
+Raspberry Pi over SSH from the extra computer. In the future, when you are
+instructed to open a new terminal, do it by SSH'ing in from the extra computer
+in a new terminal.
 
 From the terminal, ensure that the Raspberry Pi is updated by running:
 
@@ -85,25 +122,28 @@ From the terminal, ensure that the Raspberry Pi is updated by running:
 sudo apt-get update -y && sudo apt-get upgrade -y
 ```
 
-When everything is updated continue to the next step.
+When everything is updated, continue to the next step.
 
-### Install the database
+---
+
+## 3. Install the database
 
 The controller uses **InfluxDB 3.0 or later** to store measurements and
 watering events.
 
-The default OS kernel for the Raspberry Pi 5 uses a memory page size of
-16k, but InfluxDB 3 assumes a page size of 4k. Before installing the
-database on a Raspberry Pi 5, switch to the 4k kernel by setting
-`kernel=kernel8.img` in `/boot/firmware/config.txt`:
+!!! warning "Raspberry Pi 5 page size"
+    The default OS kernel for the Raspberry Pi 5 uses a memory page size of
+    16k, but InfluxDB 3 assumes a page size of 4k. Before installing the
+    database on a Raspberry Pi 5, switch to the 4k kernel by setting
+    `kernel=kernel8.img` in `/boot/firmware/config.txt`:
 
-```bash
-echo "kernel=kernel8.img" | sudo tee -a /boot/firmware/config.txt
-sudo shutdown -r now
-```
+    ```bash
+    echo "kernel=kernel8.img" | sudo tee -a /boot/firmware/config.txt
+    sudo shutdown -r now
+    ```
 
-This reboots the Raspberry Pi and terminates any SSH connection to the machine — give it
-some time, then reconnect.
+    This reboots the Raspberry Pi and terminates any SSH connection to the
+    machine — give it some time, then reconnect.
 
 Install InfluxDB 3:
 
@@ -138,6 +178,8 @@ controller's persistent storage, and the database name to `plant-controller`,
 which is the default in the config file. Both can be changed freely, as long
 as the config file is updated accordingly.
 
+### Start InfluxDB automatically
+
 To ensure the database starts automatically, create a systemd service:
 
 ```bash
@@ -163,7 +205,9 @@ sudo systemctl enable --now influxdb3
     `ExecStart` line accordingly. You can find the path with
     `which influxdb3`.
 
-### Install the controller software
+---
+
+## 4. Install the controller software
 
 First, get the source code onto the Raspberry Pi, either by cloning it from
 GitHub or by SCP'ing it over from the extra computer:
@@ -210,73 +254,137 @@ cd <src>/pt/controller_3
 pip install -r requirements.txt
 ```
 
-## Hardware
-### Connect the air sensors to the Raspberry Pi
-Using the [STEMMA QT cable](../documentation/hardware/components/qt_cable.md), connect the [Adafruit AS7341 light sensor](../documentation/hardware/components/ada_as7341.md) to the [Adafruit SHT45 air temperature and humidity sensor](../documentation/hardware/components/ada_sht45.md). It doesn't matter which of the two ports on the sensors are used.
+---
 
-Then, connect the [STEMMA QT to JST SH 4-pin cable](../documentation/hardware/components/qt_to_jst.md) to the final port in the [Adafruit SHT45 air temperature and humidity sensor](../documentation/hardware/components/ada_sht45.md).
+## 5. Assemble the hardware
 
-Finally, with the Raspberry Pi 5 POWERED OFF, connect 4 JST pins of the [STEMMA QT to JST SH 4-pin cable](../documentation/hardware/components/qt_to_jst.md) to the Raspberry Pi's GPIO pins ([pin layout](../documentation/hardware/components/rpi5.md)), depending on their color:
-- Pin 1 <-> the red wire
-- Pin 3 <-> the blue wire
-- pin 5 <-> the yellow wire
-- pin 9 <-> the black wire
+Software installation will come with some waiting time — during these times it
+is possible to assemble hardware not directly connected to the Raspberry Pi.
 
-### Create the RS485 bus
-Both the DF-Robots soil sensor and the CS-IO404 relay connect to the Raspberry Pi via a RS485 bus wire pair. This bus wire pair is the primary way to connect reliable peripherals to the plant controller.
+### 5.1 Connect the air sensors to the Raspberry Pi
 
-Measure out how far away you want the relay from the Raspberry Pi, taking into account that the 12 DC for the pump and relay must be connected near the relay, and that the pump will be getting its power from the relay. Take this length and multiply it by 1.5 for some slack - this will be the length of the RS485 bus. As a minimum though, it should be at least 50 cm.
+Using the [STEMMA QT cable](../documentation/hardware/components/qt_cable.md),
+connect the
+[Adafruit AS7341 light sensor](../documentation/hardware/components/ada_as7341.md)
+to the
+[Adafruit SHT45 air temperature and humidity sensor](../documentation/hardware/components/ada_sht45.md).
+It doesn't matter which of the two ports on the sensors are used.
 
-Take two lengths of insulated wire, one blue, the other yellow, cutting each to be the length of the bus. Then, twist them together, tightly. (A cordless drill is handy for this.)
+Then, connect the
+[STEMMA QT to JST SH 4-pin cable](../documentation/hardware/components/qt_to_jst.md)
+to the final port on the
+[Adafruit SHT45](../documentation/hardware/components/ada_sht45.md).
 
-Then, take two more lengths of insulated wire, one red, one black, cutting them to be about 20 cm. Also twist these together, tightly.
+!!! warning "Power off first"
+    Make sure the Raspberry Pi 5 is **POWERED OFF** before connecting anything
+    to the GPIO header.
+
+Connect the 4 JST pins of the
+[STEMMA QT to JST SH 4-pin cable](../documentation/hardware/components/qt_to_jst.md)
+to the Raspberry Pi's GPIO pins
+([pin layout](../documentation/hardware/components/rpi5.md)), depending on
+their color:
+
+| GPIO Pin | Wire color |
+|---------:|------------|
+| Pin 1    | Red        |
+| Pin 3    | Blue       |
+| Pin 5    | Yellow     |
+| Pin 9    | Black      |
+
+### 5.2 Create the RS485 bus
+
+Both the DF-Robot soil sensor and the CS-IO404 relay connect to the Raspberry
+Pi via an RS485 bus wire pair. This bus wire pair is the primary way to connect
+reliable peripherals to the plant controller.
+
+Measure out how far away you want the relay from the Raspberry Pi, taking into
+account that the 12V DC for the pump and relay must be connected near the
+relay, and that the pump will be getting its power from the relay. Take this
+length and multiply it by 1.5 for some slack — this will be the length of the
+RS485 bus. As a minimum though, it should be at least 50 cm.
+
+Take two lengths of insulated wire, one blue, the other yellow, cutting each
+to be the length of the bus. Then, twist them together, tightly. (A cordless
+drill is handy for this.)
+
+Then, take two more lengths of insulated wire, one red, one black, cutting
+them to be about 20 cm. Also twist these together, tightly.
 
 Now, strip one end of each of the four wires, about 11 mm.
 
-Connect these stripped wires to the [USB to RS485 module](../documentation/hardware/components/usb_to_rs485.md), dependent on color:
-- Black to GND
-- Blue to B-
-- Yellow to A+
-- Red to 5V
+Connect these stripped wires to the
+[USB to RS485 module](../documentation/hardware/components/usb_to_rs485.md),
+dependent on color:
 
-Then, connect a [120 ohm resistor](../documentation/hardware/components/term_resistor.md) between B- and A+ in the USB to RS485 module. It might be necessary to trim the resistors legs to avoid it poking too far out.
+| Terminal | Wire color |
+|----------|------------|
+| GND      | Black      |
+| B-       | Blue       |
+| A+       | Yellow     |
+| 5V       | Red        |
 
-With both twisted pairs connected to the USB to RS485 module, lay them out side by side, and cut the yellow and blue pair so it is as long as the red and black pair. Put the remaining yellow and blue pair aside for later.
+Then, connect a
+[120 Ohm resistor](../documentation/hardware/components/term_resistor.md)
+between B- and A+ in the USB to RS485 module. It might be necessary to trim
+the resistor's legs to avoid it poking too far out.
+
+With both twisted pairs connected to the USB to RS485 module, lay them out
+side by side, and cut the yellow and blue pair so it is as long as the red and
+black pair. Put the remaining yellow and blue pair aside for later.
 
 Strip the other ends of each of the four wires, again about 11 mm.
 
-Take two [2 pole, 2 to 4 lever wire connectors](../documentation/hardware/components/lever_connector.md).
+Take two
+[2 pole, 2-to-4 lever wire connectors](../documentation/hardware/components/lever_connector.md).
 
-Connect the yellow and blue wires to the 2 connection side of the first 2 pole, 2 to 4 lever wire connector, blue to blue, yellow to orange.
+Connect the yellow and blue wires to the 2-connection side of the first
+connector, blue to blue, yellow to orange.
 
-Connect the red and black wires to the 2 connection side of the second 2 pole, 2 to 4 lever wire connector, black to blue, red to orange.
+Connect the red and black wires to the 2-connection side of the second
+connector, black to blue, red to orange.
 
-Now, take the [DF-Robot soil sensor](../documentation/hardware/components/dfr_soil_sensor.md). Connect it to the outer connectors of the 4 connector sides of the two 2 pole, 2 to 4 lever wire connectors, depending on sensors connector wires:
-- blue to blue on the first connector
-- yellow to orange on the first connector
-- black to blue on the second connector
-- red to orange on the second connector
+Now, take the
+[DF-Robot soil sensor](../documentation/hardware/components/dfr_soil_sensor.md).
+Connect it to the outer connectors of the 4-connector sides of the two lever
+wire connectors, depending on the sensor's connector wires:
 
-With the soil sensor connected, strip both ends of the remaining yellow and blue wire pair that was previously set aside, again about 11 mm.
+| Sensor wire | Connector | Slot   |
+|-------------|-----------|--------|
+| Blue        | First     | Blue   |
+| Yellow      | First     | Orange |
+| Black       | Second    | Blue   |
+| Red         | Second    | Orange |
 
-Connect one end to the remaining connections on the first 2 pole, 2 to 4 lever wire connector, blue to blue, yellow to orange.
+With the soil sensor connected, strip both ends of the remaining yellow and
+blue wire pair that was previously set aside, again about 11 mm.
 
-Connect the other end to the [CS-IO404 4-channel relay module](../documentation/hardware/components/cs-io404.md), yellow to the terminal labelled A+, blue to the terminal labelled B-.
+Connect one end to the remaining connections on the first lever wire connector,
+blue to blue, yellow to orange.
 
-Finally, connect a 120 Ohm resistor from the A+ to the B- terminals on the CS-IO404 relay.
+Connect the other end to the
+[CS-IO404 4-channel relay module](../documentation/hardware/components/cs-io404.md),
+yellow to the terminal labelled A+, blue to the terminal labelled B-.
 
-### Wire up the pump relay
+Finally, connect a 120 Ohm resistor from the A+ to the B- terminals on the
+CS-IO404 relay.
+
+### 5.3 Wire up the pump relay
+
 TODO
 
-### Setup the pumps
+### 5.4 Set up the pumps
+
 TODO
 
-# Configuration
+---
+
+## 6. Configure the controller
+
 Before use, the plant controller needs to be configured for the current setup.
+Make sure that all hardware and software is installed before continuing.
 
-Make sure that all hardware and software is installed before continuing with the configuration.
-
-## Setup config folder
+### 6.1 Set up the config folder
 
 All configuration lives in the `.plant_controller` subdirectory of the user's
 home directory. Initialize it from the example implementation shipped with the
@@ -287,7 +395,7 @@ cp -r <src>/pt/controller_3/impl ~/.plant_controller
 mv ~/.plant_controller/config.toml.example ~/.plant_controller/config.toml
 ```
 
-## Configure database connection
+### 6.2 Configure the database connection
 
 Edit `~/.plant_controller/config.toml` and set the `token` value to the
 `<ADMIN_TOKEN>` from earlier. If the database name, host or port differ from
@@ -301,69 +409,111 @@ host = "http://127.0.0.1:8181"
 token = "<ADMIN_TOKEN>"
 ```
 
-## Configure connected plant
+### 6.3 Configure the connected plant
+
 Each connected plant gets its own JSON file in
 `~/.plant_controller/plants/`, declaring its sensors and its pump.
-An example configuration made for this quick start is already included in the config folder. Rename it, removing the `.example` suffix and replacing `plant_name` with a useful identifier (`<PLANT_IDENTIFIER>`) for the connected plant (note this name down for later):
+An example configuration made for this quick start is already included in the
+config folder. Rename it, removing the `.example` suffix and replacing
+`plant_name` with a useful identifier (`<PLANT_IDENTIFIER>`) for the connected
+plant (note this name down for later):
 
 ```bash
 mv ~/.plant_controller/plants/plant_name.json.example ~/.plant_controller/plants/<PLANT_IDENTIFIER>.json
 ```
 
-Watering of the plant is done following a schedule. Watering schedules live in `~/.plant_controller/pump_schedules/`, one JSON file per plant. This folder comes with an example schedule just like the plant configuration. As with the plant config, rename it, removing the `.example` suffix and replacing `plant_name` with the previously chosen identifier, making sure that they are the same:
+Watering of the plant is done following a schedule. Watering schedules live in
+`~/.plant_controller/pump_schedules/`, one JSON file per plant. This folder
+comes with an example schedule just like the plant configuration. As with the
+plant config, rename it, removing the `.example` suffix and replacing
+`plant_name` with the previously chosen identifier, making sure that they are
+the same:
 
 ```bash
 mv ~/.plant_controller/pump_schedules/plant_name.json.example ~/.plant_controller/pump_schedules/<PLANT_IDENTIFIER>.json
 ```
 
-## Change MODBUS address of soil sensor
-The connected [soil sensor](../documentation/hardware/components/dfr_soil_sensor.md) has the standard MODBUS address of 1 from the factory. This should be changed to avoid address conflicts if adding mores sensors in the future.
+### 6.4 Change the MODBUS address of the soil sensor
 
-To do this, first disconnect the 12V DC power supply, and check that CS-IO404 is powered off (no lights on in the relay).
+The connected
+[soil sensor](../documentation/hardware/components/dfr_soil_sensor.md) has the
+standard MODBUS address of 1 from the factory. This should be changed to avoid
+address conflicts if adding more sensors in the future.
 
-With that done, ensure that the InfluxDB database is running, starting it if it isn't.
+To do this, first disconnect the 12V DC power supply, and check that CS-IO404
+is powered off (no lights on in the relay).
 
-Then, in a separate terminal, source the previously set up Python virtual environment and then start the plant_controller in setup mode:
+With that done, ensure that the InfluxDB database is running, starting it if
+it isn't.
+
+Then, in a separate terminal, source the previously set up Python virtual
+environment and then start the plant_controller in setup mode:
 
 ```bash
+source ~/.venv/bin/activate
 cd <src>/pt/controller_3/src
 python -m plant_controller setup
 ```
 
-From within the setup utility, change the sensor address by writing `<PLANT_IDENTIFIER>.soil.change_id` (substituting `<PLANT_IDENTIFIER>` for the identifier previously chosen for the connected plant), hitting enter, and following the guide as presented by the program.
+From within the setup utility, change the sensor address by writing
+`<PLANT_IDENTIFIER>.soil.change_id` (substituting `<PLANT_IDENTIFIER>` for the
+identifier previously chosen for the connected plant), hitting enter, and
+following the guide as presented by the program.
 
-If the id change was successful, exit the setup program, and reconnect power to the CS-IO404 relay.
+If the id change was successful, exit the setup program, and reconnect power
+to the CS-IO404 relay.
 
-## Calibrate pump
-The pump needs to be calibrated after installation to ensure proper water dosage.
+### 6.5 Calibrate the pump
 
-Before doing the calibration, the whole plant controller system should be in its final location and configuration - moving pumps and pump outlets after calibration invalidates it.
+The pump needs to be calibrated after installation to ensure proper water
+dosage.
 
-In preparation, remove the plant from under the pump outlet, and replace it with an empty vessel able to hold 1 liter of water.
+!!! warning
+    The whole plant controller system should be in its final location and
+    configuration before calibrating — moving pumps and pump outlets after
+    calibration invalidates it.
 
-When ready, make sure that the database is running and that the Python virtual environment has been sourced, then start the plant_controller in setup mode:
+In preparation, remove the plant from under the pump outlet, and replace it
+with an empty vessel able to hold 1 liter of water.
+
+When ready, make sure that the database is running and that the Python virtual
+environment has been sourced, then start the plant_controller in setup mode:
 
 ```bash
+source ~/.venv/bin/activate
 cd <src>/pt/controller_3/src
 python -m plant_controller setup
 ```
 
-From here, start calibration by writing `<PLANT_IDENTIFIER>.pump.calibrate` (substituting `<PLANT_IDENTIFIER>` for the identifier previously chosen for the connected plant), hitting enter, and following the on screen guide.
+From here, start calibration by writing
+`<PLANT_IDENTIFIER>.pump.calibrate` (substituting `<PLANT_IDENTIFIER>` for the
+identifier previously chosen for the connected plant), hitting enter, and
+following the on screen guide.
 
-When the pump is sufficiently calibrated, replace the plant under the pump outlet.
+When the pump is sufficiently calibrated, replace the plant under the pump
+outlet.
 
-# Running the controller
-If all previous steps have been followed the controller should now be fully functional.
+---
 
-To run it, ensure that the database is running and that the Python virtual environment has been sourced, then:
+## 7. Run the controller
+
+If all previous steps have been followed the controller should now be fully
+functional. To run it, ensure that the Python virtual environment has been
+sourced, then:
 
 ```bash
+source ~/.venv/bin/activate
 cd <src>/pt/controller_3/src
 python -m plant_controller run
 ```
 
-The controller now monitors and waters the connected plant, and the web interface is accessible on port 8099 of the Raspberry Pi.
+The controller now monitors and waters the connected plant, and the web
+interface is accessible on port 8099 of the Raspberry Pi.
 
-If connected to the Raspberry Pi over LAN, this interface can be found by typing in `<CONTROLLER_IP>:8099` in a browser from another computer on the same LAN, where `<CONTROLLER_IP>` is the IP of the Raspberry Pi.
+If connected to the Raspberry Pi over LAN, this interface can be found by
+typing `<CONTROLLER_IP>:8099` in a browser from another computer on the same
+LAN, where `<CONTROLLER_IP>` is the IP of the Raspberry Pi.
 
-If running the Raspberry Pi with a desktop environment and a connected screen and keyboard, the web interface is available from within the Raspberry Pi by typing in `localhost:8099` in the Raspberry Pi's browser.
+If running the Raspberry Pi with a desktop environment and a connected screen
+and keyboard, the web interface is available from within the Raspberry Pi by
+typing `localhost:8099` in the Raspberry Pi's browser.
