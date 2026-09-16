@@ -1,0 +1,3 @@
+- [`plant_controller` application](./plant_controller/index.md)
+- [Configuration of the controller](./config/index.md)
+- [The controllers Web API](./web_api/index.md)

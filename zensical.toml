@@ -50,7 +50,13 @@ nav = [
           "api/plant_controller/web_api.md",
         ]},
       ]},
-      {"Web API" = "pt/controller_3/software/web_api/index.md"},
+      {"Configuration" = [
+        "pt/controller_3/documentation/software/config/index.md",
+        {"Main Configuration" = "pt/controller_3/documentation/software/config/main_config.md"},
+        {"Plant Configuration" = "pt/controller_3/documentation/software/config/plant_config.md"},
+        {"Watering Schedules" = "pt/controller_3/documentation/software/config/watering_schedule.md"},
+      ]},
+      {"Web API" = "pt/controller_3/documentation/software/web_api/index.md"},
     ]},
   ]},
   {"Previous Versions" = [
