@@ -178,7 +178,7 @@ Power is supplied to the CS-IO404 and the pump by connecting the
 [12V 1A power supply with 5.5/2.1 mm barrel plug connector](../documentation/hardware/components/12v_1a_psu.md)
 to the barrel socket.
 
-## Setup the pump
+## Connect the pump
 
 ![How to connect the pump to relay and water tank.](../documentation/hardware/diagrams/pump_connections.png)
 
