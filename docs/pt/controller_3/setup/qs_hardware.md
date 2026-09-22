@@ -4,6 +4,8 @@ is possible to assemble hardware not directly connected to the Raspberry Pi.
 
 ## Connect the air sensors to the Raspberry Pi
 
+![Wiring diagram for the greenhouse sensors and the Raspberry Pi](../documentation/hardware/diagrams/greenhouse_sensor_connections.png)
+
 Using the [STEMMA QT cable](../documentation/hardware/components/qt_cable.md),
 connect the
 [Adafruit AS7341 light sensor](../documentation/hardware/components/ada_as7341.md)
