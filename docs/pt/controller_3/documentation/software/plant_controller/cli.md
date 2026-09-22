@@ -27,4 +27,4 @@ TO run the controller proper, starting sensing, actuation and web API, run
 python -m <PATH_TO_MODULE>/plant_controller run
 ```
 
-This starts the controller (sensing, actuation, data storage), outputting all logs to the terminal, and launching the [web API](../web_api.md) on port 8099 of the Raspberry Pi.
+This starts the controller (sensing, actuation, data storage), outputting all logs to the terminal, and launching the [web API](../web_api/index.md) on port 8099 of the Raspberry Pi.

@@ -1,7 +1,7 @@
 # Next steps
 Setup auto start for the controller using [systemd](./auto_start.md).
 
-Read sensor data from the plant using the [Web API](../documentation/software/web_api.md).
+Read sensor data from the plant using the [Web API](../documentation/software/web_api/index.md).
 
 Change how the plant is watered by [updating the watering schedule](../documentation/software/config/watering_schedule.md).
 
