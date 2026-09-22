@@ -138,6 +138,8 @@ of "2" for the CS-IO404.
 
 ## Wire up the pump relay
 
+![Wiring diagram for the pump relay](../documentation/hardware/diagrams/relay_power_connections.png)
+
 Take the
 [5.5/2.1 mm barrel socket](../documentation/hardware/components/barrel_socket.md)
 and strip 11 mm off of the ends of the leads of the attached wires.
