@@ -180,6 +180,8 @@ to the barrel socket.
 
 ## Setup the pump
 
+![How to connect the pump to relay and water tank.](../documentation/hardware/diagrams/pump_connections.png)
+
 The
 [AD20P-1230E submersible pump](../documentation/hardware/components/ad20p-1230e_pump.md)
 used for watering the connected plant is meant to be submersed in the system's
