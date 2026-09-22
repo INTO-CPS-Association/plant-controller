@@ -37,6 +37,8 @@ their color:
 
 ## Create the RS485 bus
 
+![Wiring diagram for the RS485 bus and connected hardware](../documentation/hardware/diagrams/rs485_bus_connections.png)
+
 Both the DF-Robot soil sensor and the CS-IO404 relay connect to the Raspberry
 Pi via an RS485 bus wire pair. This bus wire pair is the primary way to connect
 reliable peripherals to the plant controller.
@@ -66,11 +68,6 @@ dependent on color:
 | B-       | Blue       |
 | A+       | Yellow     |
 | 5V       | Red        |
-
-Then, connect a
-[120 Ohm resistor](../documentation/hardware/components/term_resistor.md)
-between B- and A+ in the USB to RS485 module. It might be necessary to trim
-the resistor's legs to avoid it poking too far out.
 
 With both twisted pairs connected to the USB to RS485 module, lay them out
 side by side, and cut the yellow and blue pair so it is as long as the red and
@@ -109,12 +106,19 @@ Connect the other end to the
 [CS-IO404 4-channel relay module](../documentation/hardware/components/cs-io404.md),
 yellow to the terminal labelled A+, blue to the terminal labelled B-.
 
-Connect a 120 Ohm resistor from the A+ to the B- terminals on the
-CS-IO404 relay.
-
 Finally, plug the USB end of the
 [USB to RS485 module](../documentation/hardware/components/usb_to_rs485.md)
 into one of the Raspberry Pi's USB ports.
+
+!!! note
+    If the total length of the RS485 bus line exceeds 200 meters or you are
+    otherwise experiencing reading errors from RS485 connected sensors it
+    might be necessary to terminate the lines with 120 Ohm resistors. To do
+    this, simply connect two [120 Ohm resistors](../documentation/hardware/components/term_resistor.md)
+    to each end of the line - one between the A+ and B- terminals on the
+    [USB to RS485 module](../documentation/hardware/components/usb_to_rs485.md)
+    and on between the A+ and B- terminals on the 
+    [CS-IO404 4-channel relay module](../documentation/hardware/components/cs-io404.md).
 
 ## Set the MODBUS address of the CS-IO404 relay
 
