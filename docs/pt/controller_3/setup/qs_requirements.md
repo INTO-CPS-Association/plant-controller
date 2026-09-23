@@ -19,7 +19,7 @@ both the controller and your extra installation computer to.
 | 1 | [AD20P-1230E submersible pump](../documentation/hardware/components/ad20p-1230e_pump.md) |
 | 1 | [5.5/2.1 mm barrel plug with 1 m leads](../documentation/hardware/components/barrel_plug.md) |
 | 1 | [5.5/2.1 mm barrel socket with 1 m leads](../documentation/hardware/components/barrel_socket.md) |
-| 2 | [120 Ohm resistors](../documentation/hardware/components/term_resistor.md) |
+| 2 | (Optional) [120 Ohm resistors](../documentation/hardware/components/term_resistor.md) |
 | 1 | [STEMMA QT cable](../documentation/hardware/components/qt_cable.md) |
 | 1 | [STEMMA QT to JST SH 4-pin cable](../documentation/hardware/components/qt_to_jst.md) |
 | 4 | Insulated wire, each a different color (this guide uses red, black, blue and yellow), length dependent on setup |

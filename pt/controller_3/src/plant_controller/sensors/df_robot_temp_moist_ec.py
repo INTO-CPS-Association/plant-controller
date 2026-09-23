@@ -159,7 +159,47 @@ class DFRobotRS485SoilTemperatureHumidityECSensor(Sensor, MODBUSInterface, HasSe
                 "time between reads": str(self.time_between_reads) + " seconds"
             }
         }
-    
+
+    async def modbus_address_scan(self):
+        """Scan the MODBUS bus for DFRobot RS485 Soil Temperature Humidity EC
+        sensors.
+        
+        Iterates through device IDs 2–253, attempting to read the moisture
+        register. Reports found device IDs to the user. This is useful for
+        identifying sensors on the bus and verifying that the configured
+        device ID is correct.
+        """
+        clear_screen()
+        print("All MODBUS device ids from 2 to 253 inclusive will be probed. If any other MODBUS device is connected to the Controller, it may respond to this scan and be reported as a DFRobot RS485 Soil Temperature Humidity EC sensor. Please ensure that only DFRobot RS485 Soil Temperature Humidity EC sensors are connected to the Controller before running this scan.")
+        print("If any connected MODBUS devices are not DFRobot RS485 Soil Temperature Humidity EC sensors, please abort this scan and disconnect those devices before running this scan.")
+        print("Otherwise, hit enter to continue with the scan.")
+        response = input()
+        clear_screen()
+        match response:
+            case 'stop' | 'cancel' | 'quit':
+                print("Scan aborted.")
+                return
+        print("Scanning the MODBUS bus for DFRobot RS485 Soil Temperature Humidity EC sensors")
+        found_devices = []
+        for device_id in range(2, 254):
+            try:
+                self.bus.read_holding_registers(
+                    address=_DF_HUM_TEMP_EC_MOISTURE_ADDRESS,
+                    device_id=device_id
+                )
+                found_devices.append(device_id)
+                print("!", end="", flush=True)
+            except Exception:
+                print(".", end="", flush=True)
+                continue
+        print("")
+        if not found_devices:
+            print("No DFRobot RS485 Soil Temperature Humidity EC sensors were found on the MODBUS bus.")
+        else:
+            print(f"Found {len(found_devices)} sensor(s) with the following device id(s): {found_devices}")
+        print("")
+        return
+
     async def change_id(self):
         """Interactive procedure to change the sensor's MODBUS device ID.
 
@@ -231,6 +271,10 @@ class DFRobotRS485SoilTemperatureHumidityECSensor(Sensor, MODBUSInterface, HasSe
             "change_device_id": {
                 "description": "Change the MODBUS device id of the sensor.",
                 "function": self.change_id
+            },
+            "device_id_scan": {
+                "description": "Scan the MODBUS bus for DFRobot RS485 Soil Temperature Humidity EC sensors.",
+                "function": self.modbus_address_scan
             }
         }
         
