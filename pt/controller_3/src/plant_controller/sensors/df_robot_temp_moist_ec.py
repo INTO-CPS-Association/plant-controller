@@ -164,7 +164,7 @@ class DFRobotRS485SoilTemperatureHumidityECSensor(Sensor, MODBUSInterface, HasSe
         """Scan the MODBUS bus for DFRobot RS485 Soil Temperature Humidity EC
         sensors.
         
-        Iterates through device IDs 2–252, attempting to read the moisture
+        Iterates through device IDs 2–253, attempting to read the moisture
         register. Reports found device IDs to the user. This is useful for
         identifying sensors on the bus and verifying that the configured
         device ID is correct.
@@ -172,7 +172,7 @@ class DFRobotRS485SoilTemperatureHumidityECSensor(Sensor, MODBUSInterface, HasSe
         clear_screen()
         print("Scanning MODBUS bus for DFRobot RS485 Soil Temperature Humidity EC sensors...")
         found_devices = []
-        for device_id in range(2, 253):
+        for device_id in range(2, 254):
             try:
                 self.bus.read_holding_registers(
                     address=_DF_HUM_TEMP_EC_MOISTURE_ADDRESS,
