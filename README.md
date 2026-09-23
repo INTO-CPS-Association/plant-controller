@@ -3,29 +3,28 @@
 This is a project to develop edge controller and digital twin for plants.
 The long-term goal is to realise the vision illustrated in the figure.
 
-![system architecture](docs/pt/system-architecture.png)
+![system architecture](docs/pt/controller_1/system-architecture.png)
 
-We are in the early stages of development. There is one version of
-edge controller (named plant controller) available for general use.
-Please see the [code](pt/controller_1/README.md) and
-[docs](docs/pt/controller_1/assembly/ASSEMBLE.md) for recreating
-the setup.
+The current version allows for digital twin development for specifically the
+connected plants.
+
+Documentation for current and previous versions of the Plant Controller can be
+found online [Here](https://into-cps-association.github.io/plant-controller/).
 
 ## :rocket: Install and Use
 
-Please use the latest release available on the
-[releases page](https://github.com/INTO-CPS-Association/plant-controller/releases)
-to install and use the software.
+To get up an running follow the [Quick Start Guide](https://into-cps-association.github.io/plant-controller/pt/controller_3/setup/quick_start/).
 
 ## :hammer_and_wrench: Developers
 
-The immediate development goals are to
+Detailed documentation of the system can be found [here](https://into-cps-association.github.io/plant-controller/pt/controller_3/documentation/).
 
-1. Improve the code quality of [controller-1](pt/controller_1/controller-1.py)
-1. Make the plant controller inter-operable with Greehhouse being developed
-   at [UIO, Norway](https://github.com/N-essuno/greenhouse_twin_project)
-1. Develop a digital twin for the edge device on which the controller is hosted
-1. Develop a digital twin for the soil of the plants
+To build the documentation locally install python and the requirements in [`requirements-docs.txt`](./requirements-docs.txt), then run
+```bash
+python ./scripts/gen_api_pages.py
+zensical serve
+```
+The docummentation should then be available at [http://localhost:8000](http://localhost:8000).
 
 Your feedback is valuable in improving the project. Please open
 [an issue](https://github.com/INTO-CPS-Association/plant-controller/issues/new)
