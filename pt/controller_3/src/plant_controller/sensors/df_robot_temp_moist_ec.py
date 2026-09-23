@@ -170,7 +170,16 @@ class DFRobotRS485SoilTemperatureHumidityECSensor(Sensor, MODBUSInterface, HasSe
         device ID is correct.
         """
         clear_screen()
-        print("Scanning MODBUS bus for DFRobot RS485 Soil Temperature Humidity EC sensors...")
+        print("All MODBUS device ids from 2 to 253 inclusive will be probed. If any other MODBUS device is connected to the Controller, it may respond to this scan and be reported as a DFRobot RS485 Soil Temperature Humidity EC sensor. Please ensure that only DFRobot RS485 Soil Temperature Humidity EC sensors are connected to the Controller before running this scan.")
+        print("If any connected MODBUS devices are not DFRobot RS485 Soil Temperature Humidity EC sensors, please abort this scan and disconnect those devices before running this scan.")
+        print("Otherwise, hit enter to continue with the scan.")
+        response = input()
+        clear_screen()
+        match response:
+            case 'stop' | 'cancel' | 'quit':
+                print("Scan aborted.")
+                return
+        print("Scanning the MODBUS bus for DFRobot RS485 Soil Temperature Humidity EC sensors")
         found_devices = []
         for device_id in range(2, 254):
             try:
@@ -183,6 +192,7 @@ class DFRobotRS485SoilTemperatureHumidityECSensor(Sensor, MODBUSInterface, HasSe
             except Exception:
                 print(".", end="", flush=True)
                 continue
+        print("")
         if not found_devices:
             print("No DFRobot RS485 Soil Temperature Humidity EC sensors were found on the MODBUS bus.")
         else:

@@ -121,7 +121,7 @@ class MODBUS(Bus):
         bytesize: int = 8,
         parity: str = 'N',
         stopbits: int = 1,
-        timeout: float = 1.0
+        timeout: float = 0.1
     ):
         """Initialize the MODBUS serial client.
 
@@ -131,7 +131,7 @@ class MODBUS(Bus):
             bytesize: Data bits per frame (default: 8).
             parity: Parity setting: 'N', 'E', or 'O' (default: 'N').
             stopbits: Number of stop bits (default: 1).
-            timeout: Read timeout in seconds (default: 1.0).
+            timeout: Read timeout in seconds (default: 0.1).
         """
         self.client = ModbusSerialClient(
             port=port,
