@@ -91,6 +91,9 @@ class Schedule(PumpSchedule):
 
     def get_type(self) -> str:
         return "dynamic"
+
+    def get_description(self):
+        return "Dynamic watering schedule. Waters the plant dynamically, making the plant soil vacillate between the high point and the low point. The schedule is linked to a sensed parameter, and will water the plant when the sensed parameter drops below the low point, and will stop watering when the sensed parameter exceeds the high point. On controller startup, the schedule starts in the falling phase, and will not water the plant until the sensed parameter drops below the low point."
     
     def get_details(self) -> dict:
         """Return the schedule configuration as a dict suitable for JSON serialization."""
