@@ -12,12 +12,12 @@ Schedule JSON format::
     {
         "type": "dynamic",
         "details": {
-            "linked_sensed_parameter": "soil_moisture",
+            "parameter": "soil_moisture",
             "high_point": 44,
             "low_point": 15,
-            "watering_dose_increment_when_climbing_in_milliliters": 50,
-            "time_in_seconds_between_watering_when_climbing": 600,
-            "time_in_seconds_between_sensing_when_falling": 600
+            "dose": 50,
+            "dosing_interval": 600,
+            "tbr": 600
         }
     }
 """
@@ -32,12 +32,12 @@ import anyio
 
 from . import PumpSchedule
 
-LINKED_PARAMETER = "linked_sensed_parameter"
+LINKED_PARAMETER = "parameter"
 HIGH_POINT = "high_point"
 LOW_POINT = "low_point"
-CLIMBING_DOSE = "watering_dose_increment_when_climbing_in_milliliters"
-CLIMBING_REST_TIME = "time_in_seconds_between_watering_when_climbing"
-FALLING_TBS = "time_in_seconds_between_sensing_when_falling"
+CLIMBING_DOSE = "dose"
+CLIMBING_REST_TIME = "dosing_interval"
+FALLING_TBS = "tbr"
 
 class Schedule(PumpSchedule):
     """Sensor-driven watering schedule.

@@ -1,11 +1,11 @@
 {
     "type": "dynamic",
     "details": {
-        "linked_sensed_parameter": "soil_moisture",
+        "parameter": "soil_moisture",
         "high_point": 44,
         "low_point": 15,
-        "watering_dose_increment_when_climbing_in_milliliters": 50,
-        "time_in_seconds_between_watering_when_climbing": 600,
-        "time_in_seconds_between_sensing_when_falling": 600
+        "dose": 50,
+        "dosing_interval": 600,
+        "tbr": 600
     }
 }
