@@ -8,8 +8,8 @@ Writing a custom schedule module:
     1. Create a new ``.py`` file in this package (e.g. ``my_schedule.py``).
     2. Define a class called **exactly** ``Schedule`` that inherits from
        ``PumpSchedule``.
-    3. Implement the three abstract methods: ``__init__``, ``get_details``,
-       and ``run_schedule``.
+    3. Implement the four abstract methods: ``__init__``, ``get_type``,
+       ``get_details``, and ``run_schedule``.
     4. Optionally implement ``validate_schedule_details`` as a
        ``@staticmethod`` to validate config data before instantiation,
        ``get_description`` to give a human description of what the
@@ -35,9 +35,12 @@ Example minimal schedule::
             self.dose = details["dose_ml"]
             self.interval = details["interval_seconds"]
 
+        def get_type(self):
+            return "my_schedule"
+
         def get_description(self):
             return f"Pump {self.dose}ml every {self.interval}s"
-        
+
         def get_details(self):
             return {
                 "dose_ml": self.dose,
@@ -96,13 +99,13 @@ class PumpSchedule(ABC):
     def __init__(self, details: Any | None):
         """Initialize the schedule from configuration data.
 
-        The ``schedule`` parameter receives whatever was in the "details"
+        The ``details`` parameter receives whatever was in the "details"
         field of the JSON config file. Its structure is entirely up to the
         implementer.
 
         Args:
-            schedule_Details: Schedule-specific configuration data (type
-                defined by the implementation). May be None if the schedule
+            details: Schedule-specific configuration data (type defined
+                by the implementation). May be None if the schedule
                 requires no configuration.
         """
         pass

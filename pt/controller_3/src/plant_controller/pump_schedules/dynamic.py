@@ -137,20 +137,41 @@ class Schedule(PumpSchedule):
             raise ValueError("A schedule of type 'dynamic' needs a dictionary with configuration parameters in the 'details' value.")
         
         if LINKED_PARAMETER not in schedule_details:
-            raise ValueError("")
-        
+            raise ValueError(f"Dynamic schedule 'details' must contain a '{LINKED_PARAMETER}' entry.")
+
+        if not isinstance(schedule_details[LINKED_PARAMETER], str):
+            raise ValueError(f"'{LINKED_PARAMETER}' must be a string.")
+
         if HIGH_POINT not in schedule_details:
-            raise ValueError("")
-        
+            raise ValueError(f"Dynamic schedule 'details' must contain a '{HIGH_POINT}' entry.")
+
+        if not isinstance(schedule_details[HIGH_POINT], (int, float)):
+            raise ValueError(f"'{HIGH_POINT}' must be a number.")
+
         if LOW_POINT not in schedule_details:
-            raise ValueError("")
-        
+            raise ValueError(f"Dynamic schedule 'details' must contain a '{LOW_POINT}' entry.")
+
+        if not isinstance(schedule_details[LOW_POINT], (int, float)):
+            raise ValueError(f"'{LOW_POINT}' must be a number.")
+
+        if schedule_details[LOW_POINT] >= schedule_details[HIGH_POINT]:
+            raise ValueError(f"'{LOW_POINT}' must be less than '{HIGH_POINT}'.")
+
         if CLIMBING_DOSE not in schedule_details:
-            raise ValueError("")
-        
+            raise ValueError(f"Dynamic schedule 'details' must contain a '{CLIMBING_DOSE}' entry.")
+
+        if not isinstance(schedule_details[CLIMBING_DOSE], int):
+            raise ValueError(f"'{CLIMBING_DOSE}' must be an integer.")
+
         if CLIMBING_REST_TIME not in schedule_details:
-            raise ValueError("")
-        
+            raise ValueError(f"Dynamic schedule 'details' must contain a '{CLIMBING_REST_TIME}' entry.")
+
+        if not isinstance(schedule_details[CLIMBING_REST_TIME], (int, float)):
+            raise ValueError(f"'{CLIMBING_REST_TIME}' must be a number.")
+
         if FALLING_TBS not in schedule_details:
-            raise ValueError("")
+            raise ValueError(f"Dynamic schedule 'details' must contain a '{FALLING_TBS}' entry.")
+
+        if not isinstance(schedule_details[FALLING_TBS], (int, float)):
+            raise ValueError(f"'{FALLING_TBS}' must be a number.")
 

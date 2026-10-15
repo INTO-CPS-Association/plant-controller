@@ -7,7 +7,7 @@ Schedule JSON format::
 
     {
         "type": "daily",
-        "schedule": [
+        "details": [
             {"time": "08:00", "dose": 50},
             {"time": "18:00", "dose": 75}
         ]
@@ -44,7 +44,7 @@ class Schedule(PumpSchedule):
         """Parse the schedule list into sorted (time, dose) tuples.
 
         Args:
-            schedule: List of dicts with 'time' (ISO time str) and
+            details: List of dicts with 'time' (ISO time str) and
                 'dose' (int, ml) keys.
         """
         self.schedule_list = sorted(list(
