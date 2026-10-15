@@ -50,10 +50,10 @@ Example minimal schedule::
                 await pump_function(self.dose)
 
         @staticmethod
-        def validate_schedule_details(schedule_details):
-            if "dose_ml" not in schedule_details:
+        def validate_schedule_details(details):
+            if "dose_ml" not in details:
                 raise ValueError("Must include 'dose_ml'")
-            if "interval_seconds" not in schedule_details:
+            if "interval_seconds" not in details:
                 raise ValueError("Must include 'interval_seconds'")
 """
 
@@ -93,7 +93,7 @@ class PumpSchedule(ABC):
     """
 
     @abstractmethod
-    def __init__(self, schedule_details: Any | None):
+    def __init__(self, details: Any | None):
         """Initialize the schedule from configuration data.
 
         The ``schedule`` parameter receives whatever was in the "details"
@@ -150,7 +150,7 @@ class PumpSchedule(ABC):
         pass
 
     @staticmethod
-    def validate_schedule_details(schedule_details: Any):
+    def validate_schedule_details(details: Any):
         """Validate schedule-specific configuration data.
 
         Called during schedule loading to catch config errors early.
@@ -160,7 +160,7 @@ class PumpSchedule(ABC):
         If validation is not needed, this method can be left as a no-op.
 
         Args:
-            schedule_details: The "details" field from the JSON config file.
+            details: The "details" field from the JSON config file.
 
         Raises:
             ValueError: If the configuration is invalid.

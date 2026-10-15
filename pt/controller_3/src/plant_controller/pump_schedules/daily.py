@@ -40,7 +40,7 @@ class Schedule(PumpSchedule):
         schedule_list: Sorted list of (time, dose) tuples.
     """
 
-    def __init__(self, schedule_details: Any | None):
+    def __init__(self, details: Any | None):
         """Parse the schedule list into sorted (time, dose) tuples.
 
         Args:
@@ -53,7 +53,7 @@ class Schedule(PumpSchedule):
                         "time": datetime.time.fromisoformat(event["time"]),
                         "dose": event["dose"]
                     },
-                    schedule_details
+                    details
                 )
             ),
             key=lambda event: event["time"]
@@ -105,19 +105,19 @@ class Schedule(PumpSchedule):
             await pump_function(dose)
 
     @staticmethod
-    def validate_schedule_details(schedule_details: Any):
+    def validate_schedule_details(details: Any):
         """Validate that schedule_conf is a list of {time, dose} dicts.
 
         Args:
-            schedule_details: The "details" field from the config JSON.
+            details: The "details" field from the config JSON.
 
         Raises:
             ValueError: If format requirements are not met.
         """
-        if not isinstance(schedule_details, list):
+        if not isinstance(details, list):
             raise ValueError("A schedule of type 'daily' needs a list of dictionaries containing watering events in the 'details' value.")
         
-        for entry in schedule_details:
+        for entry in details:
             if not isinstance(entry, dict):
                 raise ValueError("Each entry in the daily schedules 'details' list must be a dictionary.")
             

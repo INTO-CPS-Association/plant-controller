@@ -31,7 +31,7 @@ class Schedule(PumpSchedule):
             physical_unit=plant.name,
             parameter=self.linked_parameter,
             limit=1
-        )
+        ).value
     
     def get_details(self) -> dict:
         return {
