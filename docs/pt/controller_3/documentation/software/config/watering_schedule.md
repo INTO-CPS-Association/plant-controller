@@ -29,7 +29,7 @@ The `daily` schedule ([source code docs](../../../../../api/plant_controller/pum
 
 ### Dynamic schedule
 
-The `dynamic` schedule links watering to a sensed parameter (e.g. soil moisture). The schedule keeps the sensed value between a low point and a high point — when the reading drops below the low point, the schedule doses water at regular intervals until the reading exceeds the high point. The name of the sensed parameter is dependent on both the plants main configuration and the chosen sensor. An example of the config for this schedule can be seen below.
+The `dynamic` schedule ([source code docs](../../../../../api/plant_controller/pump_schedules/dynamic.md)) links watering to a sensed parameter (e.g. soil moisture). The schedule keeps the sensed value between a low point and a high point — when the reading drops below the low point, the schedule doses water at regular intervals until the reading exceeds the high point. The name of the sensed parameter is dependent on both the plants main configuration and the chosen sensor. An example of the config for this schedule can be seen below.
 
 ```json
 {
