@@ -122,7 +122,7 @@ class PumpSchedule(ABC):
         ).model_dump()
     
     def get_type(self) -> str:
-        return __name__
+        return __file__
     
     def get_description(self) -> str | None:
         return None
