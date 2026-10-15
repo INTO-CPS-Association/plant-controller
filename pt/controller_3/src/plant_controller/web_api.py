@@ -193,7 +193,7 @@ class WebAPI:
         async def show_watering_schedule(unit: str):
             """Return the current watering schedule for a unit."""
             check_unit_in_units(unit, self.actuated_units)
-            return self.actuated_units[unit].schedule.json_representation()
+            return self.actuated_units[unit].schedule.dict_representation()
         
         @router.put("/actuation/{unit}/update_schedule", status_code=204)
         async def update_watering_schedule(unit: str, schedule: ScheduleBaseRepresentation):
