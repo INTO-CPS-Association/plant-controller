@@ -88,6 +88,9 @@ class Schedule(PumpSchedule):
             parameter=self.linked_parameter,
             limit=1
         ).value[0]
+
+    def get_type(self) -> str:
+        return "dynamic"
     
     def get_details(self) -> dict:
         """Return the schedule configuration as a dict suitable for JSON serialization."""

@@ -120,9 +120,10 @@ class PumpSchedule(ABC):
             description=self.get_description(),
             details=self.get_details()
         ).model_dump()
-    
+
+    @abstractmethod
     def get_type(self) -> str:
-        return __file__
+        pass
     
     def get_description(self) -> str | None:
         return None

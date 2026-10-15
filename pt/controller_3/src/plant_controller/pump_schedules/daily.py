@@ -58,6 +58,9 @@ class Schedule(PumpSchedule):
             ),
             key=lambda event: event["time"]
         )
+
+    def get_type(self) -> str:
+        return "daily"
     
     def get_description(self) -> str | None:
         return "Daily watering schedule. The plant is watered each day at the given times."
