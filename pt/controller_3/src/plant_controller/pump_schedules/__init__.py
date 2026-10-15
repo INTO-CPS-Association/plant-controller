@@ -119,7 +119,7 @@ class PumpSchedule(ABC):
             type=self.get_type(),
             description=self.get_description(),
             details=self.get_details()
-        ).model_dump_json(indent=4)
+        ).model_dump_json()
     
     def get_type(self) -> str:
         return __name__
