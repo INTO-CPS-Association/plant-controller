@@ -105,7 +105,7 @@ class Plant(Unit):
         self.schedule = pump_schedules.NonSchedule()
         self.pump_schedule_coroutine_cancel_scope = None
     
-    def update_schedule(self, schedule: dict[str, Any]):
+    def update_schedule(self, schedule: pump_schedules.BaseRepresentation):
         """Validate and apply a new pump schedule, persisting it to disk.
 
         Cancels any currently running schedule coroutine so that it
@@ -117,11 +117,10 @@ class Plant(Unit):
         Raises:
             ValueError: If the schedule config is invalid.
         """
-        pump_schedules.validate_schedule(schedule)
         if self.pump_schedule_coroutine_cancel_scope is not None:
             self.pump_schedule_coroutine_cancel_scope.cancel()
         with open(self.schedule_location, 'w', encoding="utf-8") as schedule_file:
-            schedule_file.write(json.dumps(schedule, indent=4))
+            schedule_file.write(schedule.model_dump_json(indent=4))
     
     def save_configuration(self):
         """Persist the current config dict back to the JSON file.
@@ -177,6 +176,7 @@ class Plant(Unit):
             with anyio.CancelScope() as scope:
                 self.pump_schedule_coroutine_cancel_scope = scope
                 self.schedule = pump_schedules.parse_schedule(self.schedule_location)
+                self.schedule.register_plant(self)
                 _logger.debug(f"Plant {self.name} watering started with schedule.")
                 await self.schedule.run_schedule(self.pump.pumping_callback)
             _logger.debug(f"Plant {self.name} cancelled watering schedule.")

@@ -1,0 +1,11 @@
+{
+    "type": "dynamic",
+    "details": {
+        "parameter": "soil_moisture",
+        "high_point": 44,
+        "low_point": 15,
+        "dose": 50,
+        "dosing_interval": 600,
+        "tbr": 600
+    }
+}

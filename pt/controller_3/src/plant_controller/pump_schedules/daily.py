@@ -7,7 +7,7 @@ Schedule JSON format::
 
     {
         "type": "daily",
-        "schedule": [
+        "details": [
             {"time": "08:00", "dose": 50},
             {"time": "18:00", "dose": 75}
         ]
@@ -26,7 +26,7 @@ import datetime
 
 import anyio
 
-from . import PumpSchedule
+from . import BaseRepresentation, PumpSchedule
 
 
 class Schedule(PumpSchedule):
@@ -40,11 +40,11 @@ class Schedule(PumpSchedule):
         schedule_list: Sorted list of (time, dose) tuples.
     """
 
-    def __init__(self, schedule: Any | None):
+    def __init__(self, details: Any | None):
         """Parse the schedule list into sorted (time, dose) tuples.
 
         Args:
-            schedule: List of dicts with 'time' (ISO time str) and
+            details: List of dicts with 'time' (ISO time str) and
                 'dose' (int, ml) keys.
         """
         self.schedule_list = sorted(list(
@@ -53,19 +53,20 @@ class Schedule(PumpSchedule):
                         "time": datetime.time.fromisoformat(event["time"]),
                         "dose": event["dose"]
                     },
-                    schedule
+                    details
                 )
             ),
             key=lambda event: event["time"]
         )
+
+    def get_type(self) -> str:
+        return "daily"
     
-    def get_schedule(self) -> str | dict:
-        """Return a dict describing the daily schedule and its events."""
-        return {
-            "type": "daily",
-            "description": "Daily watering schedule. The plant is watered each day at the given times.",
-            "schedule": self.schedule_list
-        }
+    def get_description(self) -> str | None:
+        return "Daily watering schedule. The plant is watered each day at the given times."
+    
+    def get_details(self) -> Any:
+        return self.schedule_list
 
     async def run_schedule(self, pump_function: Coroutine[Any, int]):
         """Sleep until the next scheduled time, then pump. Repeats forever.
@@ -107,32 +108,32 @@ class Schedule(PumpSchedule):
             await pump_function(dose)
 
     @staticmethod
-    def validate_schedule_conf(schedule_conf: Any):
+    def validate_schedule_details(details: Any):
         """Validate that schedule_conf is a list of {time, dose} dicts.
 
         Args:
-            schedule_conf: The "schedule" field from the config JSON.
+            details: The "details" field from the config JSON.
 
         Raises:
             ValueError: If format requirements are not met.
         """
-        if not isinstance(schedule_conf, list):
-            raise ValueError("A schedule of type 'daily' needs a list of dictionaries containing watering events in the 'schedule' value.")
+        if not isinstance(details, list):
+            raise ValueError("A schedule of type 'daily' needs a list of dictionaries containing watering events in the 'details' value.")
         
-        for entry in schedule_conf:
+        for entry in details:
             if not isinstance(entry, dict):
-                raise ValueError("Each entry in the daily schedules 'schedule' list must be a dictionary.")
+                raise ValueError("Each entry in the daily schedules 'details' list must be a dictionary.")
             
             if "time" not in entry:
-                raise ValueError("Each entry in the daily schedules 'schedule' list must contain a 'time' entry.")
+                raise ValueError("Each entry in the daily schedules 'details' list must contain a 'time' entry.")
             
             try:
                 datetime.time.fromisoformat(entry["time"])
             except Exception as e:
-                raise ValueError("Each 'time' in each entry in the daily schedules 'schedule' list must be a proper time following the ISO 8601 standard.")
+                raise ValueError("Each 'time' in each entry in the daily schedules 'details' list must be a proper time following the ISO 8601 standard.")
             
             if "dose" not in entry:
-                raise ValueError("Each entry in the daily schedules 'schedule' list must contain a 'dose' entry.")
+                raise ValueError("Each entry in the daily schedules 'details' list must contain a 'dose' entry.")
             
             if not isinstance(entry["dose"], int):
-                raise ValueError("Each 'dose' in each entry in the daily schedules 'schedule' list must be an integer.")
+                raise ValueError("Each 'dose' in each entry in the daily schedules 'details' list must be an integer.")
